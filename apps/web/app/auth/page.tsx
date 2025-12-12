@@ -1,13 +1,13 @@
 "use client";
 import Image from "next/image";
 import SignIn from "./_components/SignIn";
-import { FileSpreadsheet, Loader } from "lucide-react";
+import {  Loader } from "lucide-react";
 import { redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import authImg from "@/public/auth3.jpg";
 import { Logo } from "@/components/Logo";
 
-export default function Auth() {
+export default function AuthPage() {
   const { data, isPending } = authClient.useSession();
 
   if (data?.session?.id) {

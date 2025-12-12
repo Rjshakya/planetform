@@ -12,7 +12,7 @@ import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/use-User";
 
-export default function Page() {
+export default function PreviewPage() {
   const indexUrl = process.env.NEXT_PUBLIC_CLIENT_URL;
   const { user } = useUser();
   const [schemas, setSchemas] = useState<JsonDoc[]>([]);
