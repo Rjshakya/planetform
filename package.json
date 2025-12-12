@@ -1,5 +1,5 @@
 {
-  "name": "planteform-new",
+  "name": "planteform-mono",
   "private": true,
   "scripts": {
     "build": "turbo run build",
