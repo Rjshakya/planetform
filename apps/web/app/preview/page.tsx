@@ -66,7 +66,7 @@ export default function PreviewPage() {
         customerId: user?.dodoCustomerId,
       });
     }
-  }, [content]);
+  }, [content, activeStep, form, user?.dodoCustomerId, user?.id]);
 
   return (
     <section className=" w-full relative ">
