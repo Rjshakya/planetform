@@ -1,5 +1,3 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 
@@ -34,39 +32,31 @@ const testimonials = [
   },
 ];
 
-export const TestimonialsV2 = () => {
+export const Testimonials = () => {
   return (
-    <section
-      id="testimonials"
-      className="relative z-10 border-x max-w-5xl mx-auto pt-36 pb-24"
-    >
-      <div className="">
-        <div className="text-left w-full space-y-4 mb-16 px-4 md:px-6">
-          <Badge className="outline-1" variant={"outline"}>
+    <section id="testimonials" className="w-full py-32">
+      <div className="grid gap-32 px-4">
+        <div className="space-y-8 ">
+          <Badge variant="outline" className="w-fit">
             Testimonials
           </Badge>
-          <h2
-            style={{ fontFamily: "var(--font-insturment-serif)" }}
-            className="max-w-lg text-3xl md:text-4xl"
-          >
+          <h1 className="max-w-lg text-4xl sm:text-5xl font-bold tracking-tight text-left">
             Loved by teams building better forms
-          </h2>
-          <p className="max-w-lg text-sm md:text-base text-muted-foreground">
-            {`See what teams are saying about Planetform and how it's helping them
+          </h1>
+          <p className="max-w-lg text-left   text-muted-foreground text-balance">
+            {` See what teams are saying about Planetform and how it's helping them
             create better form experiences.`}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2  border-y">
+        <div className="grid md:grid-cols-2 gap-2">
           {testimonials.map((testimonial, i) => (
             <div
               key={i}
-              className={`group relative border-l p-8 transition hover:border-primary/40 ${
-                i !== 0 && "border-t"
-              }`}
+              className="group relative p-8 rounded-lg  bg-muted hover:border-primary/40 transition-all duration-300 "
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
-              <div className="relative space-y-4">
+              <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+              <div className="space-y-4">
                 <div className="flex gap-1">
                   {Array.from({ length: testimonial.rating }).map((_, idx) => (
                     <Star
@@ -75,14 +65,10 @@ export const TestimonialsV2 = () => {
                     />
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {`"${testimonial.content}"`}
-                </p>
-                <div className="space-y-1">
-                  <div className="text-sm font-semibold">
-                    {testimonial.name}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground  ">{testimonial.content}</p>
+                <div className="space-y-1 pt-2 border-t">
+                  <div className="font-semibold">{testimonial.name}</div>
+                  <div className="text-sm text-muted-foreground">
                     {testimonial.role}
                   </div>
                 </div>

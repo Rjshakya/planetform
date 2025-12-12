@@ -5,6 +5,12 @@ export const defaultEditorContent = {
   type: "doc",
   content: [
     {
+      type: "paragraph",
+      attrs: {
+        textAlign: null,
+      },
+    },
+    {
       type: "heading",
       attrs: {
         textAlign: null,
@@ -13,32 +19,14 @@ export const defaultEditorContent = {
       content: [
         {
           type: "text",
-          text: "Simple form",
-          attrs: {},
+          text: "User registration form",
         },
       ],
     },
     {
-      type: "paragraph",
-      attrs: {
-        textAlign: null,
-      },
-      content:[{
-        type:"text",
-        text:"press  “ / ”  to open the menu",
-        attrs:{}
-      }]
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: null,
-      },
-    },
-    {
       type: "shortInput",
       attrs: {
-        id: v4(),
+        id: "38889423-cfa0-42cb-8c24-5bd8ee2db8be",
         label: "Short Answer",
         placeholder: "Type anything here",
         type: "text",
@@ -48,13 +36,50 @@ export const defaultEditorContent = {
         {
           type: "text",
           text: "Name",
-          attrs: {},
         },
       ],
     },
+    {
+      type: "emailInput",
+      attrs: {
+        id: "019b0f6e-dfba-7571-a148-d419174dd593",
+        label: "Email",
+        placeholder: "user@planteform.com",
+        prefix: "https://",
+        type: "email",
+        isRequired: true,
+      },
+      content: [
+        {
+          type: "text",
+          text: "Email",
+        },
+      ],
+    },
+    {
+      type: "shortInput",
+      attrs: {
+        id: "019b0f6f-2dfe-73b9-988d-492943849e66",
+        label: "Phone Number",
+        placeholder: "",
+        type: "phone",
+        isRequired: true,
+      },
+      content: [
+        {
+          type: "text",
+          text: "Phone Number",
+        },
+      ],
+    },
+    {
+      type: "paragraph",
+      attrs: {
+        textAlign: null,
+      },
+    },
   ],
-  attrs: {},
-} satisfies JsonDoc;
+};
 
 export const thankyouPageContent = {
   type: "pageBreak",
@@ -98,4 +123,4 @@ export const thankyouPageContent = {
       ],
     },
   ],
-} 
+};

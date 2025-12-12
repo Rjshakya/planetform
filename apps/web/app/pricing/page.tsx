@@ -1,124 +1,62 @@
 "use client";
 
-import { usePlans } from "@/hooks/use-subscriptions";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Nav } from "../(marketing)/_components/nav";
+import { Footer } from "../(marketing)/_components/footer";
 import { Badge } from "@/components/ui/badge";
-import { NavV2 } from "../(marketing)/_components/Nav-v2";
-import { ThemeToggle } from "@/components/tiptap-main/simple/theme-toggle";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { usePlans } from "@/hooks/use-subscriptions";
 import { Check, Loader2, ArrowRight } from "lucide-react";
-import { CTAV2 } from "../(marketing)/_components/CTA-v2";
+import Link from "next/link";
 
 export default function PricingPage() {
   const { plans, loadingPlans } = usePlans();
 
   return (
     <>
-      <main className="relative min-h-screen bg-input/40 overflow-hidden">
-        {/* Background Decorative Elements */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Top Left Label */}
-          <div className="absolute top-20 left-8 md:left-16 text-xs text-muted-foreground/40 font-mono">
-            [ PRICING ]
-          </div>
+      <main className="w-full px-3">
+        <div className="max-w-4xl mx-auto grid pt-4 border-x relative">
+          <Nav />
 
-          {/* Top Right Label */}
-          <div className="absolute top-20 right-8 md:right-16 text-xs text-muted-foreground/40 font-mono">
-            [ PLANS ]
-          </div>
-
-          {/* Decorative Crosshair Icons */}
-          <div className="absolute top-1/4 left-1/4 text-primary/20">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 2V22M2 12H22"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <div className="absolute top-1/4 right-1/4 text-primary/20">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 2V22M2 12H22"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="z-30 w-full fixed px-2 pt-2">
-          <NavV2 />
-        </div>
-
-        {/* Content Section */}
-        <div className="relative z-0 px-2 pt-24">
-          <div className="max-w-5xl mx-auto border-x pt-12 pb-4">
-            {/* Header */}
-            <div className="px-4 md:px-6 space-y-4 mb-16">
-              <Badge className="outline-1" variant={"outline"}>
+          {/* Header Section */}
+          <section className="w-full relative overflow-hidden py-36 px-4">
+            <div className="space-y-8 py-2">
+              <Badge variant="outline" className="w-fit">
                 Pricing
               </Badge>
-              <h1
-                style={{ fontFamily: "var(--font-insturment-serif)" }}
-                className="text-3xl md:text-5xl  max-w-2xl"
-              >
+              <h1 className="max-w-lg text-4xl sm:text-5xl font-bold tracking-tight text-left">
                 Simple, transparent pricing
               </h1>
-              <p className="max-w-2xl text-sm md:text-base text-muted-foreground">
+              <p className="max-w-lg text-left text-muted-foreground text-balance">
                 Choose the plan that works best for you. All plans include
                 unlimited forms, submissions, and insights.
+                You must adhere to our <Link href="/fair-use" className=" underline font-semibold">fair use policy</Link>
               </p>
             </div>
+          </section>
 
-            {/* Pricing Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-4 ">
-            <div className=" ">
-              <Card className={`relative flex flex-col`}>
-                <CardHeader className="border-b pb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <CardTitle className="text-2xl font-bold">Free</CardTitle>
-                    <Badge variant="outline">Month</Badge>
-                  </div>
-                  <CardDescription className="text-base">
-                    free plan
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="flex-1 pt-6">
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold">$</span>
-                      <span className="text-3xl font-bold">0</span>
-                      <span className="text-muted-foreground">per month</span>
+          {/* Pricing Cards Section */}
+          <section className="w-full pb-32 px-4">
+            <div className="grid md:grid-cols-2 gap-2">
+              {/* Free Plan */}
+              <div className="group relative p-8 rounded-lg bg-muted hover:border-primary/40 transition-all duration-300">
+                <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                <div className="relative space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-2xl font-bold">Free</h3>
+                      <Badge variant="outline">Month</Badge>
                     </div>
+                    <p className="text-muted-foreground">
+                      Perfect for getting started
+                    </p>
                   </div>
 
-                  <ul className="space-y-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold">$0</span>
+                    <span className="text-muted-foreground">per month</span>
+                  </div>
+
+                  <ul className="space-y-3 pt-4">
                     <li className="flex items-start gap-2">
                       <Check className="size-5 text-primary shrink-0 mt-0.5" />
                       <span className="text-sm">Unlimited forms</span>
@@ -129,50 +67,43 @@ export default function PricingPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="size-5 text-primary shrink-0 mt-0.5" />
-                      <span className="text-sm">simple analytics</span>
+                      <span className="text-sm">Simple analytics</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="size-5 text-primary shrink-0 mt-0.5" />
-                      <span className="text-sm">Planeform branding</span>
+                      <span className="text-sm">Planetform branding</span>
                     </li>
                   </ul>
-                </CardContent>
 
-                <CardFooter className="border-t pt-6">
-                  <Button
-                    asChild
-                    className="w-full"
-                    variant={"outline"}
-                    size="lg"
-                  >
+                  <div className="pt-4">
                     <Link href="/auth">
-                      Get Started
-                      <ArrowRight className="size-4 ml-2" />
+                      <Button variant="outline" className="w-full" size="lg">
+                        Get Started
+                        <ArrowRight className="ml-2 size-4" />
+                      </Button>
                     </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-            {loadingPlans ? (
-              <div className="flex items-center justify-center py-24">
-                <Loader2 className="size-8 animate-spin text-primary" />
+                  </div>
+                </div>
               </div>
-            ) : plans && plans.length > 0 ? (
-              <div className=" ">
-                {plans.map((plan, index) => {
+
+              {/* Paid Plans */}
+              {loadingPlans ? (
+                <div className="flex items-center justify-center py-24">
+                  <Loader2 className="size-8 animate-spin text-primary" />
+                </div>
+              ) : plans && plans.length > 0 ? (
+                plans.map((plan, index) => {
                   const price = parseInt(plan.price_detail?.price || "0") / 100;
                   const currency = "$";
                   const interval =
                     plan.price_detail?.payment_frequency_interval || "month";
-                  const isPopular = index === 1; // Mark middle plan as popular
+                  const isPopular = index === 0; // Mark first paid plan as popular
 
                   return (
-                    <Card
+                    <div
                       key={plan.product_id}
-                      className={`relative flex flex-col ${
-                        isPopular
-                          ? "border-primary ring-2 ring-primary/20 scale-105 md:scale-110"
-                          : ""
+                      className={`group relative p-8 rounded-lg bg-muted hover:border-primary/40 transition-all duration-300 ${
+                        isPopular ? "border-primary ring-2 ring-primary/20" : ""
                       }`}
                     >
                       {isPopular && (
@@ -182,39 +113,29 @@ export default function PricingPage() {
                           </Badge>
                         </div>
                       )}
-
-                      <CardHeader className="border-b pb-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <CardTitle className="text-2xl font-bold">
-                            {plan.name}
-                          </CardTitle>
-                          <Badge variant="outline">{interval}</Badge>
-                        </div>
-                        <CardDescription className="text-base">
-                          {plan.description}
-                        </CardDescription>
-                      </CardHeader>
-
-                      <CardContent className="flex-1 pt-6">
-                        <div className="mb-6">
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold">
-                              {currency}
-                            </span>
-                            <span className="text-3xl font-bold">{price}</span>
-                            <span className="text-muted-foreground">
-                              per {interval}
-                            </span>
+                      <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                      <div className="relative space-y-6">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-2xl font-bold">{plan.name}</h3>
+                            <Badge variant="outline">{interval}</Badge>
                           </div>
-                          {/* {plan.price_detail?.trial_period_days && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              {plan.price_detail.trial_period_days} days free
-                              trial
-                            </p>
-                          )} */}
+                          <p className="text-muted-foreground">
+                            {plan.description}
+                          </p>
                         </div>
 
-                        <ul className="space-y-3">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-bold">
+                            {currency}
+                            {price}
+                          </span>
+                          <span className="text-muted-foreground">
+                            per {interval}
+                          </span>
+                        </div>
+
+                        <ul className="space-y-3 pt-4">
                           <li className="flex items-start gap-2">
                             <Check className="size-5 text-primary shrink-0 mt-0.5" />
                             <span className="text-sm">Unlimited forms</span>
@@ -232,7 +153,7 @@ export default function PricingPage() {
                           <li className="flex items-start gap-2">
                             <Check className="size-5 text-primary shrink-0 mt-0.5" />
                             <span className="text-sm">
-                              No planeform branding
+                              No Planetform branding
                             </span>
                           </li>
                           <li className="flex items-start gap-2">
@@ -244,109 +165,134 @@ export default function PricingPage() {
                             <span className="text-sm">Priority support</span>
                           </li>
                         </ul>
-                      </CardContent>
 
-                      <CardFooter className="border-t pt-6">
-                        <Button
-                          asChild
-                          className="w-full"
-                          variant={isPopular ? "default" : "outline"}
-                          size="lg"
-                        >
+                        <div className="pt-4">
                           <Link href="/auth">
-                            Get Started
-                            <ArrowRight className="size-4 ml-2" />
+                            <Button
+                              className="w-full"
+                              variant={isPopular ? "default" : "outline"}
+                              size="lg"
+                            >
+                              Get Started
+                              <ArrowRight className="ml-2 size-4" />
+                            </Button>
                           </Link>
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                        </div>
+                      </div>
+                    </div>
                   );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-24 px-4">
-                <p className="text-muted-foreground">
-                  No plans available at the moment. Please check back later.
-                </p>
-              </div>
-            )}
+                })
+              ) : (
+                <div className="text-center py-24 px-4">
+                  <p className="text-muted-foreground">
+                    No plans available at the moment. Please check back later.
+                  </p>
+                </div>
+              )}
             </div>
+          </section>
 
-            {/* FAQ Section */}
-            <div className="mt-24 px-4 md:px-6">
-              <div className="space-y-4 mb-12">
-                <Badge className="outline-1" variant={"outline"}>
+          {/* FAQ Section */}
+          <section className="w-full py-32 px-4">
+            <div className="grid gap-32">
+              <div className="space-y-8">
+                <Badge variant="outline" className="w-fit">
                   FAQ
                 </Badge>
-                <h2
-                  style={{ fontFamily: "var(--font-insturment-serif)" }}
-                  className="text-2xl md:text-3xl font-bold"
-                >
+                <h2 className="max-w-lg text-4xl sm:text-5xl font-bold tracking-tight text-left">
                   Frequently asked questions
                 </h2>
+                <p className="max-w-lg text-left text-muted-foreground text-balance">
+                  Everything you need to know about our pricing and plans.
+                </p>
               </div>
 
-              <div className="grid gap-6 border-y">
-                <div className="py-6 border-b first:border-t-0">
-                  <h3 className="font-semibold mb-2">
-                    Can I change plans later?
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Yes, you can upgrade or downgrade your plan at any time.
-                    Changes will be reflected in your next billing cycle.
-                  </p>
+              <div className="grid gap-2">
+                <div className="group relative p-8 rounded-lg bg-muted hover:border-primary/40 transition-all duration-300">
+                  <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                  <div className="relative space-y-2">
+                    <h3 className="text-xl font-semibold">
+                      Can I change plans later?
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Yes, you can upgrade or downgrade your plan at any time.
+                      Changes will be reflected in your next billing cycle.
+                    </p>
+                  </div>
                 </div>
-                <div className="py-6 border-b">
-                  <h3 className="font-semibold mb-2">
-                    What payment methods do you accept?
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    We accept all major credit cards and debit cards. All
-                    payments are processed securely.
-                  </p>
+
+                <div className="group relative p-8 rounded-lg bg-muted hover:border-primary/40 transition-all duration-300">
+                  <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                  <div className="relative space-y-2">
+                    <h3 className="text-xl font-semibold">
+                      What payment methods do you accept?
+                    </h3>
+                    <p className="text-muted-foreground">
+                      We accept all major credit cards and debit cards. All
+                      payments are processed securely.
+                    </p>
+                  </div>
                 </div>
-                <div className="py-6 border-b">
-                  <h3 className="font-semibold mb-2">Is there a free trial?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Most plans include a free trial period. Check the plan
-                    details above for specific trial information.
-                  </p>
+
+                <div className="group relative p-8 rounded-lg bg-muted hover:border-primary/40 transition-all duration-300">
+                  <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                  <div className="relative space-y-2">
+                    <h3 className="text-xl font-semibold">
+                      Is there a free trial?
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Most plans include a free trial period. Check the plan
+                      details above for specific trial information.
+                    </p>
+                  </div>
                 </div>
-                <div className="py-6">
-                  <h3 className="font-semibold mb-2">Do you offer refunds?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {`We offer a 30-day money-back guarantee. If you're not satisfied, contact us within 30 days for a full refund.`}
-                  </p>
+
+                <div className="group relative p-8 rounded-lg bg-muted hover:border-primary/40 transition-all duration-300">
+                  <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
+                  <div className="relative space-y-2">
+                    <h3 className="text-xl font-semibold">
+                      Do you offer refunds?
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {`We offer a 30-day money-back guarantee. If you're not
+                      satisfied, contact us within 30 days for a full refund.`}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* CTA Section */}
-            {/* <div className="mt-24  text-center">
-              <div className=" p-12 space-y-6">
-                <h2
-                  style={{ fontFamily: "var(--font-insturment-serif)" }}
-                  className="text-2xl md:text-3xl "
-                >
-                  Ready to get started?
-                </h2>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Start building beautiful forms today. No credit card required
-                  for the free trial.
-                </p>
-                <Button asChild size="lg" className="mt-4">
+          {/* cta */}
+
+          <section className="w-full py-32 px-4">
+            <div className="flex items-center justify-center gap-32 px-4 bg-foreground py-36 rounded-4xl">
+              <div className="grid gap-12">
+                <div className="space-y-8 text-background text-center">
+                  <div className="size-12 flex items-center justify-center rounded-lg bg-primary/10 text-primary"></div>
+                  <h2 className="max-w-lg text-4xl sm:text-5xl font-bold tracking-tight text-left">
+                    Ready to build forms effortlessly?
+                  </h2>
+                  <p className="max-w-lg text-left text-muted-foreground text-balance">
+                    Join thousands of teams using Planetform to create
+                    beautiful, modern forms with powerful analytics and seamless
+                    integrations.
+                  </p>
+                </div>
+                <div className="flex  items-center  gap-4">
                   <Link href="/auth">
-                    Get Started
-                    <ArrowRight className="size-4 ml-2" />
+                    <Button size="lg" className=" ">
+                      Start for free
+                      <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
                   </Link>
-                </Button>
+                </div>
               </div>
-            </div> */}
-            <CTAV2 className="pb-0"/>
-          </div>
+            </div>
+          </section>
         </div>
-
       </main>
+      <Footer />
     </>
   );
 }

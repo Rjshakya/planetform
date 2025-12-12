@@ -1,5 +1,5 @@
 {
-  "name": "planetform-hono",
+  "name": "planetform-server",
   "type": "module",
   "exports": {
     ".": "./src/hc.ts"

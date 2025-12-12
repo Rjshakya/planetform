@@ -58,7 +58,7 @@ const MainToolbarContent = ({
         }`
       )}
     >
-      {path !== "/" && (
+      {path !== "/" && path !== "/landing" && (
         <ToolbarGroup>
           <SidebarTrigger />
         </ToolbarGroup>
@@ -183,7 +183,7 @@ export const TiptapToolBar = memo(function ToolBarComp({
       className={cn(
         "w-full z-30  ",
         `${isMobile ? " fixed inset-x-0 top-0" : "sticky top-0"}`,
-        `${path === "/" && "hidden"}`
+        `${isMobile && (path === "/" || path === "/landing") && "hidden"}`
       )}
       ref={toolbarRef}
       // style={{

@@ -2,21 +2,23 @@ import { cn } from "@/lib/utils";
 import React from "react";
 import { useSidebar } from "./ui/sidebar";
 
-export const Logo = ({ className , svgClassName , hideName }: { className?: string , svgClassName?:string , hideName?:boolean }) => {
-
-    // const {state} = useSidebar()
+export const Logo = ({
+  className,
+  svgClassName,
+  hideName,
+}: {
+  className?: string;
+  svgClassName?: string;
+  hideName?: boolean;
+}) => {
+  // const {state} = useSidebar()
 
   return (
     <div className={cn(`logo `)}>
-      <div
-        className={cn(
-          ` flex items-center justify-center gap-2`,
-          className
-        )}
-      >
+      <div className={cn(` flex items-center justify-center gap-2`, className)}>
         <div className="size-5 text-primary">
           <svg
-            className={cn(`size-4 fill-foreground` , svgClassName)}
+            className={cn(`size-4 fill-foreground`, svgClassName)}
             viewBox="0 0 200 200"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

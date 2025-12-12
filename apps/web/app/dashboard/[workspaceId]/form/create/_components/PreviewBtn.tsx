@@ -15,6 +15,8 @@ export const PreviewButton = () => {
     if (!editor) return;
     const json = editor.getJSON();
     setContent(json);
+    console.log(json);
+    
     useFormStore.setState({ activeStep: 0 });
     router.push("/preview");
   }, [editor, router, setContent]);
