@@ -95,8 +95,8 @@ export default function Page() {
       </div>
       <Tabs defaultValue="forms" className="w-full">
         <TabsList
-          activeClassName="bg-transparent border-b-2 border-ring shadow-none rounded-none  "
-          className=" h-14 rounded-sm bg-transparent gap-4 w-full sm:w-fit  overflow-auto flex  items-center justify-between "
+          // activeClassName="bg-transparent border-b-2 border-ring shadow-none rounded-none  "
+          className=" "
         >
           <TabsTrigger
             data-id={"forms"}

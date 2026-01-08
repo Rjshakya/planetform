@@ -29,6 +29,7 @@ import { useFormStore } from "@/stores/useformStore";
 import { TextStyle, FontFamily } from "@tiptap/extension-text-style";
 
 import { dateInputNode } from "@/components/custom-nodes/date-input/node";
+import { conditionalLogicNode } from "@/components/custom-nodes/conditional-logic/node";
 
 import {
   Slash,
@@ -650,6 +651,41 @@ const suggestions = createSuggestionsItems([
     ),
     searchTerms: ["image", "assets", "brand"],
   },
+  {
+    title: "Conditional Logic",
+    searchTerms: ["conditional", "logic", "show hide", "rules", "conditions"],
+    command: ({ editor, range }) => {
+      editor
+        ?.chain()
+        ?.focus()
+        ?.deleteRange(range)
+        ?.insertConditionalLogic({
+          id: v7(),
+          conditions: [],
+          targetFieldIds: [],
+          logicOperator: "AND",
+          action: "show",
+        })
+        .run();
+    },
+    description: "Add conditional logic to show/hide fields based on responses",
+    icon: (
+      <div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="size-5 fill-foreground"
+          viewBox="0 0 24 24"
+          fill="#fff"
+        >
+          <path
+            d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+            fill="white"
+            style={{ fill: "var(--fillg)" }}
+          />
+        </svg>
+      </div>
+    ),
+  },
 ]);
 
 export function SimpleEditor({
@@ -679,7 +715,7 @@ export function SimpleEditor({
     actionBtnTextColor,
   } = useEditorStore((s) => s);
 
-  // form init
+  // form
   const form = useFormStore.getState().getHookForm();
 
   const handleUpload = async (file: File, editor: Editor | null) => {
@@ -712,7 +748,7 @@ export function SimpleEditor({
     return url;
   };
 
-  // editor init
+  // editor
   const editor = useEditor({
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
@@ -780,6 +816,7 @@ export function SimpleEditor({
       multipleChoiceNode,
       optionNode,
       dateInputNode,
+      conditionalLogicNode,
       fileUploadNode,
       emailInputNode,
       Focus.configure({
@@ -801,15 +838,18 @@ export function SimpleEditor({
     content: content,
     onUpdate(props) {
       if (!isEditable) return;
-      if (pathName?.includes("/form/edit")) {
-        return;
-      }
+      if (pathName?.includes("/form/edit")) return;
+
       setTimeout(() => {
         useEditorStore.setState({ editedContent: props.editor.getJSON() });
       }, 1000);
     },
+    onPaste(e, slice) {
+      return;
+    },
   });
 
+  // page navigation for mutli-step forms.
   const handleActiveIndex = React.useCallback(
     (idx: number) => {
       let index = idx;
@@ -829,7 +869,7 @@ export function SimpleEditor({
         isLastStep: maxStep === index,
       });
     },
-    [maxStep, activeStep]
+    [maxStep]
   );
 
   const handleOnSubmit = async (values: FieldValues) => {
@@ -874,7 +914,7 @@ export function SimpleEditor({
             onSubmit={form?.handleSubmit?.(handleOnSubmit, (v) =>
               console.log(v)
             )}
-            className={`w-full h-full px-2 `}
+            className={`w-full h-full px-2 grid gap-3 `}
             style={
               {
                 fontFamily: formFontFamliy || undefined,
@@ -899,7 +939,7 @@ export function SimpleEditor({
                 ref={editorContentRef}
               />
             )}
-            <div className={`max-w-lg mx-auto px-1.5`}>
+            <div className={`max-w-lg mx-auto px-1 w-full`}>
               <Button
                 style={
                   {
@@ -921,7 +961,9 @@ export function SimpleEditor({
                   <div className="flex items-center gap-2">
                     <span>Submit</span>
                     {form?.formState.isSubmitting && (
-                      <Loader className={`${isEditable || "animate-spin"} ${isEditable && "hidden"}`} />
+                      <Loader
+                        className={`${isEditable || "animate-spin"} ${isEditable && "hidden"}`}
+                      />
                     )}
                   </div>
                 ) : (

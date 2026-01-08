@@ -36,11 +36,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { useConditionalVisibility } from "@/hooks/use-conditional-visibility";
 
 export const MultipleChoiceView = (props: NodeViewProps) => {
   const { id, label, isDropdown, type, isRequired } = props?.node
     ?.attrs as InsertMultipleChoiceParams;
   const form = useFormStore.getState().getHookForm();
+  const isVisible = useConditionalVisibility(id);
+  if (!isVisible && !props?.editor?.isEditable) {
+    return null;
+  }
+
   return (
     <>
       <NodeViewWrapper as={"div"} className={"w-full relative "}>
@@ -174,7 +180,7 @@ export const Option = (props: NodeViewProps) => {
                     return checked
                       ? field?.onChange([...field?.value, optionLabel])
                       : field?.onChange(
-                          field?.value?.filter((v: any) => v !== optionLabel)
+                          field?.value?.filter((v: any) => v !== optionLabel),
                         );
                   }}
                   disabled={isEditable}

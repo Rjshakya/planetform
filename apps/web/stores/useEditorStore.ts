@@ -35,6 +35,8 @@ export interface IeditorStore {
   setFormColorScheme: (scheme: string) => void;
   customThankyouMessage: string;
   setCustomThankyouMessage: (msg: string) => void;
+  openSideBar: boolean;
+  setOpenSideBar: (val: boolean) => void;
 }
 
 export interface Icustomisation {
@@ -47,6 +49,7 @@ export interface Icustomisation {
 export const useEditorStore = create<IeditorStore>()(
   persist(
     (set, get) => ({
+      openSideBar: false,
       editor: null,
       getEditor: () => get().editor,
       content: defaultEditorContent,
@@ -64,6 +67,7 @@ export const useEditorStore = create<IeditorStore>()(
       inputBorderColor: null,
       actionBtnBorderColor: null,
       formColorScheme: "dark",
+      setOpenSideBar: (open) => set({ openSideBar: open }),
       setFormFontFamliy: (family) => set({ formFontFamliy: family }),
       setFormFontSize: (size) => set({ formFontSize: size }),
       setActionBtnSize: (size) => set({ actionBtnSize: size }),

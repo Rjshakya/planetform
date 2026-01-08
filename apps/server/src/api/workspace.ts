@@ -34,7 +34,6 @@ const workspace = new Hono<{
 
     return c.json({ workspace }, 200);
   })
-
   .get(
     "/:userId",
     zValidator("param", z.object({ userId: z.string().nonempty() })),

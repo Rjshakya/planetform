@@ -24,6 +24,7 @@ import {
   FileWithPreview,
   formatBytes,
 } from "@/hooks/use-file-upload";
+import { useConditionalVisibility } from "@/hooks/use-conditional-visibility";
 import { ChangeEvent, DragEvent, useCallback, useRef, useState } from "react";
 import { apiClient } from "@/lib/axios";
 import { useParams, usePathname } from "next/navigation";
@@ -37,6 +38,7 @@ export const FileUploadInputView = (props: NodeViewProps) => {
 
   const { respondentId } = useFormStore((s) => s);
   const form = useFormStore.getState().getHookForm();
+  const isVisible = useConditionalVisibility(id);
   const [state, setState] = useState<FileUploadState>({
     files: [],
     isDragging: false,
@@ -108,10 +110,14 @@ export const FileUploadInputView = (props: NodeViewProps) => {
           pathName.includes("/edit") ||
           pathName.includes("/preview")
         ) {
+          setTimeout(() => {
+            setState((p) => ({ ...p, isUploading: false }));
+          }, 500);
           return url;
         }
 
         if (!respondentId) {
+          setState((p) => ({ ...p, isUploading: false }));
           toast.error("Can't upload file please refresh or try again later");
           return;
         }
@@ -128,7 +134,6 @@ export const FileUploadInputView = (props: NodeViewProps) => {
             await axios.put(signedUrl, file);
           }
         } catch (e) {
-          console.log("Error uploading file");
           toast.error("Failed to upload file.");
         }
 
@@ -378,6 +383,10 @@ export const FileUploadInputView = (props: NodeViewProps) => {
     }
   }, []);
 
+  if (!isVisible && !props?.editor?.isEditable) {
+    return null;
+  }
+
   return (
     <NodeViewWrapper as={"div"}>
       <FormField
@@ -394,7 +403,7 @@ export const FileUploadInputView = (props: NodeViewProps) => {
             <FormLabel
               htmlFor={name}
               aria-label={name}
-              className=" text-md pl-1 grid gap-1"
+              className=" text-md pl-1 grid gap-3"
               id={id}
             >
               {/* {label.} */}

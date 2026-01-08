@@ -126,7 +126,7 @@ export default function TanStackTable({
   states,
   formId,
   data,
-  setData
+  setData,
 }: {
   columns: ColumnDef<Iheads>[];
   // tableData: any[];
@@ -136,12 +136,12 @@ export default function TanStackTable({
     pageCount: number;
   };
   formId: string;
-  data:any[],
-  setData:(params:any)=> void
+  data: any[];
+  setData: (params: any) => void;
 }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const { mutate} = useSWRConfig()
+  const { mutate } = useSWRConfig();
 
   // const [data, setData] = useState<any[]>(tableData);
 
@@ -204,7 +204,7 @@ export default function TanStackTable({
       {/* Filters */}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3 py-1.5">
+        <div className="flex flex-wrap items-center gap-1 py-1.5">
           {/* Toggle columns visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -346,8 +346,8 @@ export default function TanStackTable({
                         isLastLeftPinned
                           ? "left"
                           : isFirstRightPinned
-                          ? "right"
-                          : undefined
+                            ? "right"
+                            : undefined
                       }
                     >
                       {header.isPlaceholder ? null : header.column.getCanSort() ? (
@@ -509,8 +509,8 @@ export default function TanStackTable({
                               isLastLeftPinned
                                 ? "left"
                                 : isFirstRightPinned
-                                ? "right"
-                                : undefined
+                                  ? "right"
+                                  : undefined
                             }
                           >
                             {flexRender(
@@ -604,7 +604,7 @@ export default function TanStackTable({
 
 export function RowActions({ row }: { row: Row<any> }) {
   const [deleting, setDeleting] = useState(false);
-  const { mutate} = useSWRConfig()
+  const { mutate } = useSWRConfig();
 
   const { formId } = useParams();
   const handleDelete = async (id: string) => {

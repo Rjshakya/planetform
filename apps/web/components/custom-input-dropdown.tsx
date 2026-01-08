@@ -15,12 +15,12 @@ import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { InsertPhoneInput } from "./custom-nodes/phoneinput/Insert";
 import { InsertDateInput } from "./custom-nodes/date-input/Insert";
+import { InsertConditionalLogic } from "./custom-nodes/conditional-logic/Insert";
 
 import { ChevronDown, TextCursorInput } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export const CustomInputsDropdown = () => {
-
   const [open, setOpen] = useState(false);
   const [dialog, setDialog] = useState("");
 
@@ -33,7 +33,7 @@ export const CustomInputsDropdown = () => {
               <Button variant={"ghost"} size={"sm"}>
                 {/* <TextCursorInput /> */}
                 Fields
-                <ChevronDown/>
+                <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
@@ -43,46 +43,54 @@ export const CustomInputsDropdown = () => {
         <DropdownMenuContent align="start" className=" rounded-sm grid p-1">
           {/* <Card className="py-1 border-0 shadow-none">
             <CardContent className="px-1 grid gap-1"> */}
-              <DropdownMenuItem
-                onClick={() => {
-                  setOpen(true);
-                  setDialog("short");
-                }}
-              >
-                Short Input
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setOpen(true);
-                  setDialog("long");
-                }}
-              >
-                Long Input
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setOpen(true);
-                  setDialog("multiple");
-                }}
-              >
-                Multiple choice
-              </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setOpen(true);
+              setDialog("short");
+            }}
+          >
+            Short Input
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setOpen(true);
+              setDialog("long");
+            }}
+          >
+            Long Input
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setOpen(true);
+              setDialog("multiple");
+            }}
+          >
+            Multiple choice
+          </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={() => {
-                  setOpen(true);
-                  setDialog("Date");
-                }}
-              >
-                Date input
-              </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setOpen(true);
+              setDialog("Date");
+            }}
+          >
+            Date input
+          </DropdownMenuItem>
 
-              <DropdownMenuItem asChild>
-                <InsertPhoneInput />
-              </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setOpen(true);
+              setDialog("conditional");
+            }}
+          >
+            Conditional Logic
+          </DropdownMenuItem>
 
-              
-            {/* </CardContent>
+          <DropdownMenuItem asChild>
+            <InsertPhoneInput />
+          </DropdownMenuItem>
+
+          {/* </CardContent>
           </Card> */}
         </DropdownMenuContent>
       </DropdownMenu>
@@ -93,6 +101,9 @@ export const CustomInputsDropdown = () => {
           {dialog === "short" && <InsertShortInput setOpen={setOpen} />}
           {dialog === "long" && <InsertLongInput setOpen={setOpen} />}
           {dialog === "Date" && <InsertDateInput setOpen={setOpen} />}
+          {dialog === "conditional" && (
+            <InsertConditionalLogic setOpen={setOpen} />
+          )}
         </DialogContent>
       </Dialog>
     </>

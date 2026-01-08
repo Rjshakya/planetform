@@ -1,10 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 
-import {
-  Loader,
-  TriangleAlert,
-} from "lucide-react";
+import { Loader, TriangleAlert } from "lucide-react";
 import { WorkspaceCard } from "./WorkspaceCard";
 
 import { apiClient } from "@/lib/axios";
@@ -33,7 +30,6 @@ import { Input } from "@/components/ui/input";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { useRouter } from "next/navigation";
 
-
 export default function Workspace() {
   const [creating, setCreating] = useState(false);
   const [workspaceName, setWorkspaceName] = useState("");
@@ -61,7 +57,6 @@ export default function Workspace() {
     setOpen(false);
     setWorkspaceName("");
   };
-
 
   if (error) {
     return (

@@ -20,7 +20,7 @@ import {
 } from "@/components/tiptap-ui-primitive/toolbar";
 import { TiptapMarkDropdown } from "@/components/tiptap-mark-dropdown";
 import { TiptapTextAlignDropdown } from "@/components/tiptap-text-align-dropdown";
-import { CutomizationPanel } from "@/components/custom-nodes/CutomizationPanel";
+import { CustomizationPanelTrigger } from "@/components/custom-nodes/CutomizationPanel";
 import { PreviewButton } from "@/app/dashboard/[workspaceId]/form/create/_components/PreviewBtn";
 import { EditForm } from "@/app/dashboard/[workspaceId]/form/edit/[formId]/_components/EditForm";
 import { PublishForm } from "@/app/dashboard/[workspaceId]/form/create/_components/PublishForm";
@@ -45,7 +45,7 @@ const MainToolbarContent = ({
   isMobile: boolean;
 }) => {
   const path = usePathname();
-  const forEditPage = path.includes(`/edit/`);
+  const isFormEditPage = path.includes(`/edit/`);
 
   return (
     <div
@@ -101,7 +101,7 @@ const MainToolbarContent = ({
       </ToolbarGroup>
 
       <ToolbarGroup>
-        <CutomizationPanel />
+        <CustomizationPanelTrigger />
       </ToolbarGroup>
 
       <Separator className="mx-2" orientation="vertical" />
@@ -111,15 +111,11 @@ const MainToolbarContent = ({
       </ToolbarGroup>
 
       <ToolbarGroup className="ml-2">
-        {forEditPage ? <EditForm /> : <PublishForm />}
+        {isFormEditPage ? <EditForm /> : <PublishForm />}
       </ToolbarGroup>
 
       <div className="flex-1"></div>
       {isMobile && <Separator className="mx-2" orientation="vertical" />}
-      {/* <ToolbarGroup>
-        <ThemeToggle />
-      </ToolbarGroup> */}
-      {/* {isMobile && <ToolbarSeparator />} */}
     </div>
   );
 };

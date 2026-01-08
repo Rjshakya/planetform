@@ -1,7 +1,7 @@
 "use client";
 import { AppSidebar } from "@/components/app-sidebar";
 import { NavActions } from "@/components/nav-actions";
-import { ThemeToggle } from "@/components/tiptap-main/simple/theme-toggle";
+import { ThemeToggle } from "@/components/main-editor/simple/theme-toggle";
 import {
   SidebarInset,
   SidebarProvider,
@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useParams, usePathname } from "next/navigation";
+import { AnimatedSidebarRight, SidebarRight } from "@/components/sidebar-right";
+import { useEditorStore } from "@/stores/useEditorStore";
 
 export default function DashboardLayout({
   children,
@@ -25,7 +27,7 @@ export default function DashboardLayout({
         <main className=" h-full bg-background ">
           <header
             className={cn(
-              `flex h-9 pb-2 mb-8 pt-4 shrink-0 items-center gap-2 max-w-5xl mx-auto w-full sticky top-0 bg-background `,
+              `z-50 flex h-9 pb-2 mb-8 pt-4 shrink-0 items-center gap-2 max-w-5xl mx-auto w-full sticky top-0 bg-background `,
               `${pathName?.includes("/form/create") && "hidden"}`,
               `${pathName?.includes(`form/edit`) && "hidden"}`
             )}

@@ -1,6 +1,5 @@
 "use client";
 
-
 import Component from "@/components/comp-46";
 import {
   FormControl,
@@ -16,12 +15,24 @@ import { NodeViewContent } from "@tiptap/react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import React from "react";
 import { validationFn } from "../FormFieldValidations";
+import {
+  useConditionalVisibility,
+  useConditionalIndicators,
+} from "@/hooks/use-conditional-visibility";
+import { Badge } from "@/components/ui/badge";
+import { GitBranch } from "lucide-react";
 
 const ShortInput = (props: NodeViewProps) => {
   const { label, id, type, isRequired, placeholder } = props?.node?.attrs;
 
   const form = useFormStore.getState().getHookForm();
-  
+  const isVisible = useConditionalVisibility(id);
+  const { isControlled } = useConditionalIndicators(id);
+
+  if (!isVisible && !props?.editor?.isEditable) {
+    return null;
+  }
+
   return (
     <>
       <NodeViewWrapper as={"div"}>
@@ -29,7 +40,7 @@ const ShortInput = (props: NodeViewProps) => {
           control={form?.control}
           name={id}
           rules={{
-            validate:validationFn({isRequired, type:"shortInput"})
+            validate: validationFn({ isRequired, type: "shortInput" }),
           }}
           render={({ field }) => (
             <FormItem className={`mt-4 field gap-3`}>
@@ -39,16 +50,20 @@ const ShortInput = (props: NodeViewProps) => {
                 className=" text-md pl-1"
                 id={id}
               >
-                {/* {field?.} */}
-                <NodeViewContent
-                  as="div"
-                  className=" min-w-[20px] w-full"
-                />
+                <div className="flex items-center gap-2">
+                  <NodeViewContent as="div" className="min-w-5 w-full" />
+                  {isControlled && props.editor?.isEditable && (
+                    <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                      <GitBranch className="h-2 w-2 mr-1" />
+                      Logic
+                    </Badge>
+                  )}
+                </div>
               </FormLabel>
               <FormControl>
                 {type === "phone" ? (
                   <Component
-                    value={field?.value || ''}
+                    value={field?.value || ""}
                     valueChange={field?.onChange}
                     id={id}
                     placeholder={placeholder}
@@ -59,7 +74,7 @@ const ShortInput = (props: NodeViewProps) => {
                     placeholder={placeholder}
                     type={type}
                     required={isRequired}
-                    value={field?.value || ''}
+                    value={field?.value || ""}
                     onChange={field?.onChange}
                     name={field?.name}
                     disabled={props?.editor?.isEditable}
@@ -69,7 +84,7 @@ const ShortInput = (props: NodeViewProps) => {
                   />
                 )}
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />
