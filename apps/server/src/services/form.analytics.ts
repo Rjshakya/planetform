@@ -13,7 +13,7 @@ const INTERVAL_MAP = {
   "6h": sql`NOW() - INTERVAL '6 hours'`,
   "12h": sql`NOW() - INTERVAL '12 hours'`,
   "24h": sql`NOW() - INTERVAL '24 hours'`,
-  "7d": sql`NOW() - INTERVAL '7 days'`,
+  "7d": sql`NOW() - INTERVAL '6 days'`,
   "30d": sql`NOW() - INTERVAL '30 days'`,
   "3M": sql`NOW() - INTERVAL '3 months'`,
   "6M": sql`NOW() - INTERVAL '6 months'`,
@@ -91,23 +91,36 @@ export const getVisitorsByTimeService = async (
   try {
     const db = await getDb();
     const intervalVal = INTERVAL_MAP[interval];
+    const isShortInterval = ["3h", "6h", "12h", "24h"].includes(interval);
+    const truncUnit = isShortInterval ? "hour" : "day";
+    const seriesInterval = isShortInterval ? "1 hour" : "1 day";
 
-    const visitors = await db
-      .select({
-        count: count(),
-        date: sql`DATE_TRUNC('day',${respondentTable.createdAt})`,
-      })
-      .from(respondentTable)
-      .where(
-        and(
-          eq(respondentTable.form, formId),
-          sql`${respondentTable.createdAt} >= ${intervalVal}`
-        )
+    const visitors = await db.execute(sql`
+      WITH date_series AS (
+        SELECT generate_series(
+          DATE_TRUNC(${truncUnit}, ${intervalVal}),
+          DATE_TRUNC(${truncUnit}, NOW()),
+          ${seriesInterval}::interval
+        ) AS date
+      ),
+      visitor_data AS (
+        SELECT
+          COUNT(*) as count,
+          DATE_TRUNC(${truncUnit}, ${respondentTable.createdAt}) as date
+        FROM ${respondentTable}
+        WHERE ${respondentTable.form} = ${formId}
+          AND ${respondentTable.createdAt} >= ${intervalVal}
+        GROUP BY date
       )
-      .groupBy(sql`DATE_TRUNC('day',${respondentTable.createdAt})`)
-      .orderBy(asc(sql`DATE_TRUNC('day',${respondentTable.createdAt})`));
+      SELECT
+        COALESCE(visitor_data.count, 0) as count,
+        date_series.date as date
+      FROM date_series
+      LEFT JOIN visitor_data ON date_series.date = visitor_data.date
+      ORDER BY date_series.date ASC
+    `);
 
-    return visitors;
+    return visitors.rows;
   } catch (e) {
     commonCatch(e);
   }
@@ -120,22 +133,36 @@ export const getUniqueVisitorByTimeService = async (
   try {
     const db = await getDb();
     const intervalVal = INTERVAL_MAP[interval];
-    const uniqueVisitors = await db
-      .select({
-        count: countDistinct(respondentTable.ip),
-        date: sql`DATE_TRUNC('day',${respondentTable.createdAt})`,
-      })
-      .from(respondentTable)
-      .where(
-        and(
-          eq(respondentTable.form, formId),
-          sql`${respondentTable.createdAt} >= ${intervalVal}`
-        )
-      )
-      .groupBy(sql`DATE_TRUNC('day',${respondentTable.createdAt})`)
-      .orderBy(asc(sql`DATE_TRUNC('day',${respondentTable.createdAt})`));
+    const isShortInterval = ["3h", "6h", "12h", "24h"].includes(interval);
+    const truncUnit = isShortInterval ? "hour" : "day";
+    const seriesInterval = isShortInterval ? "1 hour" : "1 day";
 
-    return uniqueVisitors;
+    const uniqueVisitors = await db.execute(sql`
+      WITH date_series AS (
+        SELECT generate_series(
+           DATE_TRUNC(${truncUnit}, ${intervalVal}),
+           DATE_TRUNC(${truncUnit}, NOW()),
+          ${seriesInterval}::interval
+        ) AS date
+      ),
+      visitor_data AS (
+        SELECT
+          COUNT(DISTINCT ${respondentTable.ip}) as count,
+          DATE_TRUNC(${truncUnit}, ${respondentTable.createdAt}) as date
+        FROM ${respondentTable}
+        WHERE ${respondentTable.form} = ${formId}
+          AND ${respondentTable.createdAt} >= ${intervalVal}
+        GROUP BY date
+      )
+      SELECT
+        COALESCE(visitor_data.count, 0) as count,
+        date_series.date as date
+      FROM date_series
+      LEFT JOIN visitor_data ON date_series.date = visitor_data.date
+      ORDER BY date_series.date ASC
+    `);
+
+    return uniqueVisitors.rows;
   } catch (e) {
     commonCatch(e);
   }
@@ -148,26 +175,38 @@ export const getSubmissionByTimeService = async (
   try {
     const db = await getDb();
     const intervalVal = INTERVAL_MAP[interval];
-    const submissions = await db
-      .select({
-        count: countDistinct(responsesTable.respondent),
-        date: sql`DATE_TRUNC('day',${respondentTable.createdAt})`,
-      })
-      .from(responsesTable)
-      .innerJoin(
-        respondentTable,
-        eq(respondentTable.id, responsesTable.respondent)
-      )
-      .where(
-        and(
-          eq(responsesTable.form, formId),
-          sql`${respondentTable.createdAt} >= ${intervalVal}`
-        )
-      )
-      .groupBy(sql`DATE_TRUNC('day',${respondentTable.createdAt})`)
-      .orderBy(asc(sql`DATE_TRUNC('day',${respondentTable.createdAt})`));
+    const isShortInterval = ["3h", "6h", "12h", "24h"].includes(interval);
+    const truncUnit = isShortInterval ? "hour" : "day";
+    const seriesInterval = isShortInterval ? "1 hour" : "1 day";
 
-    return submissions;
+    const submissions = await db.execute(sql`
+      WITH date_series AS (
+        SELECT generate_series(
+           DATE_TRUNC(${truncUnit}, ${intervalVal}),
+           DATE_TRUNC(${truncUnit}, NOW()),
+          ${seriesInterval}::interval
+        ) AS date
+      ),
+      submission_data AS (
+        SELECT
+          COUNT(DISTINCT ${responsesTable.respondent}) as count,
+          DATE_TRUNC(${truncUnit}, ${respondentTable.createdAt}) as date
+        FROM ${responsesTable}
+        INNER JOIN ${respondentTable}
+          ON ${respondentTable.id} = ${responsesTable.respondent}
+        WHERE ${responsesTable.form} = ${formId}
+          AND ${respondentTable.createdAt} >= ${intervalVal}
+        GROUP BY date
+      )
+      SELECT
+        COALESCE(submission_data.count, 0) as count,
+        date_series.date as date
+      FROM date_series
+      LEFT JOIN submission_data ON date_series.date = submission_data.date
+      ORDER BY date_series.date ASC
+    `);
+
+    return submissions.rows;
   } catch (e) {
     commonCatch(e);
   }
@@ -180,27 +219,38 @@ export const getUniqueSubmissionByTimeService = async (
   try {
     const db = await getDb();
     const intervalVal = INTERVAL_MAP[interval];
-    const submissions = await db
-      .select({
-        count: countDistinct(respondentTable.ip),
-        // respondent: responsesTable.respondent,
-        date: sql`DATE_TRUNC('day',${respondentTable.createdAt})`,
-      })
-      .from(responsesTable)
-      .where(
-        and(
-          eq(responsesTable.form, formId),
-          sql`${responsesTable.createdAt} >= ${intervalVal}`
-        )
-      )
-      .innerJoin(
-        respondentTable,
-        eq(respondentTable.id, responsesTable.respondent)
-      )
-      .groupBy(sql`DATE_TRUNC('day',${respondentTable.createdAt})`)
-      .orderBy(asc(sql`DATE_TRUNC('day',${respondentTable.createdAt})`));
+    const isShortInterval = ["3h", "6h", "12h", "24h"].includes(interval);
+    const truncUnit = isShortInterval ? "hour" : "day";
+    const seriesInterval = isShortInterval ? "1 hour" : "1 day";
 
-    return submissions;
+    const submissions = await db.execute(sql`
+      WITH date_series AS (
+        SELECT generate_series(
+          DATE_TRUNC(${truncUnit}, ${intervalVal}),
+          DATE_TRUNC(${truncUnit}, NOW()),
+          ${seriesInterval}::interval
+        ) AS date
+      ),
+      submission_data AS (
+        SELECT
+          COUNT(DISTINCT ${respondentTable.ip}) as count,
+          DATE_TRUNC(${truncUnit}, ${respondentTable.createdAt}) as date
+        FROM ${responsesTable}
+        INNER JOIN ${respondentTable}
+          ON ${respondentTable.id} = ${responsesTable.respondent}
+        WHERE ${responsesTable.form} = ${formId}
+          AND ${respondentTable.createdAt} >= ${intervalVal}
+        GROUP BY date
+      )
+      SELECT
+        COALESCE(submission_data.count, 0) as count,
+        date_series.date as date
+      FROM date_series
+      LEFT JOIN submission_data ON date_series.date = submission_data.date
+      ORDER BY date_series.date ASC
+    `);
+
+    return submissions.rows;
   } catch (e) {
     commonCatch(e);
   }

@@ -6,6 +6,8 @@ import { useLandingStore } from "@/stores/useLandingStore";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import heroImg from "@/public/hero-2.webp";
+import Image from "next/image";
 
 export const Hero = () => {
   const { landingEditorContent } = useLandingStore((s) => s);
@@ -21,14 +23,15 @@ export const Hero = () => {
     });
   }, [form]);
   return (
-    <section id="hero" className="w-full relative overflow-hidden py-36 px-4">
-      <div className="grid gap-32">
-        <div className=" space-y-8 py-2">
+    <section id="hero" className="w-full relative overflow-hidden pt-36 ">
+      <div className="grid gap-4">
+        <div className={`space-y-8 py-2 min-h-screen`}>
           {/* Main headline */}
-          <h1 className="max-w-lg text-4xl sm:text-5xl font-bold tracking-tight text-left">
+          <h1 className="max-w-lg text-4xl sm:text-5xl font-bold tracking-tight text-left ">
             Make
             <Button className="sm:mx-2 mx-1" variant={"ghost"} size={"icon"}>
               <svg
+                role="icon"
                 xmlns="http://www.w3.org/2000/svg"
                 className="size-6 sm:size-8 fill-emerald-400"
                 viewBox="0 0 24 24"
@@ -56,6 +59,7 @@ export const Hero = () => {
             forms your{" "}
             <Button className="" variant={"ghost"} size={"icon"}>
               <svg
+                role="icon"
                 xmlns="http://www.w3.org/2000/svg"
                 className="size-6 sm:size-8 fill-primary"
                 viewBox="0 0 24 24"
@@ -98,6 +102,7 @@ export const Hero = () => {
             users actually{" "}
             <Button variant={"ghost"} size={"icon"} className="">
               <svg
+                role="icon"
                 xmlns="http://www.w3.org/2000/svg"
                 className=" size-6 sm:size-8 fill-red-500 "
                 viewBox="0 0 24 24"
@@ -127,7 +132,7 @@ export const Hero = () => {
             favorite tools—all in one place.
           </p>
 
-          {/* CTA Buttons */}
+          {/* CTA */}
           <div className="flex items-center ">
             <Link href={"/auth"}>
               <Button size={"lg"} className="">
@@ -136,32 +141,33 @@ export const Hero = () => {
             </Link>
           </div>
         </div>
-        {/* editor demo */}
+
+        {/* editor  */}
         <div className="w-full">
-          <span className="  p-2 text-sm  w-fit text-muted-foreground  flex items-center gap-2 mb-2 border ">
-            play with editor
-            <span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className=" size-4 fill-foreground  "
-                viewBox="0 0 24 24"
-                fill="#fff"
-              >
-                <path
-                  d="M12 21.2501C11.81 21.2501 11.62 21.1801 11.47 21.0301L5.4 14.9601C5.11 14.6701 5.11 14.1901 5.4 13.9001C5.69 13.6101 6.17 13.6101 6.46 13.9001L12 19.4401L17.54 13.9001C17.83 13.6101 18.31 13.6101 18.6 13.9001C18.89 14.1901 18.89 14.6701 18.6 14.9601L12.53 21.0301C12.38 21.1801 12.19 21.2501 12 21.2501Z"
-                  fill="white"
-                  style={{ fill: "var(--fillg)" }}
-                />
-                <path
-                  d="M12 21.08C11.59 21.08 11.25 20.74 11.25 20.33V3.5C11.25 3.09 11.59 2.75 12 2.75C12.41 2.75 12.75 3.09 12.75 3.5V20.33C12.75 20.74 12.41 21.08 12 21.08Z"
-                  fill="white"
-                  style={{ fill: "var(--fillg)" }}
-                />
-              </svg>
-            </span>
-          </span>
+          <Button variant={"outline"} className="mb-2">
+            Editor
+            <svg
+              role="icon"
+              xmlns="http://www.w3.org/2000/svg"
+              className=" size-4 fill-foreground  "
+              viewBox="0 0 24 24"
+              fill="#fff"
+            >
+              <path
+                d="M12 21.2501C11.81 21.2501 11.62 21.1801 11.47 21.0301L5.4 14.9601C5.11 14.6701 5.11 14.1901 5.4 13.9001C5.69 13.6101 6.17 13.6101 6.46 13.9001L12 19.4401L17.54 13.9001C17.83 13.6101 18.31 13.6101 18.6 13.9001C18.89 14.1901 18.89 14.6701 18.6 14.9601L12.53 21.0301C12.38 21.1801 12.19 21.2501 12 21.2501Z"
+                fill="white"
+                style={{ fill: "var(--fillg)" }}
+              />
+              <path
+                d="M12 21.08C11.59 21.08 11.25 20.74 11.25 20.33V3.5C11.25 3.09 11.59 2.75 12 2.75C12.41 2.75 12.75 3.09 12.75 3.5V20.33C12.75 20.74 12.41 21.08 12 21.08Z"
+                fill="white"
+                style={{ fill: "var(--fillg)" }}
+              />
+            </svg>
+          </Button>
+
           <div
-            className="w-full h-[500px] relative border overflow-y-auto "
+            className="w-full h-[500px] relative border overflow-y-auto rounded-md "
             style={{ scrollbarWidth: "none" }}
           >
             <FormEditor

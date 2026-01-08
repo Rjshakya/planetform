@@ -16,13 +16,13 @@ export const PreviewButton = () => {
     const json = editor.getJSON();
     setContent(json);
     console.log(json);
-    
+
     useFormStore.setState({ activeStep: 0 });
     router.push("/preview");
   }, [editor, router, setContent]);
 
   return (
-    <Button onClick={handlePreview} variant={"outline"} size={"sm"}>
+    <Button onClick={handlePreview} variant={"outline"}>
       Preview
     </Button>
   );

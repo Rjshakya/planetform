@@ -27,8 +27,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-export const CutomizationPanel = () => {
+export const CustomizationPanelTrigger = () => {
+  const { setOpenSideBar, openSideBar } = useEditorStore((s) => s);
+
+  return (
+    <>
+      <Sheet>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SheetTrigger asChild>
+              <Button size={"icon"} variant={"ghost"}>
+                <Bolt />
+              </Button>
+            </SheetTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Customization</TooltipContent>
+        </Tooltip>
+
+        <SheetContent className=" min-h-screen pb-6 font-sans overflow-y-auto">
+          <SheetTitle className="p-3">Customization Panel</SheetTitle>
+          <CustomizationPanel />
+        </SheetContent>
+      </Sheet>
+    </>
+  );
+};
+
+export const CustomizationPanel = () => {
+  const { setOpenSideBar, openSideBar } = useEditorStore((s) => s);
   const formFontFamily = [
     { name: "Default", value: "var(--font-sans)" },
     { name: "Geist-mono", value: "var(--font-geist-mono)" },
@@ -61,103 +89,88 @@ export const CutomizationPanel = () => {
   ];
 
   return (
-    <Sheet>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <SheetTrigger asChild>
-            <Button size={"icon"} variant={"ghost"}>
-              <Bolt />
-            </Button>
-          </SheetTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Customisation</TooltipContent>
-      </Tooltip>
-
-      <SheetContent  className=" min-h-screen pb-6 font-sans">
-        <SheetTitle className="p-3">Customization Panel</SheetTitle>
-        
-        <div className=" px-2 grid gap-6">
-          <div className="grid gap-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Font family
-            </Label>
-            <FontFamilyBox families={formFontFamily} />
-          </div>
-
-          <div className="grid gap-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Font size
-            </Label>
-            <FontSizeBox
-              sizes={fontSizes}
-              currentSize={useEditorStore.getState().formFontSize || ""}
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pr-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Background color
-            </Label>
-            <FormBackgroundColorBox />
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pr-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Text color
-            </Label>
-            <FormTextColorBox />
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pr-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Button color
-            </Label>
-            <ActionBtnColorBox />
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pr-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Button text color
-            </Label>
-            <ActionBtnTextColorBox />
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pr-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Button border color
-            </Label>
-            <ActionBtnBorderColorBox />
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pr-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Input background color
-            </Label>
-            <InputBackgroundColorBox />
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pr-2">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Input border color
-            </Label>
-            <InputBorderColorBox />
-          </div>
-
-          <div className="flex items-center justify-between gap-3">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Form color scheme
-            </Label>
-            <ColorSchemeBox />
-          </div>
-          <div className="grid gap-3">
-            <Label className=" text-muted-foreground/80 text-sm pl-1">
-              Thankyou message
-            </Label>
-            <CustomThankyouMessageBox />
-          </div>
+    <>
+      <div className=" px-2 grid gap-6">
+        <div className="grid gap-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Font family
+          </Label>
+          <FontFamilyBox families={formFontFamily} />
         </div>
-      </SheetContent>
-    </Sheet>
+
+        <div className="grid gap-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Font size
+          </Label>
+          <FontSizeBox
+            sizes={fontSizes}
+            currentSize={useEditorStore.getState().formFontSize || ""}
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pr-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Background color
+          </Label>
+          <FormBackgroundColorBox />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pr-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Text color
+          </Label>
+          <FormTextColorBox />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pr-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Button color
+          </Label>
+          <ActionBtnColorBox />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pr-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Button text color
+          </Label>
+          <ActionBtnTextColorBox />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pr-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Button border color
+          </Label>
+          <ActionBtnBorderColorBox />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pr-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Input background color
+          </Label>
+          <InputBackgroundColorBox />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pr-2">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Input border color
+          </Label>
+          <InputBorderColorBox />
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Form color scheme
+          </Label>
+          <ColorSchemeBox />
+        </div>
+        <div className="grid gap-3">
+          <Label className=" text-muted-foreground/80 text-sm pl-1">
+            Thankyou message
+          </Label>
+          <CustomThankyouMessageBox />
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -167,11 +180,10 @@ export const FontFamilyBox = ({ families }: { families: any[] }) => {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover modal open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          role="combobox"
           aria-expanded={open}
           className=" w-full justify-between text-sm"
           ref={buttonRef}
@@ -183,7 +195,7 @@ export const FontFamilyBox = ({ families }: { families: any[] }) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={cn(`p-0 mt-2 font-sans max-h-64 overflow-y-auto z-[999]`)}
+        className={cn(`p-0 mt-2 font-sans max-h-64 overflow-y-auto z-999`)}
         style={{
           width: buttonRef?.current?.offsetWidth
             ? `${buttonRef.current.offsetWidth}px`
@@ -236,7 +248,7 @@ export const FontSizeBox = ({
   }, [currentSize]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover modal open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"

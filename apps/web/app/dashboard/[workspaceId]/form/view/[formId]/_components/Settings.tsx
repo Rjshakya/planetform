@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/use-User";
 import { apiClient } from "@/lib/axios";
+import { toastPromiseOptions } from "@/lib/toast";
 import { Loader, TriangleAlert } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -27,6 +28,7 @@ export const Settings = () => {
     () => `/api/form/settings/` + formId,
     fetcher
   );
+
   const [state, setState] = useState({
     closed: data?.settings?.closed || false,
     closedMessage: data?.settings?.closedMessage || "This form is closed",
@@ -41,15 +43,16 @@ export const Settings = () => {
       ...state,
     };
 
-    const { status } = await apiClient.post(
-      `/api/form/settings/update`,
-      payload
-    );
-    if (status === 200) {
-      toast.success("form settings saved");
-    } else {
-      toast.error("failed to save form settings");
-    }
+    try {
+      const { status } = await apiClient.post(
+        `/api/form/settings/update`,
+        payload
+      );
+    } catch (e) {}
+  };
+
+  const handleSubmitWithToast = () => {
+    return toast.promise(handleSubmit, toastPromiseOptions({}));
   };
 
   if (error) {
@@ -72,22 +75,24 @@ export const Settings = () => {
 
   return (
     <Card className=" border-none shadow-none bg-background">
-      <CardContent className="grid gap-4">
-        <Label
-          htmlFor="check"
-          className=" flex items-center justify-between gap-2  bg-muted rounded-sm py-4 px-2"
-        >
-          <span className=" text-base font-semibold pl-1">Close form</span>
-          <Switch
-            id="check"
-            checked={state.closed}
-            onCheckedChange={(c) => {
-              setState({ ...state, closed: c, disable: false });
-            }}
-          />
-        </Label>
-        <div className="grid gap-4 bg-muted py-4 px-2">
-          <Label className="pl-1 text-base font-semibold">Closed message</Label>
+      <CardContent className="grid gap-4 px-1">
+        <div className=" bg-muted/70 rounded-md">
+          <Label
+            htmlFor="check"
+            className=" flex items-center justify-between gap-2  py-4 px-2"
+          >
+            <span className=" text-base pl-1">Close form</span>
+            <Switch
+              id="check"
+              checked={state.closed}
+              onCheckedChange={(c) => {
+                setState({ ...state, closed: c, disable: false });
+              }}
+            />
+          </Label>
+        </div>
+        <div className="grid gap-4 bg-muted/70 py-4 px-2 rounded-md">
+          <Label className="pl-1 text-base">Closed message</Label>
           <Textarea
             className=" appearance-none bg-transparent border-none shadow-none"
             value={state.closedMessage}
@@ -101,12 +106,12 @@ export const Settings = () => {
           />
         </div>
       </CardContent>
-      <CardFooter className="">
-        <CardAction className="px-1">
+      <CardFooter className=" px-1">
+        <CardAction className="">
           <Button
-            onClick={handleSubmit}
+            onClick={handleSubmitWithToast}
             variant={"destructive"}
-            className="w-[120px]"
+            className="w-[220px] h-12"
             size={"lg"}
             disabled={state.disable}
           >

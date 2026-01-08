@@ -45,7 +45,6 @@ const app = new Hono()
     if (specialRateLimitedPaths.includes(pathname) && method === "POST") {
       return await next();
     }
-
     const { success } = await env.MY_GENERAL_LIMITER.limit({ key: pathname });
     if (!success) {
       return c?.json(

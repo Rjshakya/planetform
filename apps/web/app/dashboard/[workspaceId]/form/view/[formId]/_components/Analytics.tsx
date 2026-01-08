@@ -284,21 +284,21 @@ export const Analytics = () => {
           </SelectContent>
         </Select>
       </div>
-      <div className=" grid md:grid-cols-2 grid-cols-1 md:gap-1 gap-2 mt-4">
+      <div className=" grid md:grid-cols-2 grid-cols-1 md:gap-2 gap-2 mt-4">
         {AnalyticsTypes?.map((I) => {
           return (
             <Card
               key={I.id}
-              className=" rounded-md bg-muted/50 dark:bg-muted/40 shadow-none border-none py-3 "
+              className=" rounded-2xl bg-card shadow-none  gap-1 p-1 "
             >
-              <CardHeader className=" mb-4 gap-3  ">
+              <CardHeader className=" gap-2  p-3 ">
                 <p className="text-xs text-muted-foreground">{I.text}</p>
-                <div className="flex items-start justify-between gap-1">
-                  <Button size={"icon"} variant={"secondary"}>
+                <div className="flex items-start justify-between">
+                  {/* <Button size={"icon"} variant={"secondary"}>
                     {" "}
                     {I.icon}
-                  </Button>
-                  <div className="  ">
+                  </Button> */}
+                  <div className="">
                     {I.data && I.data.length > 0 ? (
                       <TotalCountComp arr={I.data} />
                     ) : (
@@ -307,9 +307,9 @@ export const Analytics = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="px-8">
+              <CardContent className="px-4 py-10 bg-accent/80 dark:bg-accent/40 rounded-2xl">
                 {I.data && I.data.length > 0 ? (
-                  <AnalyticsBarChart data={I.data} />
+                  <AnalyticsBarChart data={I.data} interval={interval} />
                 ) : (
                   <div className=" flex items-center justify-center text-muted-foreground text-sm">
                     No data available
@@ -329,41 +329,45 @@ export const TotalCountComp = ({ arr }: { arr: IAnalyticsObj[] }) => {
 
   useEffect(() => {
     if (!arr) return;
-    const total = arr?.reduce((acc, curr) => acc + curr?.count, 0);
+    const total = arr?.reduce(
+      (acc, curr) => acc + parseInt(`${curr?.count}`),
+      0
+    );
 
     setTotalCount(total);
   }, [arr]);
 
-  return <p className="text-lg font-bold">{totalCount || 0}</p>;
+  return <p className="text-4xl font-bold">{totalCount || 0}</p>;
 };
 
-const AnalyticsBarChart = ({ data }: { data: IAnalyticsObj[] }) => {
+const AnalyticsBarChart = ({
+  data,
+  interval,
+}: {
+  data: IAnalyticsObj[];
+  interval: string;
+}) => {
   // Format date for display (show only time for today, or date for longer periods)
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string, interval: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
 
-    if (isToday) {
-      return date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      });
+    if (interval.includes("h")) {
+      return date.getHours().toString() + " h";
     }
 
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
+    return date.getDate().toString();
   };
 
   const chartData = data.map((item) => ({
-    date: formatDate(item.date),
+    date: formatDate(item.date, interval),
     count: item.count,
   }));
 
   const chartConfig = {
+    date: {
+      label: "Date",
+      color: "var(--primary)",
+    },
     count: {
       label: "Count",
       color: "var(--primary)",
@@ -372,21 +376,15 @@ const AnalyticsBarChart = ({ data }: { data: IAnalyticsObj[] }) => {
 
   return (
     <ChartContainer config={chartConfig} className=" w-full">
-      <BarChart
-        accessibilityLayer
-        data={chartData}
-        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-        barSize={15}
-      >
-        {/* <CartesianGrid vertical={false} /> */}
+      <BarChart accessibilityLayer data={chartData}>
         <XAxis
           dataKey="date"
-          tick={{ fontSize: 12 }}
+          tick={{ fontSize: 10 }}
           tickLine={false}
           axisLine={false}
           tickMargin={10}
         />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+        <ChartTooltip content={<ChartTooltipContent indicator="dashed" />} />
         <Bar dataKey="count" fill="var(--color-count)" radius={4} />
       </BarChart>
     </ChartContainer>

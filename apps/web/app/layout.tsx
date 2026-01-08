@@ -19,7 +19,6 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -100,7 +99,7 @@ export const metadata: Metadata = {
     title: "Planetform",
     description:
       "Create beautiful, modern forms with an intuitive block-based editor. Simple to build, powerful to analyze",
-    images:"https://bucket.planetform.xyz/planetform-assets/og-planetform.png"
+    images: "https://bucket.planetform.xyz/planetform-assets/og-planetform.png",
   },
   openGraph: {
     type: "website",
@@ -110,9 +109,8 @@ export const metadata: Metadata = {
     emails: "rajshakya631@gmail",
     siteName: "Planetform",
     title: "Planetform",
-    images:"https://bucket.planetform.xyz/planetform-assets/og-planetform.png"
+    images: "https://bucket.planetform.xyz/planetform-assets/og-planetform.png",
   },
-
 };
 
 export default function RootLayout({
@@ -127,7 +125,7 @@ export default function RootLayout({
           ${robotoMono.variable} ${robotoSerif.variable} ${poppins.variable} ${acme.variable} ${playfair.variable} ${instrumentSerif.variable}`)}
       >
         <div className={`font-sans tracking-tighter `}>{children}</div>
-        <Toaster className="font-sans" position="top-right" />
+        <Toaster richColors className="font-sans" position="top-right" />
       </body>
     </html>
   );

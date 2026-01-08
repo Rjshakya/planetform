@@ -11,7 +11,6 @@ import { createWorkspaceParams } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-
 export const DashboardComp = () => {
   const fetcher = (url: string) => apiClient.get(url).then((res) => res.data);
   const { user } = useUser();
@@ -108,7 +107,7 @@ export const DashboardComp = () => {
         </Button>
       </div>
       <div className=" grid md:grid-cols-2 grid-cols-1 gap-2">
-        <Card className=" shadow-none border-none">
+        <Card className=" shadow-none border-none bg-muted/40 dark:bg-card">
           <CardHeader className="px-7">
             <Button size={"icon"} variant={"secondary"}>
               <div className="">
@@ -141,20 +140,20 @@ export const DashboardComp = () => {
             </Button>
           </CardHeader>
           <CardContent className=" px-8 flex flex-col gap-2">
-            <p className="">
-            {data?.TotalWorkspaces || 0}
+            <p className="font-semibold text-2xl">
+              {data?.TotalWorkspaces || 0}
             </p>
             <p>Workspace</p>
           </CardContent>
         </Card>
-        <Card className=" shadow-none border-none ">
+        <Card className=" shadow-none border-none bg-muted/40 dark:bg-card ">
           <CardHeader className="px-7">
             <Button size={"icon"} variant={"secondary"}>
               {" "}
               <div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`size-5 ${data?.TotalForms ? 'fill-green-500' : 'fill-red-500'}`}
+                  className={`size-5 ${data?.TotalForms ? "fill-green-500" : "fill-red-500"}`}
                   viewBox="0 0 24 24"
                   fill="#fffcfc"
                 >
@@ -191,7 +190,7 @@ export const DashboardComp = () => {
             </Button>
           </CardHeader>
           <CardContent className=" px-8 flex flex-col gap-2">
-            <p>{data?.TotalForms || 0}</p>
+            <p className="font-semibold text-2xl">{data?.TotalForms || 0}</p>
             <p>Forms</p>
           </CardContent>
         </Card>

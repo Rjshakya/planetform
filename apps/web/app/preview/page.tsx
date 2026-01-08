@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/use-User";
 
 export default function PreviewPage() {
-  const indexUrl = process.env.NEXT_PUBLIC_CLIENT_URL as string
+  const indexUrl = process.env.NEXT_PUBLIC_CLIENT_URL as string;
   const { user } = useUser();
   const [schemas, setSchemas] = useState<JsonDoc[]>([]);
   const { formColorScheme } = useEditorStore((s) => s);
@@ -82,7 +82,7 @@ export default function PreviewPage() {
             </Button>
           </Link>
         </div>
-        {<>{<RenderForm docs={schemas} />}</>}
+        {<RenderForm docs={schemas} />}
       </div>
     </section>
   );

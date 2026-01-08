@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { authClient, signOut } from "@/lib/auth-client";
-import { ThemeToggle } from "./tiptap-main/simple/theme-toggle";
+import { ThemeToggle } from "./main-editor/simple/theme-toggle";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { fi } from "date-fns/locale";
 import Link from "next/link";

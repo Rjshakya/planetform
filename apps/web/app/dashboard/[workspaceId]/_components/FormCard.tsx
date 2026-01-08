@@ -36,6 +36,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { toastPromiseOptions } from "@/lib/toast";
 
 interface formProps {
   shortId: string;
@@ -47,6 +48,7 @@ export default function FormCard(props: formProps) {
   const { workspaceId: workspace } = useParams();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
   const handleDelete = async () => {
     if (!props?.shortId || !workspace) return;
 
@@ -54,18 +56,20 @@ export default function FormCard(props: formProps) {
     try {
       await apiClient.delete(`/api/form/${props?.shortId}`);
     } catch (e) {
-      toast("failed to delete this form");
+      console.log(e);
     }
 
     setDeleting(false);
-    toast(`${props.name} deleted!`);
     mutate(`/api/form/workspace/${workspace}`);
   };
-  const url = process.env.NEXT_PUBLIC_CLIENT_URL as string
+
+  const handleDeleteWithToast = () =>
+    toast.promise(handleDelete, toastPromiseOptions({}));
+
+  const url = process.env.NEXT_PUBLIC_CLIENT_URL as string;
 
   return (
     <Item
-      // onClick={() => router.push(`/dashboard/workspace/${props?.id}`)}
       className=" py-2.5 px-2 cursor-pointer"
       variant={"default"}
       size={"default"}
@@ -74,12 +78,6 @@ export default function FormCard(props: formProps) {
       <Link href={`/dashboard/${workspace}/form/view/${props.shortId}`}>
         <ItemContent className=" px-0.5 ">
           <ItemTitle>
-            {/* <Link
-              className=" hover:underline-offset-2 hover:underline"
-              href={`/dashboard/${workspace}/form/view/${props.shortId}`}
-            >
-              <p className=" capitalize">{props?.name || "form"}</p>
-            </Link> */}
             <p className=" capitalize">{props?.name || "form"}</p>
           </ItemTitle>
         </ItemContent>
@@ -100,7 +98,6 @@ export default function FormCard(props: formProps) {
                   target="_blank"
                   href={`${url}/${props.shortId}`}
                 >
-                  
                   <span className=" ">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -273,9 +270,9 @@ export default function FormCard(props: formProps) {
                   </div>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDelete()}>
+                    <AlertDialogAction onClick={handleDeleteWithToast}>
                       {deleting && <Loader className=" animate-spin" />}
-                      Delete
+                      Confirm
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

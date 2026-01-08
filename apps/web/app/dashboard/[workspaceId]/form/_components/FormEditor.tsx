@@ -1,6 +1,6 @@
 "use client";
 
-import { SimpleEditor } from "@/components/tiptap-main/simple/simple-editor";
+import { SimpleEditor } from "@/components/main-editor/simple/simple-editor";
 import { JsonDoc } from "@/lib/types";
 import { cn } from "@/lib/utils";
 

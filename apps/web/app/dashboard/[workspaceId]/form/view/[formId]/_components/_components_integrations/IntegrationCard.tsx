@@ -45,7 +45,7 @@ export const IntegrationCard = ({
   };
   icon: JSX.Element;
 }) => {
-  const clientUrl = process.env.NEXT_PUBLIC_CLIENT_URL as string
+  const clientUrl = process.env.NEXT_PUBLIC_CLIENT_URL as string;
   const router = useRouter();
   const handleConnect = async () => {
     if (provider === "Google") {
@@ -79,7 +79,7 @@ export const IntegrationCard = ({
         provider === "Gmail"
           ? `${clientUrl}/dashboard/${workspaceId}/form/connection/${formId}?type=gmail`
           : `${clientUrl}/dashboard/${workspaceId}/form/connection/${formId}?type=gmail-notify`;
-      
+
       await authClient.linkSocial({
         provider: "google",
         scopes: [
@@ -88,8 +88,6 @@ export const IntegrationCard = ({
         ],
         callbackURL,
       });
-
-
     }
 
     if (provider === "Webhook") {
@@ -108,7 +106,7 @@ export const IntegrationCard = ({
       )}
       <CardHeader className="gap-2 ">
         {icon && icon}
-        <CardTitle className=" capitalize">{provider}</CardTitle>
+        <CardTitle className=" capitalize font-medium">{provider}</CardTitle>
         <CardDescription className="">{description}</CardDescription>
       </CardHeader>
 

@@ -20,8 +20,8 @@ import { mutate } from "swr";
 import {
   filterFormFields,
   getCustomization,
-  handleFormSchema,
 } from "../../../create/_components/PublishForm";
+import { toastPromiseOptions } from "@/lib/toast";
 
 export const EditForm = () => {
   const { editor } = useCurrentEditor();
@@ -35,9 +35,8 @@ export const EditForm = () => {
 
   const handleSaveEditForm = async () => {
     if (!editor) return;
-    const json = editor.getJSON();
-    // const schema = handleFormSchema(json)
-    const fields = filterFormFields(json, formId as string);
+    const schema = editor.getJSON();
+    const fields = filterFormFields(schema, formId as string);
     const formCustomisation = JSON.stringify(getCustomization());
 
     setCreating(true);
@@ -45,26 +44,29 @@ export const EditForm = () => {
       await apiClient.put(`/api/form`, {
         formId,
         formName,
-        form_schema: JSON.stringify(json),
+        form_schema: JSON.stringify(schema),
         fields,
         formCustomisation,
       });
 
-      toast(`form updated. successfully`);
       setOpen(false);
       router.push(`/dashboard/${workspaceId}`);
       mutate(`/api/form/${formId}`);
     } catch (e) {
-      toast(`failed to save the form`);
+      throw e;
     }
 
     setCreating(false);
   };
 
+  const handleSaveEditFormWithToast = () => {
+    return toast.promise(handleSaveEditForm, toastPromiseOptions({}));
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size={"sm"}>Save</Button>
+        <Button>Save</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -75,6 +77,11 @@ export const EditForm = () => {
           <Input
             value={formName}
             onChange={(e) => setFormName(e?.currentTarget?.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSaveEditFormWithToast();
+              }
+            }}
             placeholder="please provide form name"
           />
         </div>
@@ -86,10 +93,9 @@ export const EditForm = () => {
           >
             Cancel
           </Button>
-          <Button onClick={async () => await handleSaveEditForm()}>
-             <span>Save</span>
+          <Button onClick={handleSaveEditFormWithToast}>
+            <span>Save</span>
             {creating && <Loader className={`animate-spin`} />}
-           
           </Button>
         </DialogFooter>
       </DialogContent>

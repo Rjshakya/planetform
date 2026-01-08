@@ -30,8 +30,8 @@ const features = [
 
 export const Features = () => {
   return (
-    <section id="features" className="w-full px-4">
-      <div className="grid gap-32 px-4 bg-foreground py-36 rounded-4xl">
+    <section id="features" className="w-full ">
+      <div className="grid gap-32 p-12 md:p-28 bg-foreground ">
         <div className=" space-y-8  text-background">
           <Badge
             variant="outline"

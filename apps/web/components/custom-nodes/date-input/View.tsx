@@ -24,18 +24,24 @@ import { NodeViewProps } from "@tiptap/core";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 import { InsertDateInputParams } from "./node";
 import { validationFn } from "../FormFieldValidations";
+import { useConditionalVisibility } from "@/hooks/use-conditional-visibility";
 
 export const DateInputView = (props: NodeViewProps) => {
   const form = useFormStore.getState().getHookForm();
-  const { id, label, placeholder ,  isRequired } = props?.node
+  const { id, label, placeholder, isRequired } = props?.node
     ?.attrs as InsertDateInputParams;
+  const isVisible = useConditionalVisibility(id);
+
+  if (!isVisible && !props?.editor?.isEditable) {
+    return null;
+  }
 
   return (
     <NodeViewWrapper as={"div"}>
       <FormField
         control={form?.control}
         name={id}
-        rules={{validate:validationFn({isRequired, type:"dateInput"})}}
+        rules={{ validate: validationFn({ isRequired, type: "dateInput" }) }}
         render={({ field }) => (
           <FormItem
             className={`mt-4 field gap-3 ${
@@ -63,7 +69,7 @@ export const DateInputView = (props: NodeViewProps) => {
                     className={cn(
                       "w-full pl-3 h-[50px] text-left font-normal dark:bg-input/40 bg-input/70 border-secondary border-2 ",
                       !field.value && "text-muted-foreground",
-                      "hover:bg-input/70"
+                      "hover:bg-input/70",
                     )}
                   >
                     {field.value ? (

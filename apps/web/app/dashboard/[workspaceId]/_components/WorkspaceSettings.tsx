@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/axios";
+import { toastPromiseOptions } from "@/lib/toast";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -38,47 +39,53 @@ export const WorkspaceSettings = ({
       };
       const { status } = await apiClient.patch(`/api/workspace`, body);
       if (status === 200) {
-        toast.success("workspace updated");
         mutate(`/api/form/workspace/${workspaceId}`);
       }
-    } catch (e) {
-      toast.error("failed to update workspace");
-    }
+    } catch (e) {}
+  };
+
+  const handleWorkspaceUpdateWithToast = (params: IworkspaceData) => {
+    return toast.promise(
+      async () => handleWorkspaceUpdate(params),
+      toastPromiseOptions({})
+    );
   };
 
   return (
-    <Card className="border-none shadow-none rounded-sm bg-background ">
-      <CardContent className="grid gap-3">
-        <Label>Name</Label>
-        <Input
-          value={workspaceData.name}
-          onChange={(e) => {
-            setWorkspaceData({
-              ...workspaceData,
-              name: e.target?.value,
-            });
-            if (workspaceName !== e.target.value) {
-              setDisable(false);
-            } else {
-              setDisable(true);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleWorkspaceUpdate(workspaceData);
-              setDisable(true)
-            }
-          }}
-          placeholder="Workspace Name"
-          className=""
-        />
+    <Card className="border-none shadow-none rounded-sm bg-background px-0 ">
+      <CardContent className="grid gap-3 px-1">
+        <div className="bg-muted rounded-md grid gap-3 px-2 py-4">
+          <Label>Name</Label>
+          <Input
+            value={workspaceData.name}
+            onChange={(e) => {
+              setWorkspaceData({
+                ...workspaceData,
+                name: e.target?.value,
+              });
+              if (workspaceName !== e.target.value) {
+                setDisable(false);
+              } else {
+                setDisable(true);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleWorkspaceUpdate(workspaceData);
+                setDisable(true);
+              }
+            }}
+            placeholder="Workspace Name"
+            className=" text-muted-foreground"
+          />
+        </div>
       </CardContent>
-      <CardFooter>
-        <CardAction className="px-0.5">
+      <CardFooter className=" px-1">
+        <CardAction className="">
           <Button
-            onClick={() => handleWorkspaceUpdate(workspaceData)}
+            onClick={() => handleWorkspaceUpdateWithToast(workspaceData)}
             variant={"destructive"}
-            className="w-[120px]"
+            className="w-[220px] h-12"
             size={"lg"}
             disabled={disable}
           >
