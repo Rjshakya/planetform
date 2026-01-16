@@ -7,7 +7,7 @@ import { integration as integrationTable } from "../db/schema/integration";
 import { env } from "cloudflare:workers";
 
 export const createResponseService = async (
-  responseValues: typeof responsesTable.$inferInsert
+  responseValues: typeof responsesTable.$inferInsert,
 ) => {
   try {
     const db = await getDb();
@@ -24,10 +24,11 @@ export const createResponseService = async (
 export const getFormResponsesService = async (
   formId: typeof responsesTable.$inferInsert.form,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ) => {
   try {
     const db = await getDb();
+
     const respondents = await db
       .select({
         respondent: responsesTable.respondent,
@@ -41,6 +42,7 @@ export const getFormResponsesService = async (
 
     const respondentIds = respondents?.map((r) => r?.respondent);
 
+    // respondents which have responses.
     const [respondentCount] = await db
       .select({
         count: countDistinct(responsesTable.respondent),
@@ -50,6 +52,7 @@ export const getFormResponsesService = async (
 
     const totalPages = Math.ceil(respondentCount?.count / pageSize);
 
+    // headers of data-table
     const headers = await db
       .select({
         id: formFieldTable.id,
@@ -59,7 +62,7 @@ export const getFormResponsesService = async (
       .where(eq(formFieldTable.form, formId))
       .orderBy(formFieldTable.updatedAt);
 
-    headers.unshift({ label: "Time", id: "Time" });
+    headers.unshift({ label: "createdAt", id: "createdAt" });
 
     const responses = await db
       .select({
@@ -69,37 +72,49 @@ export const getFormResponsesService = async (
         respondent: responsesTable.respondent,
         form: responsesTable.form,
         createdAt: responsesTable.createdAt,
+        label: formFieldTable.label,
       })
       .from(responsesTable)
+      .leftJoin(
+        formFieldTable,
+        eq(responsesTable.form_field, formFieldTable.id),
+      )
       .where(inArray(responsesTable.respondent, respondentIds))
       .orderBy(responsesTable.createdAt);
 
-    const responsesObject = responses?.reduceRight((acc, curr) => {
-      if (!acc[curr?.respondent]) {
-        acc[curr?.respondent] = {
-          [curr?.field!]: { value: curr?.value, id: curr?.id },
-          Time: { value: curr?.createdAt, id: "time" },
-          id: curr?.respondent,
-          form: curr?.form,
-        };
-      }
+    const rows = responses.reduce(
+      (acc, currItem) => {
+        const { label, respondent, value, field, createdAt } = currItem;
 
-      if (acc[curr?.respondent]) {
-        acc[curr?.respondent][curr?.field!] = {
-          value: curr?.value,
-          id: curr?.id,
-        };
-      }
+        if (!acc[respondent]) {
+          acc[respondent] = {
+            id: respondent,
+            createdAt: { id: "createdAt", value: createdAt.toISOString() },
+            [field as string]: {
+              id: field as string,
+              value: value as string,
+            },
+          };
+        } else {
+          acc[respondent][field as string] = {
+            id: field as string,
+            value: value as string,
+          };
+        }
 
-      return acc;
-    }, {} as Record<any, any>);
-
-    const res = Object.entries(responsesObject)?.map((r) => {
-      return r[1];
-    });
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          id: string;
+          [key: string]: { id: string; value: string } | string;
+        }
+      >,
+    );
 
     return {
-      res,
+      rows: Object.values(rows),
       headers,
       pageIndex,
       pageSize,
@@ -112,8 +127,8 @@ export const getFormResponsesService = async (
 };
 
 export const createMultipleResponsesService = async (
-  responses: (typeof responsesTable.$inferInsert)[],
-  userId: string
+  responses: typeof responsesTable.$inferInsert[],
+  userId: string,
 ) => {
   try {
     const db = await getDb();
@@ -127,7 +142,7 @@ export const createMultipleResponsesService = async (
 
     const integrations = await db.$count(
       integrationTable,
-      eq(integrationTable.formId, formId)
+      eq(integrationTable.formId, formId),
     );
 
     const { success } = await env.MY_WORKFLOWS_LIMITER.limit({
@@ -159,7 +174,7 @@ export const createMultipleResponsesService = async (
 
 export const editResponseService = async (
   responseId: string,
-  values: typeof responsesTable.$inferInsert
+  values: typeof responsesTable.$inferInsert,
 ) => {
   try {
     const db = await getDb();

@@ -18,6 +18,7 @@ export const Logo = ({
       <div className={cn(` flex items-center justify-center gap-2`, className)}>
         <div className="size-5 text-primary">
           <svg
+            role="logo"
             className={cn(`size-4 fill-foreground`, svgClassName)}
             viewBox="0 0 200 200"
             fill="none"

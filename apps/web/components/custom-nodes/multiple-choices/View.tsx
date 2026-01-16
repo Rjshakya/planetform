@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
-import { useRef, useState } from "react";
 import { InsertMultipleChoiceParams, Ioptions } from "./node";
 
 import { useFormStore } from "@/stores/useformStore";
@@ -19,14 +18,6 @@ import { NodeViewContent } from "@tiptap/react";
 import { AnimatePresence, motion } from "motion/react";
 import { validationFn } from "../FormFieldValidations";
 
-import { useOutsideClick } from "@/hooks/use-outside-click";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,

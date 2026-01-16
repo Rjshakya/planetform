@@ -8,6 +8,7 @@ import {
   deleteWorkspaceService,
   getUserWorkspaceService,
   getWorkspacesWithFormsService,
+  getWorkspaceWithFormsService,
   updateWorkspaceFormService,
 } from "../services/workspace";
 import z from "zod";
@@ -43,13 +44,21 @@ const workspace = new Hono<{
       return c.json({ workspace });
     }
   )
-
   .get(
     "/forms/:userId",
     zValidator("param", z.object({ userId: z.string().nonempty() })),
     async (c) => {
       const { userId } = c.req.valid("param");
       const workspace = await getWorkspacesWithFormsService(userId);
+      return c.json({ workspace });
+    }
+  )
+  .get(
+    "/form/:workspaceId",
+    zValidator("param", z.object({ workspaceId: z.string().nonempty() })),
+    async (c) => {
+      const { workspaceId } = c.req.valid("param");
+      const workspace = await getWorkspaceWithFormsService(workspaceId);
       return c.json({ workspace });
     }
   )

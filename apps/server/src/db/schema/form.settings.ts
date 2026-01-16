@@ -29,8 +29,8 @@ export const formSettingTableRelations = relations(
       fields: [formSetting.formId],
       references: [form.shortId],
     }),
-  })
+  }),
 );
 
-export type FormSetting = typeof formSetting.$inferInsert
-export type FormSettingSelect  = typeof formSetting.$inferSelect
+export type FormSetting = typeof formSetting.$inferInsert;
+export type FormSettingSelect = typeof formSetting.$inferSelect;

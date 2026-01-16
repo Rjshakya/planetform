@@ -24,7 +24,7 @@ export class WebHookFlow extends WorkflowEntrypoint {
     event: Readonly<WorkflowEvent<IWebHookFlowParams>>,
     step: WorkflowStep
   ) {
-    const { formId, url, respondentId, values, integrationId } = event?.payload;
+    const { formId, url, respondentId, values, integrationId } = event?.payload
     if (!formId || !url || !respondentId || !values || values?.length === 0) {
       throw new NonRetryableError("payload is missing");
     }

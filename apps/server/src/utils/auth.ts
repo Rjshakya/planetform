@@ -71,6 +71,7 @@ export const getAuth = async () => {
       },
     },
     plugins: [
+      // @ts-ignore
       dodopayments({
         client: dodoPayments,
         createCustomerOnSignUp: false,
@@ -115,5 +116,5 @@ export const getAuth = async () => {
         },
       },
     },
-  });
+  }) as ReturnType<typeof betterAuth>;
 };
