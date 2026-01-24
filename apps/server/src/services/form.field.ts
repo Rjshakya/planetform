@@ -1,19 +1,11 @@
+import { env } from "cloudflare:workers";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "../db/config.js";
-import { formField as formFieldTable } from "../db/schema/form.fields";
+import { formField as formFieldTable } from "../db/schema/form.fields.js";
 import { commonCatch } from "../utils/error.js";
-import { env } from "cloudflare:workers";
-
-interface IformFields {
-  id: string;
-  form: string;
-  label: string;
-  type: string | null;
-  isRequired:boolean
-}
 
 export const createFormFieldService = async (
-  formFieldvalues: typeof formFieldTable.$inferInsert
+  formFieldvalues: typeof formFieldTable.$inferInsert,
 ) => {
   try {
     const db = await getDb();
@@ -22,9 +14,9 @@ export const createFormFieldService = async (
       .from(formFieldTable)
       .where(
         and(
-          eq(formFieldTable.form, formFieldvalues?.form),
-          eq(formFieldTable.order, formFieldvalues?.order!)
-        )
+          eq(formFieldTable.form, formFieldvalues.form),
+          eq(formFieldTable.order, formFieldvalues.order),
+        ),
       );
 
     if (ff[0]?.id) {
@@ -42,7 +34,7 @@ export const createFormFieldService = async (
 };
 
 export const createMultipleFormFieldService = async (
-  multipleFormFields: (typeof formFieldTable.$inferInsert)[]
+  multipleFormFields: (typeof formFieldTable.$inferInsert)[],
 ) => {
   try {
     const db = await getDb();
@@ -54,7 +46,7 @@ export const createMultipleFormFieldService = async (
 };
 
 export const getFormFieldsService = async (
-  formId: typeof formFieldTable.$inferSelect.form
+  formId: typeof formFieldTable.$inferSelect.form,
 ) => {
   try {
     const db = await getDb();
@@ -64,11 +56,11 @@ export const getFormFieldsService = async (
         form: formFieldTable.form,
         label: formFieldTable.label,
         type: formFieldTable.type,
-        isRequired:formFieldTable.isRequired
+        isRequired: formFieldTable.isRequired,
+        order: formFieldTable.order,
       })
       .from(formFieldTable)
       .where(eq(formFieldTable.form, formId));
-
 
     return formFields;
   } catch (error) {

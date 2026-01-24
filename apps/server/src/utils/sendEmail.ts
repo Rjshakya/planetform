@@ -1,25 +1,24 @@
-
-import { Resend } from "resend";
 import { env } from "cloudflare:workers";
+import { Resend } from "resend";
 
 export interface IsendEmail {
-  from: string;
-  to: string;
-  subject: string;
-  body: string;
-  html?: string;
+	from: string;
+	to: string;
+	subject: string;
+	body: string;
+	html?: string;
 }
 
 export interface IsendNewCustomerEmail {
-  email: string;
-  name: string;
+	email: string;
+	name: string;
 }
 const emailClientApiKey = env.RESEND_API_KEY;
 const emailClient = new Resend(emailClientApiKey);
 
 export const sendNewCustomerEmail = async (params: IsendNewCustomerEmail) => {
-  try {
-    const htmlStr = `<div style="font-family: Arial, sans-serif; color:#1a1a1a; padding: 24px;">
+	try {
+		const htmlStr = `<div style="font-family: Arial, sans-serif; color:#1a1a1a; padding: 24px;">
   <h2 style="margin-bottom: 12px;">Welcome to Planetform , ${params.name}</h2>
 
   <p style="font-size: 15px; line-height: 1.6;">
@@ -49,43 +48,43 @@ export const sendNewCustomerEmail = async (params: IsendNewCustomerEmail) => {
   </p>
 </div>`;
 
-    // const res = await inbound.emails.send({
-    //   from: "raj@planetform.xyz",
-    //   to: params.email,
-    //   subject: "Welcome to Planetform",
-    //   text: "Thanks for signing up!",
-    //   html: htmlStr,
-    // });
+		// const res = await inbound.emails.send({
+		//   from: "raj@planetform.xyz",
+		//   to: params.email,
+		//   subject: "Welcome to Planetform",
+		//   text: "Thanks for signing up!",
+		//   html: htmlStr,
+		// });
 
-    const res = await sendEmail({
-      from: "Raj <notifications@raj.planetform.xyz>",
-      to: params.email,
-      subject: "Welcome to Planetform",
-      body: "Thanks for signing up!",
-      html: htmlStr,
-    });
+		const res = await sendEmail({
+			from: "Raj <notifications@raj.planetform.xyz>",
+			to: params.email,
+			subject: "Welcome to Planetform",
+			body: "Thanks for signing up!",
+			html: htmlStr,
+		});
 
-    if (res?.data) {
-      console.log("Email sent successfully on sign Up", params.email);
-    }
-  } catch (e) {
-    console.error("failed to send email to new user", params.email);
-  }
+		if (res?.data) {
+			console.log("Email sent successfully on sign Up", params.email);
+		}
+	} catch (e) {
+		console.error("failed to send email to new user", params.email);
+	}
 };
 
 export const sendEmail = async (params: IsendEmail) => {
-  try {
-    const { body, from, subject, to, html } = params;
-    const send = await emailClient.emails.send({
-      from,
-      subject,
-      to,
-      text: body,
-      html,
-    });
+	try {
+		const { body, from, subject, to, html } = params;
+		const send = await emailClient.emails.send({
+			from,
+			subject,
+			to,
+			text: body,
+			html,
+		});
 
-    return send;
-  } catch (e) {
-    console.error("failed to send email to", params.to);
-  }
+		return send;
+	} catch (e) {
+		console.error("failed to send email to", params.to);
+	}
 };

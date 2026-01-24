@@ -1,15 +1,20 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { getDb } from "../db/config";
-import { auth } from "../db/schema";
 import { env } from "cloudflare:workers";
 import {
-  dodopayments,
   checkout,
+  dodopayments,
   portal,
   webhooks,
 } from "@dodopayments/better-auth";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { Result } from "better-result";
 import DodoPayments from "dodopayments";
+import { and, eq } from "drizzle-orm";
+import { getDb } from "../db/config";
+import { auth } from "../db/schema";
+import { account } from "../db/schema/auth";
+import { DatabaseError } from "../errors";
+import { refreshGoogleAccessToken } from "./refresh-token";
 
 export const dodoPayments = new DodoPayments({
   bearerToken: env.DODO_PAYMENTS_API_KEY
@@ -19,7 +24,7 @@ export const dodoPayments = new DodoPayments({
 });
 
 export const getAuth = async () => {
-  const { FRONTEND_URL, TRUSED_DOMAIN } = env;
+  const { FRONTEND_URL, TRUSTED_DOMAIN } = env;
   const db = await getDb();
 
   return betterAuth({
@@ -52,18 +57,17 @@ export const getAuth = async () => {
         },
       },
     },
-    trustedOrigins: [FRONTEND_URL, TRUSED_DOMAIN],
+    trustedOrigins: [FRONTEND_URL, TRUSTED_DOMAIN],
     socialProviders: {
       google: {
         prompt: "consent",
         clientId: env.GOOGLE_CLIENT_ID!,
         clientSecret: env.GOOGLE_CLIENT_SECRET!,
         accessType: "offline",
-        display: "popup",
       },
       notion: {
-        clientId: env.NOTION_CLIENT_ID as string,
-        clientSecret: env.NOTION_CLIENT_SECRET as string,
+        clientId: env.NOTION_CLIENT_ID,
+        clientSecret: env.NOTION_CLIENT_SECRET,
       },
       slack: {
         clientId: env.SLACK_CLIENT_ID,
@@ -71,7 +75,7 @@ export const getAuth = async () => {
       },
     },
     plugins: [
-      // @ts-ignore
+      // @ts-expect-error
       dodopayments({
         client: dodoPayments,
         createCustomerOnSignUp: false,
@@ -117,4 +121,51 @@ export const getAuth = async () => {
       },
     },
   }) as ReturnType<typeof betterAuth>;
+};
+
+type GetUserCredentialsResponse = {
+  accessToken: string;
+  refreshToken: string | null;
+};
+
+/**
+ *
+ * if provider is google , it will give refreshed credentials.
+ *
+ * @param userId
+ * @param providerId
+ * @returns
+ */
+export const getUserCredentials = (
+  userId: string,
+  providerId: "google" | "notion" | "slack",
+): Promise<Result<GetUserCredentialsResponse, DatabaseError>> => {
+  return Result.tryPromise({
+    try: async () => {
+      const db = await getDb();
+      const [acc] = await db
+        .select({
+          accessToken: account.accessToken,
+          refreshToken: account.refreshToken,
+        })
+        .from(account)
+        .where(
+          and(eq(account.userId, userId), eq(account.providerId, providerId)),
+        );
+
+      if (providerId === "google" && acc.refreshToken) {
+        const tokens = (
+          await refreshGoogleAccessToken(acc.refreshToken)
+        ).unwrap();
+        return tokens;
+      }
+
+      return {
+        accessToken: acc.accessToken as string,
+        refreshToken: acc.refreshToken,
+      };
+    },
+    catch: (e) =>
+      new DatabaseError({ cause: e, operation: "getUserCredentials" }),
+  });
 };

@@ -1,31 +1,31 @@
 export const getPersonalHtmlEmailStr = ({
-  name,
-  values,
-  formName,
-  body,
-  formId,
-  workspace,
+	name,
+	values,
+	formName,
+	body,
+	formId,
+	workspace,
 }: {
-  name: string;
-  values: Record<string, string>;
-  formName: string;
-  formId: string;
-  workspace: string;
-  body?: string;
+	name: string;
+	values: Record<string, string>;
+	formName: string;
+	formId: string;
+	workspace: string;
+	body?: string;
 }) => {
-  const valuesContent =
-    values &&
-    Object.entries(values)
-      ?.map(([key, value]) => {
-        return `<tr>
+	const valuesContent =
+		values &&
+		Object.entries(values)
+			?.map(([key, value]) => {
+				return `<tr>
                   <td style="padding: 8px 0;">
                     <strong style="color: #fff; font-size: 15px;">${key}</strong><br>
                     <span style="color: #ccc; font-size: 14px;">${value}</span>
                   </td>
                 </tr>`;
-      })
-      .join(" ");
-  const html = `<!DOCTYPE html>
+			})
+			.join(" ");
+	const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -144,7 +144,7 @@ export const getPersonalHtmlEmailStr = ({
 </body>
 </html>`;
 
-  const html2 = `<!DOCTYPE html>
+	const html2 = `<!DOCTYPE html>
 <html lang="en" style="margin: 0; padding: 0; background: #0b0b0b; font-family: 'Inter', Arial, sans-serif;">
 <head>
   <meta charset="UTF-8" />
@@ -217,5 +217,5 @@ export const getPersonalHtmlEmailStr = ({
 </html>
 `;
 
-  return html2;
+	return html2;
 };

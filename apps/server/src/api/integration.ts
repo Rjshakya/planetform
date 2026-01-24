@@ -1,140 +1,136 @@
-import { Hono } from "hono";
-import { authMiddleware } from "../middlewares/authMiddleware";
 import { zValidator } from "@hono/zod-validator";
-import { integrationObject } from "../utils/validation";
+import { Result } from "better-result";
+import { Hono } from "hono";
+import z from "zod";
+import { authMiddleware } from "../middlewares/authMiddleware";
 import {
-  createGmailIntegrationService,
-  createGmailNotifyIntegrationService,
-  createNotionPageService,
-  createSheetIntegrationService,
-  createWebHookIntegrationService,
-  deleteIntegrationService,
-  getIntegrationsService,
+	CreateEmailNotificationIntegrationServiceSchema,
+	CreateGmailIntegrationServiceSchema,
+	CreateNotionIntegrationServiceSchema,
+	CreateSheetIntegrationServiceSchema,
+	createEmailNotificationIntegrationService,
+	createGmailIntegrationService,
+	createNotionIntegrationService,
+	createSheetIntegrationService,
+	createWebHookIntegrationService,
+	createWebHookIntegrationServiceSchema,
+	deleteIntegrationService,
+	getIntegrationsService,
 } from "../services/integration";
-import z, { object } from "zod";
 
 const integration = new Hono<{
-  Variables: {
-    userId: string | null;
-  };
+	Variables: {
+		userId: string;
+	};
 }>()
 
-  .use(authMiddleware)
+	.use(authMiddleware)
+	.get(
+		"/:formId",
+		zValidator("param", z.object({ formId: z.string().nonempty() })),
+		async (c) => {
+			const { formId } = c.req.valid("param");
+			const integrations = await getIntegrationsService(formId);
+			return c.json({ integrations }, 200);
+		},
+	)
 
-  .get(
-    "/:formId",
-    zValidator("param", z.object({ formId: z.string().nonempty() })),
-    async (c) => {
-      const { formId } = c.req.valid("param");
-      const integrations = await getIntegrationsService(formId);
-      return c.json({ integrations }, 200);
-    }
-  )
+	.post(
+		"/sheet",
+		zValidator("json", CreateSheetIntegrationServiceSchema),
+		async (c) => {
+			const params = c.req.valid("json");
+			const service = await createSheetIntegrationService(params);
 
-  .post("/sheet", zValidator("json", integrationObject), async (c) => {
-    const userId = c.get("userId");
-    const params = c.req.valid("json");
-    const sheet = await createSheetIntegrationService(params, userId!);
-    return c.json({ data: sheet }, 200);
-  })
+			if (Result.isOk(service)) {
+				const sheet = service.value;
+				return c.json(sheet, 200);
+			}
 
-  .post(
-    "/notion/page",
-    zValidator(
-      "json",
-      z.object({
-        formId: z.string().nonempty(),
-        customerId: z.string().nonempty(),
-        metaData: z.string().nonempty(),
-      })
-    ),
-    async (c) => {
-      const userId = c.get("userId");
-      const params = c.req.valid("json");
-      const res = await createNotionPageService({ ...params, userId: userId! });
-      return c.json({ res }, 200);
-    }
-  )
+			return c.json(service.error, 400);
+		},
+	)
+	.post(
+		"/notion",
+		zValidator("json", CreateNotionIntegrationServiceSchema),
+		async (c) => {
+			const userId = c.get("userId");
+			const params = c.req.valid("json");
+			const service = await createNotionIntegrationService({
+				...params,
+				userId,
+			});
 
-  .post(
-    "/webhook",
-    zValidator(
-      "json",
-      z.object({
-        formId: z.string().nonempty(),
-        customerId: z.string().nonempty(),
-        metaData: z.string().nonempty(),
-      })
-    ),
-    async (c) => {
-      const params = c.req.valid("json");
-      await createWebHookIntegrationService(params);
-      return c.json(
-        { message: "Webhook integration created successfully" },
-        200
-      );
-    }
-  )
+			if (Result.isOk(service)) {
+				const doc = service.value;
+				return c.json(doc, 200);
+			}
 
-  .post(
-    "/gmail-notify",
-    zValidator(
-      "json",
-      z.object({
-        formId: z.string().nonempty(),
-        customerId: z.string().nonempty(),
-        metaData: z.string().nonempty(),
-      })
-    ),
-    async (c) => {
-      const params = c.req.valid("json");
-      const integration = await createGmailNotifyIntegrationService(params);
-      if (!integration) {
-        return c.json(
-          { message: "Failed to create gmail notification integration" },
-          400
-        );
-      }
-      return c.json(
-        { message: "Gmail Notify integration created successfully" },
-        200
-      );
-    }
-  )
+			return c.json(service.error, 400);
+		},
+	)
 
-  .post(
-    "/gmail",
-    zValidator(
-      "json",
-      z.object({
-        metaData: z.string(),
-        formId: z.string().nonempty(),
-        customerId: z.string().nonempty(),
-      })
-    ),
-    async (c) => {
-      const params = c.req.valid("json");
-      const integration = await createGmailIntegrationService(params);
+	.post(
+		"/webhook",
+		zValidator("json", createWebHookIntegrationServiceSchema),
+		async (c) => {
+			const params = c.req.valid("json");
+			const service = await createWebHookIntegrationService(params);
+			if (Result.isOk(service)) {
+				const sheet = service.value;
+				return c.json(sheet, 200);
+			}
 
-      if (!integration) {
-        return c.json({ message: "Failed to create gmail integration" }, 400);
-      }
+			return c.json(service.error, 400);
+		},
+	)
 
-      return c.json({ integration }, 200);
-    }
-  )
+	.post(
+		"/email-notification",
+		zValidator("json", CreateEmailNotificationIntegrationServiceSchema),
+		async (c) => {
+			const userId = c.get("userId");
+			const params = c.req.valid("json");
+			const service = await createEmailNotificationIntegrationService({
+				...params,
+				userId,
+			});
 
-  .delete(
-    "/:integrationId",
-    zValidator(
-      "param",
-      z.object({ integrationId: z.string().nonempty().nonoptional() })
-    ),
-    async (c) => {
-      const { integrationId } = c.req.valid("param");
-      await deleteIntegrationService(integrationId);
-      return c.json({ message: "Integration deleted successfully" }, 200);
-    }
-  );
+			if (Result.isOk(service)) {
+				const sheet = service.value;
+				return c.json(sheet, 200);
+			}
+
+			return c.json(service.error, 400);
+		},
+	)
+
+	.post(
+		"/gmail",
+		zValidator("json", CreateGmailIntegrationServiceSchema),
+		async (c) => {
+			const params = c.req.valid("json");
+			const service = await createGmailIntegrationService(params);
+			if (Result.isOk(service)) {
+				const sheet = service.value;
+				return c.json(sheet, 200);
+			}
+
+			return c.json(service.error, 400);
+		},
+	)
+
+	.delete(
+		"/:integrationId",
+		zValidator(
+			"param",
+			z.object({ integrationId: z.string().nonempty().nonoptional() }),
+		),
+		async (c) => {
+			const { integrationId } = c.req.valid("param");
+			await deleteIntegrationService(integrationId);
+			return c.json({ message: "Integration deleted successfully" }, 200);
+		},
+	);
 
 export default integration;

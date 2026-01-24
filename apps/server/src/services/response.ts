@@ -1,10 +1,11 @@
+import { env } from "cloudflare:workers";
 import { countDistinct, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "../db/config.js";
-import { response as responsesTable } from "../db/schema/response";
-import { formField as formFieldTable } from "../db/schema/form.fields";
+import { formField as formFieldTable } from "../db/schema/form.fields.js";
+import { integration as integrationTable } from "../db/schema/integration.js";
+import { response as responsesTable } from "../db/schema/response.js";
 import { commonCatch } from "../utils/error.js";
-import { integration as integrationTable } from "../db/schema/integration";
-import { env } from "cloudflare:workers";
+import { IntegrationQueueMesssage } from "../queues/integration-queue.js";
 
 export const createResponseService = async (
   responseValues: typeof responsesTable.$inferInsert,
@@ -52,7 +53,9 @@ export const getFormResponsesService = async (
 
     const totalPages = Math.ceil(respondentCount?.count / pageSize);
 
-    // headers of data-table
+    // headers of data-table  , basically they are columns of table ,
+    // we will show in ui
+    //
     const headers = await db
       .select({
         id: formFieldTable.id,
@@ -127,7 +130,7 @@ export const getFormResponsesService = async (
 };
 
 export const createMultipleResponsesService = async (
-  responses: typeof responsesTable.$inferInsert[],
+  responses: (typeof responsesTable.$inferInsert)[],
   userId: string,
 ) => {
   try {
@@ -140,30 +143,38 @@ export const createMultipleResponsesService = async (
     const formId = result?.form;
     const respondentId = result?.respondent;
 
-    const integrations = await db.$count(
-      integrationTable,
-      eq(integrationTable.formId, formId),
-    );
+    // form-integrations
+    const integrations = await db
+      .select({
+        integrationId: integrationTable.id,
+        metaData: integrationTable.metaData,
+        type: integrationTable.type,
+      })
+      .from(integrationTable)
+      .where(eq(integrationTable.formId, formId));
 
-    const { success } = await env.MY_WORKFLOWS_LIMITER.limit({
-      key: "workflows",
-    });
+    //  point to discuss
+    //  whether to send it in ctx.waituntil
+    //  by that way , it is processed in background ,
+    //  user do not have to wait for this , step , to
+    //  get success response.
 
-    if (!success) {
-      console.log("Workflows rate limit exceeded");
-      return result;
-    }
-
-    if (integrations > 0) {
-      await env.MANAGER_WORK_FLOW.create({
-        id: `respondent-${respondentId}`,
-        params: {
-          respondentId,
-          formId,
-          userId,
-          values: responses,
-        },
+    if (integrations.length > 0) {
+      const integrationQueueBatch = integrations.map((integration) => {
+        const { integrationId, metaData, type } = integration;
+        return {
+          body: {
+            formId,
+            respondentId,
+            integrationId,
+            metaData,
+            type,
+            userId,
+            values: responses,
+          },
+        };
       });
+      await env.planetform_integrations_queue.sendBatch(integrationQueueBatch);
     }
 
     return result;

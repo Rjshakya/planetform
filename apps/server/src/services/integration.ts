@@ -1,231 +1,447 @@
-import { and, eq } from "drizzle-orm";
-import { getDb } from "../db/config.js";
-import { integration as integrationTable } from "../db/schema/integration";
-import { commonCatch } from "../utils/error.js";
-import { GoogleSpreadsheet } from "google-spreadsheet";
-import { getAuth } from "../utils/auth.js";
-import { OAuth2Client } from "google-auth-library";
-import { account } from "../db/schema/auth";
 import { env } from "cloudflare:workers";
+import { Client } from "@notionhq/client";
+import { Err, Result } from "better-result";
+import { and, count, eq } from "drizzle-orm";
+import { OAuth2Client } from "google-auth-library";
+import { GoogleSpreadsheet } from "google-spreadsheet";
+import z from "zod";
+import { getDb } from "../db/config";
+import { account, user } from "../db/schema/auth";
 import { form as formTable } from "../db/schema/form";
+import { integration as integrationTable } from "../db/schema/integration";
+import { IntegrationServiceError } from "../errors";
+import { getAuth, getUserCredentials } from "../utils/auth";
+import { commonCatch } from "../utils/error";
+import { getNotionInitialDataSource } from "../workflows/helpers";
+import { GoogleSheetService } from "./google/sheet";
+import { NotionIntegrationService } from "./notion/notion";
+import type { WebhookData } from "./webhook/webhook";
+
+export const SHEET_INTEGRATION_TYPE = "sheets";
+export const NOTION_INTEGRATION_TYPE = "notion";
+export const WEBHOOK_INTEGRATION_TYPE = "webhook";
+export const GMAIL_INTEGRATION_TYPE = "gmail";
+export const EMAIL_NOTIFICATION_TYPE = "email-notification";
+export const EMAIL_TO_RESPONDENT_INTEGRATION = "email-to-respondent";
+export const SLACK_INTEGRATION_TYPE = "slack";
+
+type CreateSheetIntegrationServiceParams = {
+	formId: string;
+	userId: string;
+	sheetTitle: string;
+};
+
+export const CreateSheetIntegrationServiceSchema = z.object({
+	formId: z.string(),
+	sheetTitle: z.string(),
+	userId: z.string(),
+});
+
+export type SheetIntegrationMetaData = {
+	id: string;
+	url: string;
+};
 
 export const createSheetIntegrationService = async (
-  values: typeof integrationTable.$inferInsert,
-  userId: string
+	params: CreateSheetIntegrationServiceParams,
 ) => {
-  try {
-    if (values?.type !== "google") return;
+	return Result.tryPromise({
+		try: async () => {
+			const { formId, userId, sheetTitle } = params;
 
-    const db = await getDb();
-    let integration = await db
-      .insert(integrationTable)
-      .values(values)
-      .returning({
-        metaData: integrationTable?.metaData,
-        id: integrationTable.id,
-      });
+			const tokens = (await getUserCredentials(userId, "google")).unwrap();
 
-    const auth = await getAuth();
-    const tokens = await auth?.api?.refreshToken({
-      body: { providerId: "google", userId: userId },
-    });
+			const sheetService = new GoogleSheetService({
+				accessToken: tokens.accessToken,
+				refreshToken: tokens.refreshToken as string,
+				userID: userId,
+			});
 
-    const oauthClient = new OAuth2Client({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    });
+			const createSheet = (await sheetService.createSheet(sheetTitle)).unwrap();
+			const sheetId = createSheet.spreadsheetId;
+			const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit`;
+			const metaData = { id: sheetId, url: sheetUrl };
 
-    const metaData = JSON.parse(integration[0]?.metaData || "");
+			// insert in db
 
-    oauthClient.credentials.access_token = tokens.accessToken;
-    oauthClient.credentials.refresh_token = tokens.refreshToken;
+			const db = await getDb();
+			const [createIntegration] = await db
+				.insert(integrationTable)
+				.values({
+					formId,
+					type: SHEET_INTEGRATION_TYPE,
+					metaData: JSON.stringify(metaData),
+				})
+				.returning();
 
-    const doc = await GoogleSpreadsheet.createNewSpreadsheetDocument(
-      oauthClient,
-      { title: metaData?.title }
-    );
-
-    metaData.id = doc.spreadsheetId;
-    metaData.url = `https://docs.google.com/spreadsheets/d/${doc.spreadsheetId}/edit`;
-    await db
-      .update(integrationTable)
-      .set({ ...values, metaData })
-      .where(eq(integrationTable.id, integration[0]?.id));
-
-    return { id: integration[0]?.id, metaData };
-  } catch (error) {
-    commonCatch(error);
-  }
+			return {
+				id: createIntegration.id,
+				sheetId,
+				sheetUrl,
+			};
+		},
+		catch: (e) =>
+			new IntegrationServiceError({
+				cause: e,
+				operation: "createSheetIntegrationService",
+			}),
+	});
 };
 
-export const getIntegrationsService = async (formId: string) => {
-  try {
-    const db = await getDb();
-    const res = await db.query.form.findFirst({
-      where: eq(formTable.shortId, formId),
-      columns: {
-        name: true,
-        shortId: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      with: {
-        integrations: {
-          columns: {
-            id: true,
-            metaData: true,
-            type: true,
-          },
-        },
-      },
-    });
-
-    return res;
-  } catch (error) {
-    commonCatch(error);
-  }
+type CreateNotionIntegrationServiceParams = {
+	formId: string;
+	formFields: { id: string; label: string; type: string; order: number }[];
+	userId: string;
+	title: string;
 };
 
-export const getIsUserConnectedWithProviderService = async (
-  userId: string,
-  provider: string,
-  scopes: string[]
+export const CreateNotionIntegrationServiceSchema = z.object({
+	formId: z.string(),
+	formFields: z.array(
+		z.object({
+			id: z.string(),
+			label: z.string(),
+			type: z.string(),
+			order: z.number(),
+		}),
+	),
+	title: z.string(),
+});
+
+export const createNotionIntegrationService = async (
+	params: CreateNotionIntegrationServiceParams,
 ) => {
-  try {
-    if (!userId || !provider) return;
-    const db = await getDb();
-    const acc = await db
-      .select({ scope: account.scope, providerId: account.providerId })
-      .from(account)
-      .where(and(eq(account.userId, userId), eq(account.providerId, provider)));
+	return Result.tryPromise({
+		try: async () => {
+			const { formFields, formId, userId, title } = params;
+			const tokenResult = await getUserCredentials(userId, "notion");
+			const tokens = tokenResult.unwrap();
 
-    console.log(acc[0]?.providerId);
-    if (provider === "google") {
-      return scopes.every((s) => acc[0]?.scope?.includes(s));
-    }
+			const notion = new NotionIntegrationService({
+				token: tokens.accessToken,
+			});
 
-    return acc[0]?.providerId === provider.trim();
-  } catch (e) {
-    commonCatch(e);
-  }
+			const properties = getNotionInitialDataSource(formFields);
+
+			const createNotionDb = (
+				await notion.createDatabase({
+					parent: { type: "workspace", workspace: true },
+					title: [{ type: "text", text: { content: title } }],
+					initial_data_source: { properties },
+				})
+			).unwrap();
+
+			if (!createNotionDb.id) {
+				throw new Error("failed to create notion db");
+			}
+
+			const db = await getDb();
+			const metaData = {
+				url: `https://www.notion.so/${createNotionDb.id}`,
+				id: createNotionDb.id,
+			};
+			const [integrate] = await db
+				.insert(integrationTable)
+				.values({
+					formId,
+					type: NOTION_INTEGRATION_TYPE,
+					metaData: JSON.stringify(metaData),
+				})
+				.returning({ id: integrationTable.id });
+
+			return { ...integrate, url: metaData.url };
+		},
+		catch: (e) =>
+			new IntegrationServiceError({
+				cause: e,
+				operation: "createNotionIntegrationService",
+			}),
+	});
 };
 
-export const createNotionPageService = async (params: {
-  formId: string;
-  metaData: string;
-  userId: string;
-  customerId: string;
-}) => {
-  try {
-    const { formId, metaData, userId, customerId } = params;
-    await env.NOTION_PAGE_CREATE_WORK_FLOW.create({
-      id: `${Date.now()}-${formId}`,
-      params: {
-        formId,
-        integrationId: null,
-        userId,
-        customerId,
-        metaData,
-      },
-    });
+export const createWebHookIntegrationServiceSchema = z.object({
+	formId: z.string(),
+	url: z.url(),
+	headers: z.object(),
+});
 
-    return true;
-  } catch (e) {
-    commonCatch(e);
-  }
+export const createWebHookIntegrationService = async (
+	params: WebhookData & { formId: string },
+) => {
+	return Result.tryPromise({
+		try: async () => {
+			const { formId, url, headers } = params;
+			const metaData = { url, headers };
+			const db = await getDb();
+
+			// insert in db
+
+			const [integrate] = await db
+				.insert(integrationTable)
+				.values({
+					formId,
+					type: WEBHOOK_INTEGRATION_TYPE,
+					metaData: JSON.stringify(metaData),
+				})
+				.returning({ id: integrationTable.id });
+
+			return { ...integrate, url, headers };
+		},
+		catch: (e) =>
+			new IntegrationServiceError({
+				cause: e,
+				operation: "createWebHookIntegrationService",
+			}),
+	});
 };
 
-export const createWebHookIntegrationService = async (params: {
-  formId: string;
-  metaData: string;
-  customerId: string;
-}) => {
-  try {
-    const db = await getDb();
-    const [res] = await db
-      .insert(integrationTable)
-      .values({ type: "webhook", ...params })
-      .returning({ id: integrationTable.id });
-    return res?.id;
-  } catch (e) {
-    commonCatch(e);
-  }
+type CreateGmailIntegrationServiceParams = {
+	formId: string;
+	from: string;
+	to: string;
+	subject: string;
+	body: string;
+	isDynamicBody: boolean;
 };
 
-export const createGmailNotifyIntegrationService = async (params: {
-  formId: string;
-  metaData: string;
-  customerId: string;
-}) => {
-  try {
-    const db = await getDb();
-    const integrations = await db
-      .select({ id: integrationTable.id })
-      .from(integrationTable)
-      .where(
-        and(
-          eq(integrationTable.formId, params.formId),
-          eq(integrationTable.type, "gmail-notify")
-        )
-      );
+export const CreateGmailIntegrationServiceSchema = z.object({
+	formId: z.string(),
+	from: z.string(),
+	to: z.string(),
+	subject: z.string(),
+	body: z.string(),
+	isDynamicBody: z.boolean(),
+});
 
-    if (integrations.length) {
-      return false;
-    }
+export const createGmailIntegrationService = (
+	params: CreateGmailIntegrationServiceParams,
+) => {
+	return Result.tryPromise({
+		try: async () => {
+			const { body, formId, from, isDynamicBody, subject, to } = params;
 
-    const [res] = await db
-      .insert(integrationTable)
-      .values({ ...params, type: "gmail-notify" })
-      .returning({ id: integrationTable.id });
+			const db = await getDb();
+			const existingGmailIntegrations = await db
+				.select({ id: integrationTable.id })
+				.from(integrationTable)
+				.where(
+					and(
+						eq(integrationTable.formId, formId),
+						eq(integrationTable.type, GMAIL_INTEGRATION_TYPE),
+					),
+				);
 
-    return res?.id;
-  } catch (e) {
-    commonCatch(e);
-  }
+			if (existingGmailIntegrations.length > 0) {
+				throw new Error("gmail integration exist");
+			}
+
+			const metaData = {
+				from,
+				to,
+				subject,
+				body,
+				isDynamicBody,
+			};
+
+			// insert in db
+
+			const [integrate] = await db
+				.insert(integrationTable)
+				.values({
+					formId,
+					type: GMAIL_INTEGRATION_TYPE,
+					metaData: JSON.stringify(metaData),
+				})
+				.returning({ id: integrationTable.id });
+
+			return { ...integrate };
+		},
+		catch: (e) =>
+			new IntegrationServiceError({
+				cause: e,
+				operation: "createGmailIntegrationService",
+			}),
+	});
 };
 
-export const createGmailIntegrationService = async (params: {
-  metaData: string;
-  formId: string;
-  customerId: string;
-}) => {
-  try {
-    const db = await getDb();
-    const integrations = await db
-      .select({ id: integrationTable.id })
-      .from(integrationTable)
-      .where(
-        and(
-          eq(integrationTable.formId, params.formId),
-          eq(integrationTable.type, "gmail")
-        )
-      );
+type CreateEmailNotificationIntegrationServiceParams = {
+	userId: string;
+	subject: string;
+	body: string;
+	formId: string;
+};
 
-    if (integrations.length) {
-      return false;
-    }
+export const CreateEmailNotificationIntegrationServiceSchema = z.object({
+	subject: z.string(),
+	body: z.string(),
+	formId: z.string(),
+});
 
-    const [res] = await db
-      .insert(integrationTable)
-      .values({
-        type: "gmail",
-        ...params,
-      })
-      .returning({ id: integrationTable.id });
+export const createEmailNotificationIntegrationService = (
+	params: CreateEmailNotificationIntegrationServiceParams,
+) => {
+	return Result.tryPromise({
+		try: async () => {
+			const { body, formId, subject, userId } = params;
 
-    return res;
-  } catch (e) {
-    commonCatch(e);
-  }
+			const db = await getDb();
+
+			// find existing
+			const existingIntegration = await db
+				.select({ id: integrationTable.id })
+				.from(integrationTable)
+				.where(
+					and(
+						eq(integrationTable.formId, formId),
+						eq(integrationTable.type, EMAIL_NOTIFICATION_TYPE),
+					),
+				);
+
+			if (existingIntegration.length > 0) {
+				throw new Error("failed to createEmailNotificationIntegrationService");
+			}
+
+			// get user email
+
+			const [email] = await db
+				.select({ email: user.email })
+				.from(user)
+				.where(eq(user.id, userId));
+
+			if (!email) {
+				throw new Error("user doesn't exist");
+			}
+
+			const metaData = {
+				to: email,
+				from: env.PLANETFORM_EMAIL_NOTIFICATION_ADDRESS,
+				subject,
+				body,
+			};
+
+			// insert in db
+			const [integrate] = await db
+				.insert(integrationTable)
+				.values({
+					formId,
+					type: EMAIL_NOTIFICATION_TYPE,
+					metaData: JSON.stringify(metaData),
+				})
+				.returning({ id: integrationTable.id });
+
+			return { ...integrate };
+		},
+		catch: (e) =>
+			new IntegrationServiceError({
+				cause: e,
+				operation: "createEmailNotificationIntegrationService",
+			}),
+	});
+};
+
+type CreateEmailToRespondentIntegrationParams = {
+	formId: string;
+	emailFormFieldId: string;
+	subject: string;
+	body: string;
+};
+
+export const CreateEmailToRespondentIntegrationSchema = z.object({
+	formId: z.string(),
+	emailFormFieldId: z.string(),
+	subject: z.string(),
+	body: z.string(),
+});
+
+export const createEmailToRespondentIntegrationParams = (
+	params: CreateEmailToRespondentIntegrationParams,
+) => {
+	return Result.tryPromise({
+		try: async () => {
+			const { body, emailFormFieldId, formId, subject } = params;
+
+			const db = await getDb();
+
+			// find existing
+
+			const existingIntegration = await db
+				.select({ id: integrationTable.id })
+				.from(integrationTable)
+				.where(
+					and(
+						eq(integrationTable.formId, formId),
+						eq(integrationTable.type, EMAIL_TO_RESPONDENT_INTEGRATION),
+					),
+				);
+
+			if (existingIntegration.length > 0) {
+				throw new Error("createEmailToRespondentIntegrationParams");
+			}
+
+			// insert in db
+
+			const metaData = {
+				emailFormFieldId,
+				from: env.PLANETFORM_EMAIL_NOTIFICATION_ADDRESS,
+				subject,
+				body,
+			};
+
+			const [integrate] = await db
+				.insert(integrationTable)
+				.values({
+					formId,
+					type: EMAIL_TO_RESPONDENT_INTEGRATION,
+					metaData: JSON.stringify(metaData),
+				})
+				.returning({ id: integrationTable.id });
+
+			return { ...integrate };
+		},
+
+		catch: (e) =>
+			new IntegrationServiceError({
+				cause: e,
+				operation: "createEmailToRespondentIntegrationParams",
+			}),
+	});
 };
 
 export const deleteIntegrationService = async (integrationId: string) => {
-  try {
-    const db = await getDb();
-    await db
-      .delete(integrationTable)
-      .where(eq(integrationTable.id, integrationId));
-  } catch (e) {
-    commonCatch(e);
-  }
+	try {
+		const db = await getDb();
+		await db
+			.delete(integrationTable)
+			.where(eq(integrationTable.id, integrationId));
+	} catch (e) {
+		commonCatch(e);
+	}
+};
+
+export const getIntegrationsService = async (formId: string) => {
+	try {
+		const db = await getDb();
+		const res = await db.query.form.findFirst({
+			where: eq(formTable.shortId, formId),
+			columns: {
+				name: true,
+				shortId: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+			with: {
+				integrations: {
+					columns: {
+						id: true,
+						metaData: true,
+						type: true,
+					},
+				},
+			},
+		});
+
+		return res;
+	} catch (error) {
+		commonCatch(error);
+	}
 };

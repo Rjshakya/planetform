@@ -1,9 +1,9 @@
-import { getDb } from "../db/config.js";
-import { workspace as workspaceTable } from "../db/schema/workspace";
 import { eq, name } from "drizzle-orm";
-import { commonCatch } from "../utils/error";
-import { getIsProUser } from "../utils/subscription.js";
+import { getDb } from "../db/config.js";
 import { form } from "../db/schema/form.js";
+import { workspace as workspaceTable } from "../db/schema/workspace.js";
+import { commonCatch } from "../utils/error.js";
+import { getIsProUser } from "../utils/subscription.js";
 
 interface IupdateWorkspace {
   data: {
@@ -13,7 +13,7 @@ interface IupdateWorkspace {
 }
 
 export const createWorkspaceService = async (
-  workspaceValues: typeof workspaceTable.$inferInsert
+  workspaceValues: typeof workspaceTable.$inferInsert,
 ) => {
   try {
     if (!workspaceValues.customerId) {
@@ -48,7 +48,7 @@ export const createWorkspaceService = async (
 };
 
 export const getUserWorkspaceService = async (
-  owner: typeof workspaceTable.$inferSelect.owner
+  owner: typeof workspaceTable.$inferSelect.owner,
 ) => {
   try {
     const db = await getDb();
@@ -124,7 +124,7 @@ export const getWorkspaceWithFormsService = async (workspaceId: string) => {
         name: string | null;
         id: string;
         forms: Array<{ id: string | null; name: string; createdAt: Date }>;
-      }
+      },
     );
 
     return reduced;
@@ -148,7 +148,7 @@ export const updateWorkspaceFormService = async (params: IupdateWorkspace) => {
 };
 
 export const deleteWorkspaceService = async (
-  workspaceId: typeof workspaceTable.$inferInsert.id
+  workspaceId: typeof workspaceTable.$inferInsert.id,
 ) => {
   try {
     const db = await getDb();

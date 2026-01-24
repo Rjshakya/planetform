@@ -1,13 +1,13 @@
 import { eq, inArray } from "drizzle-orm";
 import { getDb } from "../db/config.js";
-import { respondent as respondentTable } from "../db/schema/respondent";
-import { response as responsesTable } from "../db/schema/response";
-import { form as formTable } from "../db/schema/form";
-import { formField as formFieldTable } from "../db/schema/form.fields";
+import { form as formTable } from "../db/schema/form.js";
+import { formField as formFieldTable } from "../db/schema/form.fields.js";
+import { respondent as respondentTable } from "../db/schema/respondent.js";
+import { response as responsesTable } from "../db/schema/response.js";
 import { commonCatch } from "../utils/error.js";
 
 export const createRespondentService = async (
-  respondentValues: typeof respondentTable.$inferInsert
+  respondentValues: typeof respondentTable.$inferInsert,
 ) => {
   try {
     const db = await getDb();
@@ -22,7 +22,7 @@ export const createRespondentService = async (
 };
 
 export const getRespondentbyIdService = async (
-  id: typeof respondentTable.$inferInsert.id
+  id: typeof respondentTable.$inferInsert.id,
 ) => {
   try {
     const db = await getDb();
@@ -38,7 +38,7 @@ export const getRespondentbyIdService = async (
 };
 
 export const getFormRespondentsService = async (
-  formId: typeof respondentTable.$inferInsert.form
+  formId: typeof respondentTable.$inferInsert.form,
 ) => {
   try {
     const db = await getDb();
@@ -54,7 +54,7 @@ export const getFormRespondentsService = async (
 };
 
 export const getFormResponsesByRespondentService = async (
-  respondentId: string
+  respondentId: string,
 ) => {
   try {
     const db = await getDb();
@@ -71,7 +71,7 @@ export const getFormResponsesByRespondentService = async (
       .leftJoin(formTable, eq(responsesTable.form, formTable.shortId))
       .leftJoin(
         formFieldTable,
-        eq(responsesTable.form_field, formFieldTable.id)
+        eq(responsesTable.form_field, formFieldTable.id),
       );
 
     return res;
@@ -94,7 +94,7 @@ export const deleteRespondentService = async (respondentId: string) => {
 };
 
 export const deleteMultipleRespondentService = async (
-  respondents: string[]
+  respondents: string[],
 ) => {
   try {
     if (respondents.length === 0) return;

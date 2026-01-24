@@ -1,26 +1,26 @@
 import { env } from "cloudflare:workers";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 import { contextStorage } from "hono/context-storage";
-import { bodyLimit } from "hono/body-limit";
-import { getAuth } from "./utils/auth";
-import { getDb } from "./db/config";
-import { GoogleSheetWorkflow } from "./workflows/googleSheet";
-import { ManagerWorkflow } from "./workflows/manager";
-import {
-  NotionPageCreateWorkflow,
-  NotionSubmissionWorkflow,
-} from "./workflows/notion";
-import { WebHookFlow } from "./workflows/webhook";
-import { GmailWorkflow, PersonalGmailNotifyFlow } from "./workflows/gmail";
-import { DodoCustomerCreateFlow } from "./workflows/customer";
+import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
 import api from "./api";
+import { getDb } from "./db/config";
+import { getAuth } from "./utils/auth";
+import {
+  GmailIntegrationWorkflow,
+  GoogleSheetIntegrationWorkflow,
+  NotionIntegrationWorkflow,
+  WebHookIntegrationWorkflow,
+} from "./workflows";
+import { DodoCustomerCreateFlow } from "./workflows/customer";
+import {
+  handleIntegrationQueue,
+  IntegrationQueueMesssage,
+} from "./queues/integration-queue";
 
 const trusted_url = process.env.FRONTEND_URL;
-const trusted_domain = process.env.TRUSED_DOMAIN;
-const app = new Hono()
+const trusted_domain = process.env.TRUSTED_DOMAIN;
+export const app = new Hono()
   .use(
     cors({
       origin:
@@ -29,10 +29,9 @@ const app = new Hono()
           : [trusted_url, trusted_domain], // Replace with your frontend's origin
       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Specify allowed HTTP methods
       credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-    })
+    }),
   )
   .use(prettyJSON())
-  .use(logger())
   .use(contextStorage())
   .use(async (c, next) => {
     const pathname = c?.req?.path;
@@ -49,19 +48,11 @@ const app = new Hono()
     if (!success) {
       return c?.json(
         { message: "Too many requests. Please try again later." },
-        429
+        429,
       );
     }
     return await next();
   })
-  .use(
-    bodyLimit({
-      maxSize: 50 * 1024,
-      onError: (c) => {
-        return c.text("overflow :(", 413);
-      },
-    })
-  )
   .on(["POST", "GET"], "/api/auth/*", async (c) => {
     const auth = await getAuth();
     return await auth.handler(c.req.raw);
@@ -69,7 +60,7 @@ const app = new Hono()
   .get("/", async (c) => {
     return c.redirect(trusted_domain);
   })
-  .get("/health", async (c) => {
+  .get("/health/private", async (c) => {
     const db = await getDb();
     const result = await db.execute(`SELECT NOW()`);
     return c.json(
@@ -77,7 +68,7 @@ const app = new Hono()
         message: "server is up and running",
         result,
       },
-      200
+      200,
     );
   })
   .route("/api", api)
@@ -87,13 +78,25 @@ const app = new Hono()
   });
 
 export {
-  GoogleSheetWorkflow,
-  ManagerWorkflow,
-  NotionPageCreateWorkflow,
-  NotionSubmissionWorkflow,
-  WebHookFlow,
-  PersonalGmailNotifyFlow,
   DodoCustomerCreateFlow,
-  GmailWorkflow,
+  GmailIntegrationWorkflow,
+  GoogleSheetIntegrationWorkflow,
+  NotionIntegrationWorkflow,
+  WebHookIntegrationWorkflow,
+  
 };
-export default app;
+export default {
+  fetch: app.fetch,
+  queue: async (
+    batch: MessageBatch<any>,
+    env: Cloudflare.Env,
+    ctx: ExecutionContext,
+  ) => {
+    const queue = batch.queue;
+    if (queue === "planetform-integrations-queue") {
+      const integrationBatch = batch as MessageBatch<IntegrationQueueMesssage>;
+      const messages = integrationBatch.messages;
+      await handleIntegrationQueue(messages);
+    }
+  },
+} as ExportedHandler;
