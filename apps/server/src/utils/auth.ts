@@ -61,8 +61,8 @@ export const getAuth = async () => {
     socialProviders: {
       google: {
         prompt: "consent",
-        clientId: env.GOOGLE_CLIENT_ID!,
-        clientSecret: env.GOOGLE_CLIENT_SECRET!,
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
         accessType: "offline",
       },
       notion: {
@@ -103,7 +103,7 @@ export const getAuth = async () => {
     databaseHooks: {
       user: {
         create: {
-          async after(user, context) {
+          async after(user) {
             try {
               await env.DODO_CUSTOMER_CREATE_WORK_FLOW.create({
                 id: user.id,
