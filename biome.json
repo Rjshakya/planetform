@@ -11,13 +11,24 @@
       "recommended": true,
       "suspicious": {
         "noExplicitAny": "warn",
-        "noArrayIndexKey":"warn"
+        "noArrayIndexKey": "warn"
       },
       "style": {
         "noUnusedTemplateLiteral": "warn",
         "noNonNullAssertion": "warn"
+      },
+      "complexity": {
+        "noForEach": "off"
+      },
+      "correctness": {
+        "noUnsafeOptionalChaining": "warn",
+        "useExhaustiveDependencies": "warn",
+        "noUnreachable": "warn",
+        "noSwitchDeclarations": "warn"
+      },
+      "a11y": {
+        "useValidAnchor": "warn"
       }
-
     }
   }
 }

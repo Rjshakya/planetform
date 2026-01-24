@@ -20,7 +20,7 @@ import { Logo } from "@/components/Logo";
 import Link from "next/link";
 
 const fetcher = (url: string) => apiClient.get(url);
-const planetform = process.env.NEXT_PUBLIC_CLIENT_URL ?? "/"
+const planetform = process.env.NEXT_PUBLIC_CLIENT_URL ?? "/";
 export default function Page() {
   const { formId } = useParams();
   const { data, isLoading, error } = useSWR(`/api/form/${formId}`, fetcher);
@@ -139,7 +139,7 @@ export default function Page() {
     <section className=" w-full relative ">
       <div
         className={cn(
-          ` max-w-6xl w-full mx-auto px-2 min-h-screen flex items-center justify-center relative`
+          ` max-w-6xl w-full mx-auto px-2 min-h-screen flex items-center justify-center relative`,
         )}
       >
         <div className=" fixed z-50 left-0 bottom-4  w-full h-9 flex items-center justify-end py-2 px-4">

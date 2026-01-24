@@ -26,6 +26,7 @@ export const Submissions = () => {
     pageIndex: 0,
     pageSize: 20,
   });
+
   const {
     data: submissionData,
     error,
@@ -33,8 +34,9 @@ export const Submissions = () => {
   } = useSWR(
     () =>
       `/api/response/form/${formId}?pageIndex=${pagination.pageIndex}&pageSize=${pagination.pageSize}`,
-    fetcher
+    fetcher,
   );
+
   const [tableData, setTableData] = useState<any[]>();
   const [totalPages, setTotalPages] = useState(0);
   const [columns, setColumns] = useState<ColumnDef<Iheads>[]>([]);
@@ -86,12 +88,12 @@ export const Submissions = () => {
                       opacity="0.4"
                       d="M2 16.19V7.81C2 4.17 4.17 2 7.81 2H16.18C19.83 2 22 4.17 22 7.81V16.18C22 19.82 19.83 21.99 16.19 21.99H7.81C4.17 22 2 19.83 2 16.19Z"
                       fill="white"
-                      style={{fill:'var(--fillg)'}}
+                      style={{ fill: "var(--fillg)" }}
                     />
                     <path
                       d="M11.47 18.53L7.18 14.24C6.89 13.95 6.89 13.47 7.18 13.18C7.47 12.89 7.95 12.89 8.24 13.18L11.25 16.19V6C11.25 5.59 11.59 5.25 12 5.25C12.41 5.25 12.75 5.59 12.75 6V16.19L15.76 13.18C16.05 12.89 16.53 12.89 16.82 13.18C16.97 13.33 17.04 13.52 17.04 13.71C17.04 13.9 16.97 14.09 16.82 14.24L12.53 18.53C12.39 18.67 12.2 18.75 12 18.75C11.8 18.75 11.61 18.67 11.47 18.53Z"
                       fill="white"
-                      style={{fill:'var(--fillg)'}}
+                      style={{ fill: "var(--fillg)" }}
                     />
                   </svg>
                 </a>
@@ -174,7 +176,6 @@ export const Submissions = () => {
 
   return (
     <>
-      
       <TanStackTable
         states={{ pagination, setPagination, pageCount: totalPages }}
         columns={columns || []}

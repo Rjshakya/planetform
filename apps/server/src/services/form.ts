@@ -10,6 +10,20 @@ import { formSetting as formSettingTable } from "../db/schema/form.settings";
 import { integration as integrationTable } from "../db/schema/integration";
 import { getRedis } from "../utils/redis.js";
 import { getSubmissionService } from "./form.analytics.js";
+import { nanoid } from "nanoid";
+
+interface IgetFormService {
+  id: string | null;
+  name: string;
+  form_schema: string;
+  creator: string;
+  createdAt: Date;
+  updatedAt: Date;
+  customerId: string;
+  customisation: any;
+  closed: boolean | null;
+  closedMessage: string | null;
+}
 
 export const createFormService = async ({
   formValues,
@@ -20,11 +34,20 @@ export const createFormService = async ({
 }) => {
   try {
     const db = await getDb();
-    const [form] = await db.insert(formTable).values(formValues).returning();
-    await db.insert(formSettingTable).values({
-      formId: form?.shortId!,
-      customerId: form?.customerId,
-      customisation: formCustomisation,
+
+    const form = await db.transaction(async (tx) => {
+      const [createdForm] = await tx
+        .insert(formTable)
+        .values({ ...formValues, shortId: nanoid(13) })
+        .returning();
+        
+      await tx.insert(formSettingTable).values({
+        formId: createdForm?.shortId!,
+        customerId: createdForm?.customerId,
+        customisation: formCustomisation,
+      });
+
+      return createdForm;
     });
 
     return form;
@@ -34,7 +57,7 @@ export const createFormService = async ({
 };
 
 export const getWorkspaceFormService = async (
-  workspace: typeof formTable.$inferInsert.workspace
+  workspace: typeof formTable.$inferInsert.workspace,
 ) => {
   try {
     const db = await getDb();
@@ -63,7 +86,7 @@ export const getWorkspaceFormService = async (
 };
 
 export const getUserFormsService = async (
-  userId: typeof user.$inferInsert.id
+  userId: typeof user.$inferInsert.id,
 ) => {
   try {
     const redis = getRedis();
@@ -91,7 +114,7 @@ export const getUserFormsService = async (
 };
 
 export const deleteFormService = async (
-  formId: typeof formTable.$inferInsert.shortId
+  formId: typeof formTable.$inferInsert.shortId,
 ) => {
   try {
     const db = await getDb();
@@ -132,7 +155,7 @@ export const updateFormIdService = async (formUpdateValues: {
 };
 
 export const getFormWithFormFieldsService = async (
-  formId: typeof formTable.$inferInsert.id
+  formId: typeof formTable.$inferInsert.id,
 ) => {
   try {
     const redis = getRedis();
@@ -160,7 +183,7 @@ export const getFormWithFormFieldsService = async (
 };
 
 export const getFormService = async (
-  formId: typeof formTable.$inferInsert.shortId
+  formId: typeof formTable.$inferInsert.shortId,
 ) => {
   try {
     const kv = env.planetform_kv;
@@ -168,7 +191,7 @@ export const getFormService = async (
     const cached = await kv.get(key);
 
     if (cached) {
-      return JSON?.parse(cached);
+      return JSON?.parse(cached) as IgetFormService;
     }
 
     const db = await getDb();
@@ -226,7 +249,7 @@ export const getFormService = async (
       }),
       {
         expirationTtl: 60,
-      }
+      },
     );
 
     return {
@@ -235,7 +258,7 @@ export const getFormService = async (
       customisation,
       closed: success ? success?.closed : false,
       closedMessage,
-    };
+    } as IgetFormService;
   } catch (e) {
     commonCatch(e);
   }
@@ -273,7 +296,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
   formId: typeof formTable.$inferInsert.shortId;
   formName: typeof formTable.$inferInsert.name;
   form_schema: typeof formTable.$inferInsert.form_schema;
-  fields: (typeof formFieldTable.$inferInsert)[];
+  fields: typeof formFieldTable.$inferInsert[];
   formCustomisation: typeof formSettingTable.$inferInsert.customisation;
   userId: string;
 }) => {
@@ -311,7 +334,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
       // and exist in db
       // these fields will be updated
       const existingIncomingFields = fields?.filter(
-        (f) => f?.id && fieldsInDBSet.has(f?.id)
+        (f) => f?.id && fieldsInDBSet.has(f?.id),
       );
 
       // extracting fields that are to be insert ,
@@ -371,8 +394,8 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         .where(
           and(
             eq(integrationTable.formId, formId!),
-            eq(integrationTable.type, "notion")
-          )
+            eq(integrationTable.type, "notion"),
+          ),
         );
     });
 

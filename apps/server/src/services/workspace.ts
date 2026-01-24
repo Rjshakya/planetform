@@ -1,8 +1,9 @@
 import { getDb } from "../db/config.js";
 import { workspace as workspaceTable } from "../db/schema/workspace";
-import { eq } from "drizzle-orm";
+import { eq, name } from "drizzle-orm";
 import { commonCatch } from "../utils/error";
 import { getIsProUser } from "../utils/subscription.js";
+import { form } from "../db/schema/form.js";
 
 interface IupdateWorkspace {
   data: {
@@ -40,7 +41,7 @@ export const createWorkspaceService = async (
         owner: workspaceTable.owner,
       });
 
-    return workspace
+    return workspace;
   } catch (e) {
     commonCatch(e);
   }
@@ -82,6 +83,51 @@ export const getWorkspacesWithFormsService = async (userId: string) => {
     });
 
     return res;
+  } catch (e) {
+    commonCatch(e);
+  }
+};
+
+export const getWorkspaceWithFormsService = async (workspaceId: string) => {
+  try {
+    const db = await getDb();
+    const res = await db
+      .select({
+        name: workspaceTable.name,
+        id: workspaceTable.id,
+        forms: {
+          id: form.shortId,
+          name: form.name,
+          createdAt: form.createdAt,
+        },
+      })
+      .from(workspaceTable)
+      .leftJoin(form, eq(form.workspace, workspaceTable.id))
+      .where(eq(workspaceTable.id, workspaceId));
+
+    const reduced = res.reduce(
+      (acc, curr) => {
+        acc.id = curr.id;
+        acc.name = curr.name;
+
+        if (!acc.forms) {
+          acc.forms = [];
+        }
+
+        if (curr.forms?.id) {
+          acc.forms.push(curr.forms);
+        }
+
+        return acc;
+      },
+      {} as {
+        name: string | null;
+        id: string;
+        forms: Array<{ id: string | null; name: string; createdAt: Date }>;
+      }
+    );
+
+    return reduced;
   } catch (e) {
     commonCatch(e);
   }

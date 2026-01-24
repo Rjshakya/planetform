@@ -39,7 +39,7 @@ export type FileUploadState = {
   files: FileWithPreview[];
   isDragging: boolean;
   errors: string[];
-  isUploading:boolean
+  isUploading: boolean;
 };
 
 export type FileUploadActions = {
@@ -82,7 +82,7 @@ export const useFileUpload = (
     })),
     isDragging: false,
     errors: [],
-    isUploading:false
+    isUploading: false,
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -347,8 +347,7 @@ export const useFileUpload = (
       setState((prev) => {
         const fileToRemove = prev.files.find((file) => file.id === id);
         if (
-          fileToRemove &&
-          fileToRemove.preview &&
+          fileToRemove?.preview &&
           fileToRemove.file instanceof File &&
           fileToRemove.file.type.startsWith("image/")
         ) {
@@ -368,8 +367,7 @@ export const useFileUpload = (
       // if (!isPreview) {
       const fileToRemove = files.find((file) => file.id === id);
       if (
-        fileToRemove &&
-        fileToRemove.preview &&
+        fileToRemove?.preview &&
         fileToRemove.file instanceof File &&
         fileToRemove.file.type.startsWith("image/")
       ) {
@@ -492,5 +490,5 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
+  return Number.parseFloat((bytes / k ** i).toFixed(dm)) + sizes[i];
 };

@@ -13,10 +13,7 @@ import { formSetting } from "./form.settings";
 export const form = pgTable(
   "forms",
   {
-    id: t
-      .uuid()
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
+    id: t.uuid().primaryKey().default(sql`gen_random_uuid()`),
     name: t.varchar({ length: 255 }).notNull(),
     workspace: t
       .uuid()
@@ -39,7 +36,7 @@ export const form = pgTable(
     t.uniqueIndex("short_idx").on(tb.shortId),
     t.index("form_workspace_idx").on(tb.workspace),
     t.index("form_cutomer_idx").on(tb.customerId),
-  ]
+  ],
 );
 
 export const formRelations = relations(form, ({ one, many }) => ({

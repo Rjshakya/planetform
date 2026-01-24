@@ -124,7 +124,7 @@ export default function FormCard(props: formProps) {
               <DropdownMenuItem
                 onClick={() =>
                   router.push(
-                    `/dashboard/${workspace}/form/view/${props.shortId}`
+                    `/dashboard/${workspace}/form/view/${props.shortId}`,
                   )
                 }
                 className="w-full flex items-center gap-2"
@@ -162,7 +162,7 @@ export default function FormCard(props: formProps) {
               <DropdownMenuItem
                 onClick={() =>
                   router.push(
-                    `/dashboard/${workspace}/form/edit/${props.shortId}?name=${props.name}`
+                    `/dashboard/${workspace}/form/edit/${props.shortId}?name=${props.name}`,
                   )
                 }
                 className="w-full flex items-center gap-2"

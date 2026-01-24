@@ -13,7 +13,7 @@ import { useEditorStore } from "@/stores/useEditorStore";
 
 export const RenderForm = ({ docs }: { docs: JsonDoc[] }) => {
   const { activeStep, maxStep } = useFormStore((s) => s);
-  const { customThankyouMessage } = useEditorStore(s => s)
+  const { customThankyouMessage } = useEditorStore((s) => s);
   const handleActiveIndex = useCallback(
     (idx: number) => {
       const index = idx < 0 ? 0 : Math.min(docs?.length - 1, idx);
@@ -22,7 +22,7 @@ export const RenderForm = ({ docs }: { docs: JsonDoc[] }) => {
         isLastStep: maxStep === index,
       });
     },
-    [maxStep, docs?.length]
+    [maxStep, docs?.length],
   );
 
   return (

@@ -1,6 +1,5 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import { UseFormReturn } from "react-hook-form";
 import { v7 } from "uuid";
 import { MultipleChoiceView, Option } from "./View";
 

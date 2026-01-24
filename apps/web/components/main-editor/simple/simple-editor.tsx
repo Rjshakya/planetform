@@ -672,6 +672,7 @@ const suggestions = createSuggestionsItems([
     icon: (
       <div>
         <svg
+          role="icon"
           xmlns="http://www.w3.org/2000/svg"
           className="size-5 fill-foreground"
           viewBox="0 0 24 24"
@@ -700,7 +701,7 @@ export function SimpleEditor({
 
   const editorContentRef = React.useRef<HTMLDivElement>(null);
   const { activeStep, maxStep, handleSubmit, isLastStep } = useFormStore(
-    (s) => s
+    (s) => s,
   );
   const {
     formBackgroundColor,
@@ -789,7 +790,7 @@ export function SimpleEditor({
               return (
                 item.title.toLowerCase().includes(lowerQuery) ||
                 item.searchTerms?.some((term) =>
-                  term.toLowerCase().includes(lowerQuery)
+                  term.toLowerCase().includes(lowerQuery),
                 )
               );
             });
@@ -869,7 +870,7 @@ export function SimpleEditor({
         isLastStep: maxStep === index,
       });
     },
-    [maxStep]
+    [maxStep],
   );
 
   const handleOnSubmit = async (values: FieldValues) => {
@@ -912,7 +913,7 @@ export function SimpleEditor({
         <Form {...form}>
           <form
             onSubmit={form?.handleSubmit?.(handleOnSubmit, (v) =>
-              console.log(v)
+              console.log(v),
             )}
             className={`w-full h-full px-2 grid gap-3 `}
             style={
@@ -962,7 +963,9 @@ export function SimpleEditor({
                     <span>Submit</span>
                     {form?.formState.isSubmitting && (
                       <Loader
-                        className={`${isEditable || "animate-spin"} ${isEditable && "hidden"}`}
+                        className={`${isEditable || "animate-spin"} ${
+                          isEditable && "hidden"
+                        }`}
                       />
                     )}
                   </div>

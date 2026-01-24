@@ -35,13 +35,13 @@ const form = new Hono<{
       z.object({
         formValues: formObject,
         formCustomisation: z.any(),
-      })
+      }),
     ),
     async (c) => {
       const { formValues, formCustomisation } = c.req.valid("json");
       const form = await createFormService({ formCustomisation, formValues });
       return c.json({ form });
-    }
+    },
   )
 
   .get(
@@ -52,7 +52,7 @@ const form = new Hono<{
       const { workspaceId } = c.req.valid("param");
       const workspace = await getWorkspaceFormService(workspaceId);
       return c.json({ workspace });
-    }
+    },
   )
 
   .get(
@@ -62,7 +62,7 @@ const form = new Hono<{
       const { formId } = c.req.valid("param");
       const form = await getFormService(formId);
       return c.json({ form });
-    }
+    },
   )
 
   .get(
@@ -73,7 +73,7 @@ const form = new Hono<{
       const { formId } = c?.req?.valid("param");
       const form = await getFormWithMetaDataService(formId);
       return c.json({ form }, 200);
-    }
+    },
   )
 
   .delete(
@@ -84,7 +84,7 @@ const form = new Hono<{
       const { formId } = c.req.valid("param");
       const form = await deleteFormService(formId);
       return c.json({ form });
-    }
+    },
   )
 
   .put(
@@ -98,7 +98,7 @@ const form = new Hono<{
         form_schema: z.string().nonempty(),
         fields: multipleFormFieldObject,
         formCustomisation: z.any(),
-      })
+      }),
     ),
     async (c) => {
       const userId = c.get("userId");
@@ -113,7 +113,7 @@ const form = new Hono<{
         userId: userId!,
       });
       return c.json({ form });
-    }
+    },
   )
 
   .post(
@@ -124,7 +124,7 @@ const form = new Hono<{
       const params = c.req.valid("json");
       const settings = await createFormSettingService(params);
       return c.json({ settings });
-    }
+    },
   )
 
   .post(
@@ -135,7 +135,7 @@ const form = new Hono<{
       const params = c.req.valid("json");
       const settings = await updateFormSettingService(params);
       return c.json({ settings });
-    }
+    },
   )
 
   .get(
@@ -146,7 +146,7 @@ const form = new Hono<{
       const { formId } = c.req.valid("param");
       const settings = await getFormSettingService(formId);
       return c.json({ settings });
-    }
+    },
   );
 
 export default form;

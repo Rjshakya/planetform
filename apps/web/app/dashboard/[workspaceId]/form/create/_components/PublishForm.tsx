@@ -109,7 +109,7 @@ export const PublishForm = () => {
   const handlePublishWithToast = () => {
     return toast.promise(
       async () => await handlePublish(formName),
-      toastPromiseOptions({})
+      toastPromiseOptions({}),
     );
   };
 
@@ -156,7 +156,7 @@ export const PublishForm = () => {
 
 export const filterFormFields = (jsonDoc: JsonDoc, formId: string) => {
   const filterInputFields = jsonDoc?.content?.filter((f) =>
-    f?.type?.includes("Input")
+    f?.type?.includes("Input"),
   );
   const mapFilteredFields = filterInputFields?.map((f, i) => {
     return {

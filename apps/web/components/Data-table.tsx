@@ -149,7 +149,7 @@ export default function TanStackTable({
     try {
       const selectedRows = table.getSelectedRowModel().rows;
       const updatedData = data.filter(
-        (item) => !selectedRows.some((row) => row.original?.id === item?.id)
+        (item) => !selectedRows.some((row) => row.original?.id === item?.id),
       );
       const selectedRowsId = selectedRows.map((r) => r?.original?.id);
       await apiClient.put(`/api/respondent/multiple`, selectedRowsId);
@@ -160,7 +160,7 @@ export default function TanStackTable({
       mutate(
         `/api/response/form/${formId}?pageIndex=${
           states.pagination
-        }&pageSize=${20}`
+        }&pageSize=${20}`,
       );
     } catch (e) {
       toast("failed to delete selected rows");
@@ -346,15 +346,15 @@ export default function TanStackTable({
                         isLastLeftPinned
                           ? "left"
                           : isFirstRightPinned
-                            ? "right"
-                            : undefined
+                          ? "right"
+                          : undefined
                       }
                     >
                       {header.isPlaceholder ? null : header.column.getCanSort() ? (
                         <div
                           className={cn(
                             header.column.getCanSort() &&
-                              "flex h-full cursor-pointer items-center justify-between gap-2 select-none"
+                              "flex h-full cursor-pointer items-center justify-between gap-2 select-none",
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           onKeyDown={(e) => {
@@ -371,7 +371,7 @@ export default function TanStackTable({
                         >
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
 
                           <div className=" flex items-center gap-1">
@@ -472,7 +472,7 @@ export default function TanStackTable({
                       ) : (
                         flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )
                       )}
                     </TableHead>
@@ -509,13 +509,13 @@ export default function TanStackTable({
                               isLastLeftPinned
                                 ? "left"
                                 : isFirstRightPinned
-                                  ? "right"
-                                  : undefined
+                                ? "right"
+                                : undefined
                             }
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </TableCell>
                         );
@@ -677,7 +677,7 @@ export function RowActions({ row }: { row: Row<any> }) {
 export const exportToCsv = (
   fileName = "data",
   headers: Header<any, unknown>[],
-  rows: Row<any>[]
+  rows: Row<any>[],
 ) => {
   const blob = getCsvBlob(headers, rows);
   const link = document.createElement("a");
@@ -716,7 +716,7 @@ const getRowsData = (rows: Row<any>[]): string[][] => {
 
 export const getCsvBlob = (
   headers: Header<any, unknown>[],
-  rows: Row<any>[]
+  rows: Row<any>[],
 ): Blob => {
   let csvContent = "";
   const headerNames = getHeaderNames(headers);
