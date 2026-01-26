@@ -87,7 +87,7 @@ export const longInputNode = Node.create({
     return {
       Backspace: ({ editor }) => {
         const { selection } = editor.state;
-        const { $from, empty } = selection;
+        const { $from } = selection;
 
         // Check if cursor is at the start of the node content
         if ($from.parent.type.name === this.name && $from.parentOffset === 0) {

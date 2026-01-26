@@ -21,11 +21,13 @@ import { Input } from "../ui/input";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { toastPromiseOptions } from "@/lib/toast";
+import { EmptyWorkspaces } from "./empty-workspace";
+import { ErrorScreen } from "../common/error";
 
 export const DashboardHome = () => {
   const { user } = useUser();
-  const { analytics } = useDashboardAnalytics(user?.dodoCustomerId);
-  const { workspaces } = useUserWorkspace(user?.id);
+  const { analytics, error } = useDashboardAnalytics(user?.id);
+  const { workspaces, workspaceError } = useUserWorkspace(user?.id);
   const navigate = useNavigate();
 
   const workspacesLen = useMemo(
@@ -58,19 +60,26 @@ export const DashboardHome = () => {
   }, [user, workspaceState]);
 
   const handleFormCreate = useCallback(async () => {
-    if (!workspaces) return;
+    if (!workspaces || !user) return;
 
     if (!workspaces.length) {
-      onOpenChange(true);
-      return;
+      const createdWorkspaceId = await createWorkspace(
+        "my-workspace",
+        user?.id,
+      );
+      return navigate(`/editor?workspace=${createdWorkspaceId}`);
     }
 
     const workspace = workspaces[0].id;
     return navigate(`/editor?workspace=${workspace}`);
-  }, [workspaces, navigate, onOpenChange]);
+  }, [workspaces, navigate, user]);
 
   if (!analytics || !workspaces) {
     return <BodySkeleton />;
+  }
+
+  if (error || workspaceError) {
+    return <ErrorScreen />;
   }
 
   return (
@@ -90,16 +99,20 @@ export const DashboardHome = () => {
             <CardHeader>
               <CardDescription>total workspaces</CardDescription>
             </CardHeader>
-            <CardContent className="text-xl">{analytics?.TotalWorkspaces}</CardContent>
+            <CardContent className="text-xl">
+              {analytics?.TotalWorkspaces}
+            </CardContent>
           </Card>
         </div>
         <div className="px-1 pb-1 bg-muted">
-          <h3 className="pt-2 pb-2 text-xs px-1">Froms</h3>
+          <h3 className="pt-2 pb-2 text-xs px-1">Forms</h3>
           <Card className=" ring-0">
             <CardHeader>
               <CardDescription>total forms</CardDescription>
             </CardHeader>
-            <CardContent className="text-xl">{analytics?.TotalForms}</CardContent>
+            <CardContent className="text-xl">
+              {analytics?.TotalForms}
+            </CardContent>
           </Card>
         </div>
       </div>
@@ -129,7 +142,7 @@ export const DashboardHome = () => {
             );
           })
         ) : (
-          <div className=" text-xs">No workspaces</div>
+          <EmptyWorkspaces />
         )}
       </ItemGroup>
     </div>
@@ -142,7 +155,6 @@ export const WorkspaceDialog = ({
   workspaceName,
   onWorkspaceNameChange,
   handleCreateWorkspace,
-  workspaceLen,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;

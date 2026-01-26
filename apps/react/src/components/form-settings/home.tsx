@@ -1,10 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import {
-  Navigate,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { useCallback, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { CommonMenu } from "../submissions/common-menu";
 import { Label } from "../ui/label";
@@ -34,6 +29,8 @@ import { deleteForm } from "@/hooks/use-form";
 import { toast } from "sonner";
 import { toastPromiseOptions } from "@/lib/toast";
 import { clientUrl } from "@/lib/hc";
+import { mutate } from "swr";
+import { keyOfuseWorkspace } from "@/hooks/use-workspace";
 
 export const FormSettingHome = () => {
   const { formId } = useParams();
@@ -54,6 +51,7 @@ export const FormSettingHome = () => {
       }),
     );
     onOpenChange(false);
+    mutate(keyOfuseWorkspace(workspace));
     navigate(`${clientUrl}/dashboard/${workspace}`);
   }, [formId, navigate, workspace]);
 
@@ -61,10 +59,12 @@ export const FormSettingHome = () => {
     <div className="max-w-3xl mx-auto pt-12 px-4 pb-8  ">
       <CommonMenu />
 
-      <Tabs className={''} defaultValue={"settings"}>
-        <TabsList className={'overflow-x-scroll w-full sm:w-fit '} style={{scrollbarWidth:"none"}}>
+      <Tabs className={""} defaultValue={"settings"}>
+        <TabsList
+          className={"overflow-x-scroll w-full sm:w-fit "}
+          style={{ scrollbarWidth: "none" }}
+        >
           <TabsTrigger
-          
             onClick={() =>
               navigate(
                 `/submissions/${formId}?name=${formName}&workspace=${workspace}`,

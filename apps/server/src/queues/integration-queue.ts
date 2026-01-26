@@ -2,7 +2,6 @@ import { env } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
 import z from "zod";
 import { getDb } from "../db/config";
-import { integration } from "../db/schema/integration";
 import type { response } from "../db/schema/response";
 import {
 	GMAIL_INTEGRATION_TYPE,
@@ -35,7 +34,6 @@ export const gmailMetaDataSchema = z.object({
 });
 
 export const handleIntegrationQueue = async (messages: readonly Message<IntegrationQueueMesssage>[]) => {
-	const db = await getDb();
 
 	for (const message of messages) {
 		console.log(message);

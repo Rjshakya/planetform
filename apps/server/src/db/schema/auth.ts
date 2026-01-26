@@ -6,7 +6,6 @@ export const user = pgTable("user", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
-	dodoCustomerId: text().unique(),
 	emailVerified: boolean("email_verified")
 		.$defaultFn(() => false)
 		.notNull(),

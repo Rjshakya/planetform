@@ -21,6 +21,7 @@ import { fileUploadNode } from "./form-nodes/file-upload/node";
 import { dateInputNode } from "./form-nodes/date-input/node";
 import { emailInputNode } from "./form-nodes/email/node";
 import { multipleChoiceNode } from "./form-nodes/multiple-choice/node";
+import { multiPageNode } from "./form-nodes/multi-page/node";
 
 export const extensions = [
   StarterKit.configure({
@@ -73,5 +74,6 @@ export const extensions = [
   dateInputNode,
   emailInputNode,
   multipleChoiceNode,
+  multiPageNode,
   // optionNode,
 ] as Extension[];

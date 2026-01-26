@@ -4,6 +4,8 @@ import { form } from "../db/schema/form.js";
 import { workspace as workspaceTable } from "../db/schema/workspace.js";
 import { commonCatch } from "../utils/error.js";
 import { getIsProUser } from "../utils/subscription.js";
+import { Result } from "better-result";
+import { WorkspaceServiceError } from "../errors.js";
 
 interface IupdateWorkspace {
   data: {
@@ -15,10 +17,7 @@ interface IupdateWorkspace {
 export const createWorkspaceService = async (
   workspaceValues: typeof workspaceTable.$inferInsert,
 ) => {
-  try {
-    if (!workspaceValues.customerId) {
-      return false;
-    }
+  const promise = async () => {
     const db = await getDb();
     const workspaces = await db
       .select({ id: workspaceTable.id })
@@ -26,7 +25,7 @@ export const createWorkspaceService = async (
       .where(eq(workspaceTable.owner, workspaceValues.owner));
 
     if (workspaces.length) {
-      const isProUser = await getIsProUser(workspaceValues.customerId);
+      const isProUser = await getIsProUser(workspaceValues.owner);
       if (!isProUser) {
         return false;
       }
@@ -42,9 +41,22 @@ export const createWorkspaceService = async (
       });
 
     return workspace;
-  } catch (e) {
-    commonCatch(e);
+  };
+
+  const execute = await Result.tryPromise({
+    try: promise,
+    catch: (e) =>
+      new WorkspaceServiceError({
+        cause: e,
+        operation: "createWorkspaceService",
+      }),
+  });
+
+  if (Result.isOk(execute)) {
+    return execute.value;
   }
+
+  throw execute.error;
 };
 
 export const getUserWorkspaceService = async (

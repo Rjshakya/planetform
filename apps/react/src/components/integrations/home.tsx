@@ -28,50 +28,7 @@ import {
 } from "../ui/input-group";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import type { IntegrationCard } from "./types";
-
-export const integrationCardsData: IntegrationCard[] = [
-  {
-    id: "google",
-    name: "Google Sheets",
-    type: "sheets",
-    description: "Send form responses to Google Sheets",
-    connected: false,
-    index: 0,
-  },
-  {
-    id: "notion",
-    name: "Notion",
-    type: "notion",
-    description: "Sync form data with Notion databases",
-    connected: false,
-    index: 1,
-  },
-  {
-    id: "gmail",
-    name: "Gmail",
-    type: "gmail",
-    description: "Send email notifications via Gmail",
-    connected: false,
-    index: 2,
-  },
-  {
-    id: "slack",
-    name: "Slack",
-    type: "slack",
-    description: "Post form submissions to Slack channels",
-    connected: false,
-    index: 3,
-  },
-  {
-    id: "webhook",
-    name: "Webhook",
-    type: "webhook",
-    description: "Get form submission to your url",
-    connected: false,
-    index: 4,
-  },
-];
+import { integrationCardsData } from "./index";
 
 export const IntegrationsHome = () => {
   const { formId } = useParams();

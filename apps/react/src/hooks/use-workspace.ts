@@ -97,7 +97,7 @@ export const createWorkspace = async (name: string, owner: string) => {
   const res = await client.api.workspace.$post({ json: { owner, name } });
   if (!res.ok) throw new Error("failed to createWorkspace");
   const json = await res.json();
-  return json.workspace.id;
+  return json.workspace?.id;
 };
 
 export const updateWorkspace = async (

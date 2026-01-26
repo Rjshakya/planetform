@@ -53,7 +53,7 @@ const groups: CommandGroupType[] = [
             .insertShortInput({
               id: v7(),
               isRequired: true,
-              label: "Question:",
+              label: "Question for short answers",
               placeholder: "write anything",
               type: "text",
             })
@@ -72,7 +72,7 @@ const groups: CommandGroupType[] = [
             .insertLongInput({
               id: v7(),
               isRequired: true,
-              label: "Question:",
+              label: "Question for long answers",
               placeholder: "write anything",
               rows: 6,
             })
@@ -91,7 +91,7 @@ const groups: CommandGroupType[] = [
             .insertEmailInput({
               id: v7(),
               isRequired: true,
-              label: "Email:",
+              label: "Email",
               placeholder: "planetform@gmail.com",
               prefix: "http",
             })
@@ -110,7 +110,7 @@ const groups: CommandGroupType[] = [
             .insertDateInput({
               id: v7(),
               isRequired: true,
-              label: "Date:",
+              label: "Date",
               placeholder: "choose a date",
               type: "",
             })
@@ -130,7 +130,7 @@ const groups: CommandGroupType[] = [
             .insertmultipleChoiceInput({
               id: parentId,
               isRequired: true,
-              label: "Question:",
+              label: "Question for multiple choices",
               type: "multiple",
               isDropdown: false,
               options: [
@@ -166,7 +166,7 @@ const groups: CommandGroupType[] = [
             .insertmultipleChoiceInput({
               id: parentId,
               isRequired: true,
-              label: "Question:",
+              label: "Question for single choice",
               type: "single",
               isDropdown: false,
               options: [
@@ -201,13 +201,22 @@ const groups: CommandGroupType[] = [
             .insertFileUploadInput({
               id: v7(),
               isRequired: true,
-              label: "Upload file:",
+              label: "Upload file",
               accept: "*",
               maxFiles: 1,
               maxSize: 5 * 1024 * 1024,
               type: "multiple",
             })
             .run();
+        },
+      },
+      {
+        title: "New Page",
+        keywords: "New Page",
+        description: "New Page",
+        icon: TextIcon,
+        command(editor) {
+          return editor.chain().focus().insertPage().run();
         },
       },
     ],
@@ -396,13 +405,6 @@ export const suggestion = {
         });
       },
       onExit(props) {
-        // popup?.[0].destroy();
-        // component.destroy();
-        // const { text } = props;
-        // if (text !== "/") {
-        //   popup?.[0].destroy();
-        //   component.destroy();
-        // }
         popup?.[0].destroy();
         component.destroy();
       },

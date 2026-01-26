@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useEditorStore } from "@/stores/useEditorStore";
 import { PublishForm } from "./publish-form";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { UpdateForm } from "./update-form";
 import { CustomizationPanel } from "../editor/customization-panel";
 import { useCallback, useState } from "react";
@@ -20,20 +20,29 @@ import { toastPromiseOptions } from "@/lib/toast";
 import { mutate } from "swr";
 import { getUseResponsesKey } from "@/hooks/use-responses";
 import { DragHandleComp } from "./drag-handle";
+import { ThankyouMessage } from "./thanku-message";
+import { usePreviewStore } from "@/stores/usePreviewStore";
+import { useFormSteps } from "@/stores/useFormStepper";
 // import { DragHandleComp } from "./drag-handle";
 
 export function FormEditor({
   className,
   content,
   formClassName,
+  lastStepIndex,
 }: {
   className?: string;
   content?: JSONContent | string;
   formClassName?: string;
+  lastStepIndex: number;
 }) {
   const { getHookForm, handleSubmit } = useFormStore((s) => s);
+  const { setContent } = usePreviewStore((s) => s);
   const location = useLocation();
   const { formId } = useParams();
+  const navigate = useNavigate();
+  const { currentStep } = useFormSteps((s) => s);
+  const { pathname } = useLocation();
 
   const {
     formBackgroundColor,
@@ -41,10 +50,7 @@ export function FormEditor({
     formFontFamliy,
     formFontSize,
     isEditable,
-    actionBtnBorderColor,
     actionBtnColor,
-    actionBtnSize,
-    actionBtnTextColor,
     inputBackgroundColor,
   } = useEditorStore();
 
@@ -72,23 +78,41 @@ export function FormEditor({
 
   const handleFormSubmit = useCallback(
     async (params: { values: Record<string, string | string[]> }) => {
-      if (!form || !formId || location.pathname.includes("/edit") || !editor) {
+      // if (!form || !formId || location.pathname.includes("/edit") || !editor) {
+      //   throw new Error("can't submit form while creating");
+      // }
+
+      if (!form || location.pathname.includes("/edit") || !editor) {
         throw new Error("can't submit form while creating");
       }
 
       const { values } = params;
-      await handleSubmit({ values, formId });
 
-      editor
-        .chain()
-        .clearContent()
-        .setContent("<h2>Thankyou for submission</h2>")
-        .run();
+      if (currentStep === lastStepIndex) {
+        await handleSubmit({ values, formId: formId ?? "", path: pathname });
+        editor.chain().clearContent().setContent(ThankyouMessage).run();
+        form.reset();
+        mutate(
+          getUseResponsesKey({
+            formId: formId ?? "",
+            pageIndex: 0,
+            pageSize: 20,
+          }),
+        );
+      }
 
-      form.reset();
-      mutate(getUseResponsesKey({ formId, pageIndex: 0, pageSize: 20 }));
+      return true;
     },
-    [editor, formId, location.pathname, handleSubmit, form],
+    [
+      editor,
+      formId,
+      location.pathname,
+      handleSubmit,
+      form,
+      currentStep,
+      lastStepIndex,
+      pathname,
+    ],
   );
 
   const submitWithToast = useCallback(
@@ -98,6 +122,7 @@ export function FormEditor({
         toastPromiseOptions({
           success: "form submitted",
           loading: "submitting",
+          error: "failed to submit form",
         }),
       );
     },
@@ -134,6 +159,10 @@ export function FormEditor({
                 onClick={() => {
                   useEditorStore.setState({ isEditable: !isEditable });
                   editor.setEditable(!isEditable);
+
+                  const jsonContent = editor.getJSON();
+                  setContent(jsonContent);
+                  navigate("/preview");
                 }}
               >
                 {isEditable ? "Preview" : "Edit"}
@@ -150,14 +179,10 @@ export function FormEditor({
 
         {/* main form */}
         <form
-          id="vite-react-form "
+          id={formId || "vite-react-form"}
           onSubmit={form.handleSubmit(submitWithToast)}
           className={cn(
-            `relative w-full grid gap-1 overflow-hidden overflow-y-scroll    ${
-              location.pathname.includes("/edit")
-                ? "h-[calc(100vh-6rem)]"
-                : "h-[calc(100vh-4rem)]"
-            } `,
+            `grid gap-1 relative w-full overflow-hidden overflow-y-scroll ${location.pathname.includes("/edit") ? "h-[calc(100vh-6rem)]" : "h-[calc(100vh-4rem)]"}`,
             formClassName,
           )}
           style={
@@ -176,23 +201,124 @@ export function FormEditor({
             className=" w-full min-w-full cursor-text sm:px-8 sm:pt-8 px-4 font-sans h-full   "
           />
 
-          <div className="w-full sm:px-8 pb-4 px-4">
-            <Button
-              size={actionBtnSize ?? "lg"}
-              style={
-                {
-                  "--primary": actionBtnColor || "",
-                  color: actionBtnTextColor || "",
-                  "--tw-ring-color": actionBtnBorderColor,
-                } as React.CSSProperties & Record<string, string>
-              }
-              type="submit"
-            >
-              Submit
-            </Button>
-          </div>
+          {/* Submit Button */}
+
+          <SubmitButton />
+
+          {/* {isSubmitted || stepInNumber === lastStepIndex ? (
+            <div className="w-full sm:px-8 pb-4 px-4">
+              <Button
+                size={actionBtnSize ?? "lg"}
+                style={
+                  {
+                    "--primary": actionBtnColor || "",
+                    color: actionBtnTextColor || "",
+                    "--tw-ring-color": actionBtnBorderColor,
+                  } as React.CSSProperties & Record<string, string>
+                }
+                type={"submit"}
+              >
+                Submit
+              </Button>
+            </div>
+          ) : (
+            <div className="w-full sm:px-8 pb-4 px-4">
+              <Button
+                size={actionBtnSize ?? "lg"}
+                style={
+                  {
+                    "--primary": actionBtnColor || "",
+                    color: actionBtnTextColor || "",
+                    "--tw-ring-color": actionBtnBorderColor,
+                  } as React.CSSProperties & Record<string, string>
+                }
+                type={"button"}
+                onClick={() => navigate(`/preview/${(stepInNumber || 0) + 1}`)}
+              >
+                Next
+              </Button>
+            </div>
+          )} */}
         </form>
       </EditorContext.Provider>
     </div>
   );
 }
+
+export const SubmitButton = () => {
+  const { pathname } = useLocation();
+  const { currentStep, handleNext, totalSteps } = useFormSteps((s) => s);
+  const { isSubmitted } = useFormStore((s) => s);
+
+  const {
+    actionBtnSize,
+    actionBtnColor,
+    actionBtnTextColor,
+    actionBtnBorderColor,
+  } = useEditorStore((s) => s);
+
+  const isEditor = pathname.includes("/edit");
+
+  if (isSubmitted) {
+    return null;
+  }
+
+  if (isEditor) {
+    return (
+      <div className="w-full sm:px-8 pb-4 px-4">
+        <Button
+          size={actionBtnSize ?? "lg"}
+          style={
+            {
+              "--primary": actionBtnColor || "",
+              color: actionBtnTextColor || "",
+              "--tw-ring-color": actionBtnBorderColor,
+            } as React.CSSProperties & Record<string, string>
+          }
+          type={"submit"}
+        >
+          Submit
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {currentStep === totalSteps ? (
+        <div className="w-full sm:px-8 pb-4 px-4">
+          <Button
+            size={actionBtnSize ?? "lg"}
+            style={
+              {
+                "--primary": actionBtnColor || "",
+                color: actionBtnTextColor || "",
+                "--tw-ring-color": actionBtnBorderColor,
+              } as React.CSSProperties & Record<string, string>
+            }
+            type={"submit"}
+          >
+            Submit
+          </Button>
+        </div>
+      ) : (
+        <div className="w-full sm:px-8 pb-4 px-4">
+          <Button
+            size={actionBtnSize ?? "lg"}
+            style={
+              {
+                "--primary": actionBtnColor || "",
+                color: actionBtnTextColor || "",
+                "--tw-ring-color": actionBtnBorderColor,
+              } as React.CSSProperties & Record<string, string>
+            }
+            type={"button"}
+            onClick={() => handleNext()}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+    </>
+  );
+};

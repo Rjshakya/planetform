@@ -18,6 +18,7 @@ import { SubmissionHome } from "./components/submissions/home";
 import { AnalyticsHome } from "./components/analytics/home";
 import { IntegrationsHome } from "./components/integrations/home";
 import { FormSettingHome } from "./components/form-settings/home";
+import { PreviewHome } from "./components/preview/home";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
       {
         path: "/settings/:formId",
         element: <FormSettingHome />,
+      },
+      {
+        path: "/preview",
+        element: <PreviewHome />,
       },
     ],
   },

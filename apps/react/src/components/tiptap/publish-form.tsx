@@ -10,33 +10,14 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
-import { useCurrentEditor, type JSONContent } from "@tiptap/react";
+import { useCurrentEditor } from "@tiptap/react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { client } from "@/lib/hc";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
 import { toastPromiseOptions } from "@/lib/toast";
 import { mutate } from "swr";
-import { useEditorStore } from "@/stores/useEditorStore";
-
-interface IFormField {
-  form: string;
-  label: string;
-  id?: string | undefined;
-  placeholder?: string | null | undefined;
-  type?: string | null | undefined;
-  subType?: string | null | undefined;
-  order: number;
-  isRequired: boolean | null | undefined;
-  min?: number | null | undefined;
-  max?: number | null | undefined;
-  file_limit?: string | null | undefined;
-  accepted_file_types?: string[] | null | undefined;
-  choices?: unknown[] | null | undefined;
-  multiple_select?: boolean | null | undefined;
-  createdAt?: Date | null | undefined;
-  updatedAt?: Date | null | undefined;
-}
+import { getCustomization, postFormFields } from "@/lib/publish-form-helpers";
 
 export const PublishForm = () => {
   const { editor } = useCurrentEditor();
@@ -56,7 +37,6 @@ export const PublishForm = () => {
       json: {
         formValues: {
           creator: user.id,
-          customerId: user.dodoCustomerId,
           form_schema: JSON.stringify(doc),
           name: formName,
           workspace: workspaceId,
@@ -132,73 +112,4 @@ export const PublishForm = () => {
       </DialogContent>
     </Dialog>
   );
-};
-
-export const filterFormFieldsFromContent = (
-  jsonContent: JSONContent,
-  form: string,
-) => {
-  const inputNodes = jsonContent.content?.filter((n) =>
-    n.type?.includes("Input"),
-  );
-
-  const formFields: IFormField[] = inputNodes!.map((f, i) => {
-    return {
-      form: form,
-      label: f?.content?.[0]?.text?.trim() || f?.attrs?.label.trim(),
-      id: f.attrs?.id,
-      type: f?.type,
-      subType: f?.attrs?.type,
-      order: i,
-      isRequired: f?.attrs?.isRequired,
-      choices: f?.attrs?.options,
-    };
-  });
-
-  return formFields;
-};
-
-export const postFormFields = async (
-  formId: string,
-  jsonContent: JSONContent,
-) => {
-  const formFields = filterFormFieldsFromContent(jsonContent, formId);
-
-  try {
-    await client.api.formField.$post({ json: formFields });
-  } catch (e) {
-    await client.api.form[":formId"].$delete({ param: { formId } });
-  }
-};
-
-export const getCustomization = () => {
-  const {
-    formBackgroundColor,
-    formColorScheme,
-    formFontFamliy,
-    formFontSize,
-    formTextColor,
-    actionBtnBorderColor,
-    actionBtnColor,
-    actionBtnSize,
-    actionBtnTextColor,
-    inputBackgroundColor,
-    inputBorderColor,
-    customThankyouMessage,
-  } = useEditorStore.getState();
-
-  return {
-    formBackgroundColor,
-    formColorScheme,
-    formFontFamliy,
-    formFontSize,
-    formTextColor,
-    actionBtnBorderColor,
-    actionBtnColor,
-    actionBtnSize,
-    actionBtnTextColor,
-    inputBackgroundColor,
-    inputBorderColor,
-    customThankyouMessage,
-  };
 };

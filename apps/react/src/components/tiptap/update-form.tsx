@@ -16,7 +16,10 @@ import { client } from "@/lib/hc";
 import { toast } from "sonner";
 import { toastPromiseOptions } from "@/lib/toast";
 import { mutate } from "swr";
-import { filterFormFieldsFromContent, getCustomization } from "./publish-form";
+import {
+  filterFormFieldsFromContent,
+  getCustomization,
+} from "@/lib/publish-form-helpers";
 import { keyOfuseForm } from "@/hooks/use-form";
 
 export const UpdateForm = () => {

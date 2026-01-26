@@ -14,9 +14,9 @@ interface IsubmitResponse {
   creator:string
 }
 
-export const createRespondent = async (formId: string, customerId: string) => {
+export const createRespondent = async (formId: string, formCreatorId: string) => {
   const res = await client.api.respondent.$post({
-    json: { form: formId, customerId },
+    json: { form: formId, formCreatorId },
   });
 
   if (!res.ok) throw new Error("failed to createRespondent");

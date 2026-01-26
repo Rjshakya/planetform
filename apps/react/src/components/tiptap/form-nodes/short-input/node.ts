@@ -75,7 +75,7 @@ export const shortInputNode = Node.create({
             content: label
               ? [{ type: "text", text: label }]
               : [{ type: "text", text: "Label:" }],
-          });
+          })
         },
     };
   },
@@ -88,7 +88,7 @@ export const shortInputNode = Node.create({
     return {
       Backspace: ({ editor }) => {
         const { selection } = editor.state;
-        const { $from, empty } = selection;
+        const { $from } = selection;
 
         // Check if cursor is at the start of the node content
         if ($from.parent.type.name === this.name && $from.parentOffset === 0) {

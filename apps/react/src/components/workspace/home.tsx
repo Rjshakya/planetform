@@ -1,9 +1,7 @@
 import {
-  ChartBarDecreasing,
   ChartLine,
   Ellipsis,
   Loader,
-  MenuIcon,
   MoveUpRight,
   Pencil,
   PlusIcon,
@@ -25,7 +23,6 @@ import { toast } from "sonner";
 import { deleteForm } from "@/hooks/use-form";
 import { useCallback, useState } from "react";
 import { toastPromiseOptions } from "@/lib/toast";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,8 +40,8 @@ import {
   AlertDialogHeader,
   AlertDialogMedia,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import { EmptyForms } from "./empty-forms";
 
 export const WorkspaceHome = () => {
   const { workspaceId } = useParams();
@@ -174,11 +171,7 @@ export const WorkspaceHome = () => {
                   );
                 })
               ) : (
-                <Item>
-                  <ItemContent className="py-3 items-center">
-                    <ItemTitle>You have no form , please create one</ItemTitle>
-                  </ItemContent>
-                </Item>
+                <EmptyForms />
               )}
             </ItemGroup>
           </div>

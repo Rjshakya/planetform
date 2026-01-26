@@ -1,26 +1,25 @@
 import { env } from "cloudflare:workers";
-import {
-  checkout,
-  dodopayments,
-  portal,
-  webhooks,
-} from "@dodopayments/better-auth";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Result } from "better-result";
-import DodoPayments from "dodopayments";
 import { and, eq } from "drizzle-orm";
 import { getDb } from "../db/config";
 import { auth } from "../db/schema";
 import { account } from "../db/schema/auth";
 import { DatabaseError } from "../errors";
 import { refreshGoogleAccessToken } from "./refresh-token";
+import {
+  polar,
+  checkout,
+  portal,
+  usage,
+  webhooks,
+} from "@polar-sh/better-auth";
+import { Polar } from "@polar-sh/sdk";
 
-export const dodoPayments = new DodoPayments({
-  bearerToken: env.DODO_PAYMENTS_API_KEY
-    ? env.DODO_PAYMENTS_API_KEY
-    : "My Bearer Token",
-  environment: "live_mode",
+export const polarClient = new Polar({
+  accessToken: process.env.POLAR_ACCESS_TOKEN,
+  server: env.NODE_ENV === "production" ? "production" : "sandbox",
 });
 
 export const getAuth = async () => {
@@ -49,14 +48,6 @@ export const getAuth = async () => {
         verification: auth.verification,
       },
     }),
-    user: {
-      additionalFields: {
-        dodoCustomerId: {
-          type: "string",
-          required: false,
-        },
-      },
-    },
     trustedOrigins: [FRONTEND_URL, TRUSTED_DOMAIN],
     socialProviders: {
       google: {
@@ -75,52 +66,26 @@ export const getAuth = async () => {
       },
     },
     plugins: [
-      // @ts-expect-error
-      dodopayments({
-        client: dodoPayments,
-        createCustomerOnSignUp: false,
+      polar({
+        client: polarClient,
+        createCustomerOnSignUp: true,
         use: [
           checkout({
             products: [
               {
-                productId: "pdt_zhCQkiKwiUGlKqRI6hwp7",
-                slug: "Pro",
+                productId: env.PRO_PLAN_PRODUCT_ID, // ID of Product from Polar Dashboard
+                slug: "pro", // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
               },
             ],
-            successUrl: `${FRONTEND_URL}/dashboard`,
+            successUrl: "/success?checkout_id={CHECKOUT_ID}",
             authenticatedUsersOnly: true,
           }),
           portal(),
-          webhooks({
-            webhookKey: env.DODO_PAYMENTS_WEBHOOK_SECRET,
-            onPayload: async (payload: any) => {
-              console.log("Received webhook:", payload?.type);
-            },
-          }),
+          usage(),
         ],
       }),
     ],
-    databaseHooks: {
-      user: {
-        create: {
-          async after(user) {
-            try {
-              await env.DODO_CUSTOMER_CREATE_WORK_FLOW.create({
-                id: user.id,
-                params: {
-                  email: user.email,
-                  name: user.name,
-                  userId: user.id,
-                },
-              });
-            } catch (e) {
-              console.log(e);
-            }
-          },
-        },
-      },
-    },
-  }) as ReturnType<typeof betterAuth>;
+  });
 };
 
 type GetUserCredentialsResponse = {

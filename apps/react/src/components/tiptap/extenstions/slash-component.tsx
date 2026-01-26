@@ -1,6 +1,5 @@
 import type { Editor } from "@tiptap/core";
 import type {
-  SuggestionKeyDownProps,
   SuggestionProps,
 } from "@tiptap/suggestion";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Command, House } from "lucide-react";
+import {  House } from "lucide-react";
 
 import { NavMain } from "@/components/common/nav-main";
 import { NavUser } from "@/components/common/nav-user";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useUser } from "@/hooks/use-user";
 import { useWorkspaceWithForms } from "@/hooks/use-workspace";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

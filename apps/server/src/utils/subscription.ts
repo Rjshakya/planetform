@@ -1,20 +1,28 @@
-import { dodoPayments } from "./auth";
-import { commonCatch } from "./error";
+import { Result } from "better-result";
+import { polarClient } from "./auth";
+import { SubscriptionServiceError } from "../errors";
 
-export const getIsProUser = async (customerId: string) => {
-	try {
-		const subscriptions = await dodoPayments.subscriptions.list({
-			customer_id: customerId,
-		});
-		const activeSubscriptions = subscriptions?.items?.filter(
-			(item) => item?.status === "active",
-		);
+export const getIsProUser = async (userId: string) => {
+  const promise = async () => {
+    const customer = await polarClient.customers.getStateExternal({
+      externalId: userId,
+    });
 
-		if (activeSubscriptions?.length) {
-			return true;
-		}
-		return false;
-	} catch (e) {
-		commonCatch(e);
-	}
+    if (customer.activeSubscriptions.length) {
+      return true;
+    }
+    return false;
+  };
+
+  const execute = await Result.tryPromise({
+    try: promise,
+    catch: (e) =>
+      new SubscriptionServiceError({ cause: e, operation: "getIsProUser" }),
+  });
+
+  if (Result.isOk(execute)) {
+    return execute.value;
+  } else {
+    throw execute.error;
+  }
 };

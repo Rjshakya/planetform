@@ -1,14 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
-import {
-  Navigate,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { CommonMenu } from "../submissions/common-menu";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
+import { useCallback, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import {
   Card,
   CardAction,
@@ -37,7 +29,6 @@ import {
 } from "@/hooks/use-workspace";
 import { toastPromiseOptions } from "@/lib/toast";
 import { toast } from "sonner";
-import { Input } from "../ui/input";
 import {
   InputGroup,
   InputGroupAddon,
@@ -72,6 +63,7 @@ export const WorkspaceSettings = ({
         success: "form deleted",
       }),
     );
+    mutate(keyOfuseWorkspace(workspaceId));
     onOpenChange(false);
     navigate(`/dashboard`);
   }, [navigate, workspaceId]);

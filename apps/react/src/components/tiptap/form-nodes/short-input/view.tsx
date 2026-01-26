@@ -1,8 +1,6 @@
 import {
   Field,
-  FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -14,8 +12,8 @@ import { validationFn } from "@/lib/FormFieldValidations";
 //   useConditionalVisibility,
 //   useConditionalIndicators,
 // } from "@/hooks/use-conditional-visibility";
-import { Badge } from "@/components/ui/badge";
-import { GitBranch } from "lucide-react";
+// import { Badge } from "@/components/ui/badge";
+// import { GitBranch } from "lucide-react";
 import { Controller } from "react-hook-form";
 
 const ShortInput = (props: NodeViewProps) => {

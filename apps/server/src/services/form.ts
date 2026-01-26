@@ -11,7 +11,6 @@ import { integration as integrationTable } from "../db/schema/integration.js";
 import { workspace as workspaceTable } from "../db/schema/workspace.js";
 import {
   DatabaseError,
-  NotFoundError,
   ParseError,
   UnhandledException,
 } from "../errors.js";
@@ -49,8 +48,8 @@ export const createFormService = async ({
           .returning();
 
         await tx.insert(formSettingTable).values({
-          formId: createdForm?.shortId!,
-          customerId: createdForm?.customerId,
+          formId: createdForm.shortId!,
+          customerId: createdForm?.creator,
           customisation: formCustomisation,
         });
 
@@ -157,7 +156,7 @@ export const updateFormIdService = async (formUpdateValues: {
           form_schema: formUpdateValues.form_schema,
           updatedAt: new Date(),
         })
-        .where(eq(formTable.shortId, formUpdateValues?.formId!))
+        .where(eq(formTable.shortId, formUpdateValues.formId!))
         .returning({ formId: formTable.shortId });
 
       return updateForm[0];
@@ -221,7 +220,7 @@ export const getFormService = async (
           creator: formTable.creator,
           createdAt: formTable.createdAt,
           updatedAt: formTable.updatedAt,
-          customerId: formTable.customerId,
+          customerId: formTable.creator,
         })
         .from(formTable)
         .where(eq(formTable.shortId, formId!));
@@ -338,7 +337,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
       } = updateValues;
 
       const db = await getDb();
-      const incomingFieldIds = fields?.map((f) => f?.id!);
+      const incomingFieldIds = fields?.map((f) => f?.id);
       const updateAndGetIntegrations = await db.transaction(async (tx) => {
         // update form schema
         const [form] = await tx
@@ -351,7 +350,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
           .where(eq(formTable.shortId, formId!))
           .returning({
             formId: formTable.shortId,
-            customerId: formTable.customerId,
+            customerId: formTable.creator,
           });
 
         // update form - fields
@@ -373,9 +372,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         // extracting fields that are to be insert ,
         // all the fields that are icoming and does't exist in db .
         // it means they have to be inserted
-        const fieldsToInsert = fields?.filter(
-          (f) => !fieldsInDBSet.has(f?.id!),
-        );
+        const fieldsToInsert = fields?.filter((f) => !fieldsInDBSet.has(f.id!));
 
         // extracting all  the fields that have to be deleted
         // all the fields that does not exist in incoming field but
@@ -416,7 +413,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         // other wise insert it
         if (!update?.id) {
           await tx.insert(formSettingTable).values({
-            formId: form?.formId!,
+            formId: form.formId!,
             customerId: form?.customerId,
             customisation: formCustomisation,
           });
@@ -443,10 +440,10 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         const notionIntegrtns = updateAndGetIntegrations.map((I) => ({
           id: `${Date.now()}-Planetform${I?.id}`,
           params: {
-            formId: I?.formId!,
-            integrationId: I?.id,
-            customerId: I?.customerId!,
-            metaData: I?.metaData!,
+            formId: I.formId!,
+            integrationId: I.id,
+            customerId: I.customerId!,
+            metaData: I.metaData!,
             userId: userId,
           },
         }));

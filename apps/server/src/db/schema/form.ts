@@ -21,11 +21,7 @@ export const form = pgTable(
 		creator: t
 			.text()
 			.notNull()
-			.references(() => user.id, { onDelete: "cascade" }),
-		customerId: t
-			.text()
-			.notNull()
-			.references(() => user.dodoCustomerId, { onDelete: "cascade" }),
+			.references(() => user.id, { onDelete: "cascade"   }),
 		shortId: t.varchar({ length: 255 }).unique(),
 		form_schema: t.text().notNull(),
 		createdAt: t.timestamp().defaultNow().notNull(),
@@ -34,7 +30,6 @@ export const form = pgTable(
 	(tb) => [
 		t.uniqueIndex("short_idx").on(tb.shortId),
 		t.index("form_workspace_idx").on(tb.workspace),
-		t.index("form_cutomer_idx").on(tb.customerId),
 	],
 );
 

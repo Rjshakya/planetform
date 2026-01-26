@@ -12,7 +12,6 @@ import {
   NotionIntegrationWorkflow,
   WebHookIntegrationWorkflow,
 } from "./workflows";
-import { DodoCustomerCreateFlow } from "./workflows/customer";
 import {
   handleIntegrationQueue,
   IntegrationQueueMesssage,
@@ -78,12 +77,10 @@ export const app = new Hono()
   });
 
 export {
-  DodoCustomerCreateFlow,
   GmailIntegrationWorkflow,
   GoogleSheetIntegrationWorkflow,
   NotionIntegrationWorkflow,
   WebHookIntegrationWorkflow,
-  
 };
 export default {
   fetch: app.fetch,

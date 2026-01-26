@@ -1,32 +1,27 @@
-import { apiClient } from "@/lib/axios";
 import { createRespondent, submitResponse } from "@/lib/form-submit";
-import { type FieldValues, useForm, type UseFormReturn } from "react-hook-form";
-import { toast } from "sonner";
-import { mutate } from "swr";
+import { type FieldValues, type UseFormReturn } from "react-hook-form";
 import { create } from "zustand";
 
-interface IsubmissionObj {
-  form: string;
-  form_field: string;
-  value: string;
-  respondent: string;
-}
+// interface IsubmissionObj {
+//   form: string;
+//   form_field: string;
+//   value: string;
+//   respondent: string;
+// }
 
 export interface IformStore {
   getHookForm: () => UseFormReturn<FieldValues, any, FieldValues> | null;
   form: UseFormReturn | null;
   setHookForm: (form: UseFormReturn) => UseFormReturn;
   isSubmitting: boolean;
+  isSubmitted: boolean;
   handleSubmit: ({
     values,
     formId,
-    // step,
-    // isEdit,
   }: {
     values: Record<string, string | string[]>;
     formId: string;
-    // step: number;
-    // isEdit: boolean;
+    path: string;
   }) => Promise<boolean>;
   isSuccess: boolean;
   isLastStep: boolean;
@@ -56,25 +51,38 @@ export const useFormStore = create<IformStore>((set, get) => ({
   },
   stepResponses: [],
   isSubmitting: false,
-  handleSubmit: async ({ values, formId }) => {
+  isSubmitted: false,
+  handleSubmit: async ({ values, formId, path }) => {
     const { creator, customerId } = get();
+    const isPreview = path.includes("/preview");
+
+    if (isPreview) {
+      console.log(values);
+      return true;
+    }
+    
     if (!creator || !customerId || !values || !formId) return false;
 
     let respondent = get().respondentId;
-
     if (!respondent) {
       respondent = (await createRespondent(formId, customerId)) ?? null;
       if (!respondent) return false;
     }
 
-    const submited = await submitResponse({
+    const submitted = await submitResponse({
       data: values,
       formId,
       respondent,
-      creator: get().creator || ""
+      creator: get().creator || "",
     });
 
-    return submited ? true : false;
+    if (!submitted) {
+      set({ isSubmitted: false });
+    } else {
+      set({ isSubmitted: true });
+    }
+
+    return submitted ? true : false;
   },
   isLastStep: true,
   activeStep: 0,

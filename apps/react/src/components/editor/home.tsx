@@ -14,8 +14,8 @@ export const EditorHome = () => {
   return (
     <div className="max-w-3xl mx-auto pt-8 px-4 grid gap-2">
       <FormEditor
-        content={
-          `
+        lastStepIndex={0}
+        content={`
           <h2>Welcome to the Planetform !</h2>
           <p></p>
           <p></p>
@@ -27,8 +27,7 @@ export const EditorHome = () => {
           <p></p>
           <p></p>
            
-          `
-        }
+          `}
       />
     </div>
   );
