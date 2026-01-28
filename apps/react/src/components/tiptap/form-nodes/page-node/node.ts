@@ -40,6 +40,10 @@ export const multiPageNode = Node.create({
                     type: "text",
                     text: "Start writing here",
                   },
+                  {
+                    type: "text",
+                    text: " ",
+                  },
                 ],
               },
             ],

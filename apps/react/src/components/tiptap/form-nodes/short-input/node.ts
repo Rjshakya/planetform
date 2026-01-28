@@ -75,7 +75,7 @@ export const shortInputNode = Node.create({
             content: label
               ? [{ type: "text", text: label }]
               : [{ type: "text", text: "Label:" }],
-          })
+          });
         },
     };
   },

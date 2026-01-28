@@ -5,12 +5,25 @@ export type Form =
   | {
       id: string | null;
       name: string;
-      form_schema: string;
+      form_schema: any;
       creator: string;
       createdAt: string;
       updatedAt: string;
       customerId: string;
-      customisation: any;
+      customisation: {
+        formBackgroundColor: string | null;
+        formFontFamily: string | null;
+        formFontSize: string | null;
+        actionBtnSize: string | null;
+        actionBtnColor: string | null;
+        formTextColor: string | null;
+        actionBtnTextColor: string | null;
+        inputBackgroundColor: string | null;
+        inputBorderColor: string | null;
+        actionBtnBorderColor: string | null;
+        formColorScheme: string | null;
+        customThankyouMessage: string | null;
+      };
       closed: boolean | null;
       closedMessage: string | null;
     }
@@ -22,7 +35,11 @@ export const useForm = (formId: string) => {
     formId ? `useForm:${formId}` : null,
     fetcher,
   );
-  return { form: data?.form as Form, useFormError: error, useFormLoading: isLoading };
+  return {
+    form: data?.form as Form,
+    useFormError: error,
+    useFormLoading: isLoading,
+  };
 };
 
 export const keyOfuseForm = (formId: string) => `useForm:${formId}`;

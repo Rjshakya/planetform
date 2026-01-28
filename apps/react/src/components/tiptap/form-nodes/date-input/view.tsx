@@ -17,52 +17,47 @@ import { type InsertDateInputParams } from "./node";
 import { validationFn } from "@/lib/FormFieldValidations";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-// import { useConditionalVisibility } from "@/hooks/use-conditional-visibility";
+import { RequiredIcon } from "../../required-icon";
 
 export const DateInputView = (props: NodeViewProps) => {
   const form = useFormStore.getState().getHookForm();
   const { id, label, placeholder, isRequired } = props?.node
     ?.attrs as InsertDateInputParams;
-  // const isVisible = useConditionalVisibility(id);
 
-  // if (!isVisible && !props?.editor?.isEditable) {
-  //   return null;
-  // }
+  const editor = props.editor;
 
   return (
-    <NodeViewWrapper as={"div"} className="mb-8 relative">
+    <NodeViewWrapper as={"div"} className="mb-4 relative">
       <Controller
         control={form?.control}
         name={id}
         rules={{ validate: validationFn({ isRequired, type: "dateInput" }) }}
         render={({ field, fieldState }) => (
-          <Field
-            data-invalid={fieldState?.invalid}
-            className="mt-4 grid"
-          >
+          <Field data-invalid={fieldState?.invalid} className=" grid">
             <FieldLabel
               htmlFor={label}
               aria-label={label}
               className=" text-base "
               id={id}
             >
-              <NodeViewContent
-                // onKeyDown={(e) => e?.key === "Enter" && e?.preventDefault()}
-                as="div"
-                className="pl-1 outline-none focus:outline-none inline-block min-w-5 w-full "
-              />
-
+              <div className="flex items-center gap-2">
+                <NodeViewContent
+                  as="div"
+                  className="pl-1 outline-none focus:outline-none inline-block min-w-5 w-full "
+                />
+                {(isRequired && editor.isEditable) || <RequiredIcon />}
+              </div>
             </FieldLabel>
-            <Popover  >
+            <Popover>
               <PopoverTrigger
                 render={
                   <Button
                     variant={"outline"}
                     type="button"
                     className={cn(
-                      "pl-3 h-9 text-left font-normal  ",
+                      "pl-3 min-h-10 text-left font-normal  ",
                       !field.value && "text-muted-foreground",
-                      "hover:bg-input/70",
+                      "form-input-style ",
                     )}
                     style={{ width: "288px" }}
                   >
@@ -76,7 +71,11 @@ export const DateInputView = (props: NodeViewProps) => {
                 }
               />
 
-              <PopoverContent side="bottom" className={'w-[288px] items-center'} align="start"  >
+              <PopoverContent
+                side="bottom"
+                className={"w-[288px] items-center"}
+                align="start"
+              >
                 <Calendar
                   mode="single"
                   selected={field.value}

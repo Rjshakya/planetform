@@ -47,7 +47,11 @@ export const Logo = ({
           </svg>
         </div>
 
-        {hideName || <p className="text-base font-medium tracking-tighter">PLANETFORM</p>}
+        {hideName || (
+          <p className="text-base font-semibold tracking-tighter ">
+            Planetform
+          </p>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useIntegrations } from "@/hooks/use-integrations";
-import { CommonMenu } from "../submissions/common-menu";
+import { CommonMenu } from "../common/common-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { GmailIntegration } from "./gmail/gmail-integration";
 import { GoogleSheetIntegration } from "./google-sheets/google-sheet-integration";
@@ -76,6 +76,7 @@ export const IntegrationsHome = () => {
       <Tabs defaultValue={"integrations"}>
         <TabsList>
           <TabsTrigger
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/submissions/${formId}?name=${formName}&workspace=${workspace}`,
@@ -86,6 +87,7 @@ export const IntegrationsHome = () => {
             submissions
           </TabsTrigger>
           <TabsTrigger
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/analytics/${formId}?name=${formName}&workspace=${workspace}`,
@@ -95,8 +97,11 @@ export const IntegrationsHome = () => {
           >
             analytics
           </TabsTrigger>
-          <TabsTrigger value={"integrations"}>integration</TabsTrigger>
+          <TabsTrigger className={"capitalize"} value={"integrations"}>
+            integration
+          </TabsTrigger>
           <TabsTrigger
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/settings/${formId}?name=${formName}&workspace=${workspace}`,

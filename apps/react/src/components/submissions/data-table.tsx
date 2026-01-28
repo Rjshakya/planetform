@@ -53,7 +53,17 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { useParams } from "react-router-dom";
 import { handleDeleteRespondent } from "@/lib/respondent";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 export type RowValue = {
   [field: string]: {
@@ -228,7 +238,7 @@ export const SubmissionDataTable = ({
     formId: string;
   };
 }) => {
-  const { formId } = useParams()
+  const { formId } = useParams();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const table = useReactTable({
@@ -255,35 +265,38 @@ export const SubmissionDataTable = ({
   const handleDeleteRows = useCallback(async () => {
     const selectedRows = table.getSelectedRowModel().rows;
     const updatedData = data.filter(
-      (item) => !selectedRows.some((row) => row.original?.id === item?.id)
+      (item) => !selectedRows.some((row) => row.original?.id === item?.id),
     );
     const selectedRowsId = selectedRows.map((r) => r?.original?.id);
-    await handleDeleteRespondent(selectedRowsId)
+    await handleDeleteRespondent(selectedRowsId);
     table.resetRowSelection();
     mutate(
-      `/api/response/form/${formId}?pageIndex=${states.pagination}&pageSize=${states.pageCount}`
+      `/api/response/form/${formId}?pageIndex=${states.pagination}&pageSize=${states.pageCount}`,
     );
-  }, [data, formId, states, table])
+  }, [data, formId, states, table]);
 
   return (
     <div className=" ">
-
       <div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 mb-1">
           {/* Delete button */}
           {table.getSelectedRowModel().rows.length > 0 && (
             <AlertDialog>
-              <AlertDialogTrigger render={<Button className="ml-auto" variant="outline">
-                <TrashIcon
-                  className="-ms-1 opacity-60"
-                  size={16}
-                  aria-hidden="true"
-                />
-                Delete
-                <span className="bg-background text-muted-foreground/70 -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium">
-                  {table.getSelectedRowModel().rows.length}
-                </span>
-              </Button>} />
+              <AlertDialogTrigger
+                render={
+                  <Button className="ml-auto flex items-center" variant="outline">
+                    <TrashIcon
+                      className="-ms-1 opacity-60"
+                      size={16}
+                      aria-hidden="true"
+                    />
+                    Delete
+                    <div className="pt-1.5 bg-destructive text-foreground grid place-content-center py-1 size-4 rounded border text-[0.625rem] font-medium">
+                      {table.getSelectedRowModel().rows.length}
+                    </div>
+                  </Button>
+                }
+              />
               <AlertDialogContent>
                 <div className="flex flex-col gap-2 max-sm:items-center sm:flex-row sm:gap-4">
                   <div
@@ -319,11 +332,11 @@ export const SubmissionDataTable = ({
       </div>
 
       <div
-        className="overflow-x-auto relative"
+        className="overflow-x-auto relative  "
         style={{ scrollbarWidth: "thin" }}
       >
-        <Table className="table-fixed ">
-          <TableHeader>
+        <Table className="table-fixed  ">
+          <TableHeader className=" ">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => {
@@ -339,7 +352,7 @@ export const SubmissionDataTable = ({
                     <TableHead
                       key={header.id}
                       // style={{ width: `${header.getSize()}px` }}
-                      className="h-12 relative border-t select-none last:[&>.cursor-col-resize]:opacity-0 bg-muted"
+                      className=" h-16 relative border-2 select-none last:[&>.cursor-col-resize]:opacity-0 bg-muted"
                       colSpan={header.colSpan}
                       style={{
                         ...getPinningStyles(column),
@@ -358,7 +371,7 @@ export const SubmissionDataTable = ({
                         <div
                           className={cn(
                             header.column.getCanSort() &&
-                            "flex h-full cursor-pointer items-center justify-between gap-2 select-none",
+                              "flex h-full cursor-pointer items-center justify-between gap-2 select-none",
                           )}
                           onClick={header.column.getToggleSortingHandler()}
                           onKeyDown={(e) => {
@@ -401,10 +414,12 @@ export const SubmissionDataTable = ({
                                 variant="ghost"
                                 className="-mr-1 size-7 shadow-none"
                                 onClick={() => header.column.pin(false)}
-                                aria-label={`Unpin ${header.column.columnDef.header as string
-                                  } column`}
-                                title={`Unpin ${header.column.columnDef.header as string
-                                  } column`}
+                                aria-label={`Unpin ${
+                                  header.column.columnDef.header as string
+                                } column`}
+                                title={`Unpin ${
+                                  header.column.columnDef.header as string
+                                } column`}
                               >
                                 <PinOffIcon
                                   className="opacity-60"
@@ -420,10 +435,12 @@ export const SubmissionDataTable = ({
                                       size="icon"
                                       variant="ghost"
                                       className="-mr-1 size-7 shadow-none"
-                                      aria-label={`Pin options for ${header.column.columnDef.header as string
-                                        } column`}
-                                      title={`Pin options for ${header.column.columnDef.header as string
-                                        } column`}
+                                      aria-label={`Pin options for ${
+                                        header.column.columnDef.header as string
+                                      } column`}
+                                      title={`Pin options for ${
+                                        header.column.columnDef.header as string
+                                      } column`}
                                     >
                                       <EllipsisIcon
                                         className="opacity-60"
@@ -467,7 +484,7 @@ export const SubmissionDataTable = ({
                                 onMouseDown: header.getResizeHandler(),
                                 onTouchStart: header.getResizeHandler(),
                                 className:
-                                  "absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:translate-x-px",
+                                  "absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border -right-2 before:translate-x-px ",
                               }}
                             />
                           )}

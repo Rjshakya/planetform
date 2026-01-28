@@ -35,11 +35,11 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <section id="testimonials" className="w-full">
-      <div className="grid px-2 md:px-20">
+    <section id="testimonials" className="w-full   ">
+      <div className=" px-2 max-w-4xl mx-auto ">
          <div className="h-50 w-full" />
         <div className="space-y-8 ">
-          <Badge>Testimonials</Badge>
+          <Badge className="font-mono rounded-xs">Testimonials</Badge>
           <h1 className="landing-heading text-balance">
             Loved by teams building better forms
           </h1>
@@ -51,7 +51,7 @@ export const Testimonials = () => {
 
          <div className="h-36 w-full" />
 
-        <div className="grid md:grid-cols-2  ">
+        <div className="grid md:grid-cols-2 gap-2">
           {testimonials.map((testimonial, i) => (
             <Card key={i} className="">
 

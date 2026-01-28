@@ -93,14 +93,14 @@ export const WorkspaceHome = () => {
           <TabsTrigger value={"settings"}>Settings</TabsTrigger>
         </TabsList>
         <TabsContent value={"forms"}>
-          <div className=" grid bg-muted p-1">
+          <div className=" grid bg-muted p-1 rounded-md">
             <h3 className=" text-xs py-2 pl-1">Forms</h3>
-            <ItemGroup className="bg-card  gap-0">
+            <ItemGroup className="bg-card gap-0 ">
               {workspace && workspace.forms.length > 0 ? (
                 workspace.forms?.map((f, i) => {
                   return (
                     <Item
-                      className={`${i !== workspace.forms.length - 1 && "border-b-foreground/20"} cursor-pointer`}
+                      className={`${i !== workspace.forms.length - 1 && "border-b-foreground/20"} cursor-pointer rounded-none`}
                       key={f.id}
                     >
                       <ItemContent className="py-3">
@@ -135,7 +135,7 @@ export const WorkspaceHome = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Link
-                                className="flex items-center gap-2 text-green-500"
+                                className="flex items-center gap-2 "
                                 to={`/submissions/${f.id}?name=${f?.name}&workspace=${workspaceId}`}
                               >
                                 <ChartLine className="size-3 stroke-3" />
@@ -144,7 +144,7 @@ export const WorkspaceHome = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Link
-                                className="flex items-center gap-2 text-blue-500"
+                                className="flex items-center gap-2 "
                                 to={`/${f.id}/edit?name=${f.name}`}
                               >
                                 <Pencil className="size-3 stroke-3" />

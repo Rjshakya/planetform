@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { SlashMenu } from "./extenstions/slash-component";
 import { v7 } from "uuid";
+import { toast } from "sonner";
 
 interface CommandItemType {
   title: string;
@@ -216,6 +217,15 @@ const groups: CommandGroupType[] = [
         description: "New Page",
         icon: TextIcon,
         command(editor) {
+          const { selection } = editor.state;
+          const mayBePageNode = selection.$from.node(
+            selection.$from.blockRange()?.depth,
+          );
+
+          if (mayBePageNode.type.name === "page") {
+            toast.error("Can't create page inside a page");
+            return false;
+          }
           return editor.chain().focus().insertPage().run();
         },
       },

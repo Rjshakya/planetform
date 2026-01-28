@@ -9,7 +9,7 @@ export const FormRender = ({
   lastStepIndex: number;
 }) => {
   return (
-    <div className="max-w-2xl mx-auto pt-8  px-4 grid gap-2">
+    <div className=" ">
       <FormEditor
         lastStepIndex={lastStepIndex}
         content={content}

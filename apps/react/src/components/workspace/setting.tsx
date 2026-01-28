@@ -69,12 +69,13 @@ export const WorkspaceSettings = ({
   }, [navigate, workspaceId]);
 
   return (
-    <div className="grid mt-4">
-      <Card>
+    <div className="grid mt-4 gap-4">
+      <Card className="bg-muted">
         <CardHeader className="w-full">
           <CardTitle className="mb-1">Update Name</CardTitle>
-          <InputGroup>
+          <InputGroup className="bg-input/20 border-0 dark:bg-input/20">
             <InputGroupInput
+              
               value={workspacename}
               onChange={(e) => setWorkspacename(e.currentTarget.value)}
               onKeyDown={(e) => {
@@ -111,7 +112,7 @@ export const WorkspaceSettings = ({
           </InputGroup>
         </CardHeader>
       </Card>
-      <Card className="flex flex-row gap-2">
+      <Card className="flex flex-row gap-2 bg-muted">
         <CardHeader className="w-full">
           <CardTitle>Delete Workspace</CardTitle>
           <CardDescription>

@@ -1,6 +1,6 @@
 import { type JSONContent } from "@tiptap/react";
 import { client } from "@/lib/hc";
-import { useEditorStore } from "@/stores/useEditorStore";
+import { useCustomizationStore } from "@/stores/useCustomizationStore";
 
 interface IFormField {
   form: string;
@@ -45,7 +45,7 @@ export const filterFormFieldsFromContent = (
   return formFields;
 };
 
-const handleMultiPageFormFields = (doc: JSONContent, form: string) => {
+export const handleMultiPageFormFields = (doc: JSONContent, form: string) => {
   if (!doc?.content) return;
 
   const allFormFields = [] as IFormField[];
@@ -85,7 +85,7 @@ export const getCustomization = () => {
   const {
     formBackgroundColor,
     formColorScheme,
-    formFontFamliy,
+    formFontFamily,
     formFontSize,
     formTextColor,
     actionBtnBorderColor,
@@ -95,12 +95,12 @@ export const getCustomization = () => {
     inputBackgroundColor,
     inputBorderColor,
     customThankyouMessage,
-  } = useEditorStore.getState();
+  } = useCustomizationStore.getState();
 
   return {
     formBackgroundColor,
     formColorScheme,
-    formFontFamliy,
+    formFontFamily,
     formFontSize,
     formTextColor,
     actionBtnBorderColor,

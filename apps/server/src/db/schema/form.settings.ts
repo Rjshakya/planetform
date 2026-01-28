@@ -3,6 +3,21 @@ import * as t from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { form } from "./form";
 
+interface IFormCustomization {
+  formBackgroundColor: string | null;
+  formFontFamily: string | null;
+  formFontSize: string | null;
+  actionBtnSize: string | null;
+  actionBtnColor: string | null;
+  formTextColor: string | null;
+  actionBtnTextColor: string | null;
+  inputBackgroundColor: string | null;
+  inputBorderColor: string | null;
+  actionBtnBorderColor: string | null;
+  formColorScheme: string | null;
+  customThankyouMessage: string | null;
+}
+
 export const formSetting = t.pgTable("form_settings", {
   id: t
     .uuid()

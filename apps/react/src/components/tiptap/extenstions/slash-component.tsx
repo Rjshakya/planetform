@@ -1,7 +1,5 @@
 import type { Editor } from "@tiptap/core";
-import type {
-  SuggestionProps,
-} from "@tiptap/suggestion";
+import type { SuggestionProps } from "@tiptap/suggestion";
 
 import {
   Command,
@@ -37,7 +35,7 @@ export type CommandGroupType = {
 
 export const SlashMenu = React.memo(
   forwardRef<any, SuggestionProps<CommandGroupType, any>>((props, ref) => {
-    const { items, editor, query  } = props;
+    const { items, editor, query } = props;
 
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [selected, setSelected] = useState("");
@@ -135,10 +133,11 @@ export const SlashMenu = React.memo(
     return (
       <Command
         role="listbox"
-        className="z-50 w-72 overflow-hidden  border bg-popover shadow-lg"
+        className="z-50 w-72 overflow-hidden border border-primary/15 dark:border-primary/10  bg-popover shadow-md ring-4
+         ring-input/40 inset-shadow-xs inset-shadow-primary/10 rounded-md"
       >
-        <ScrollArea className="max-h-[330px] px-1 py-2">
-          <CommandList>
+        <ScrollArea className="max-h-82.5 px-1 py-2">
+          <CommandList className="">
             <CommandEmpty className="py-3 text-center text-sm text-muted-foreground">
               No results found
             </CommandEmpty>
@@ -161,7 +160,7 @@ export const SlashMenu = React.memo(
                         value={`${group.group}-${item.title}`}
                         onSelect={() => executeCommand(item.command)}
                         className={cn(
-                          "gap-3 ",
+                          "gap-3 rounded-md ",
                           `${selected === item.title ? "bg-accent/80" : ""}`,
                         )}
                         aria-selected={selectedIndex === itemIndex}
@@ -170,16 +169,13 @@ export const SlashMenu = React.memo(
                           <item.icon className="size-3" />
                         </div>
                         <div className="flex flex-1 flex-col">
-                          <span className="text-sm font-medium">
+                          <span className="text-sm font-medium capitalize">
                             {item.title}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground capitalize">
                             {item.description}
                           </span>
                         </div>
-                        <kbd className="ml-auto flex h-5 items-center rounded bg-muted px-1.5 text-xs text-muted-foreground">
-                          ↵
-                        </kbd>
                       </CommandItem>
                     );
                   })}

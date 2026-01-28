@@ -4,15 +4,19 @@ import { Link } from "react-router-dom";
 
 export const CTA = () => {
   return (
-    <section className="w-full py-32 min-h-dvh flex items-center justify-center border-t">
-      <div className="grid px-2 md:px-20 gap-8">
+    <section className="w-full py-32 min-h-dvh border-t flex items-center justify-start">
+      <div className="grid gap-8 max-w-4xl mx-auto w-full">
         {/* <div className="h-50 w-full" /> */}
         <div className="text-center space-y-8">
           <h2 className="landing-heading text-balance">
-            <p className="bg-primary text-amber-50 w-fit mb-1">Ready to build</p>
-            <p className="bg-primary text-amber-50 w-fit">forms effortlessly?</p>
+            <p className="bg-primary text-primary-foreground w-fit mb-1 px-1">
+              Ready to build
+            </p>
+            <p className="bg-primary text-primary-foreground w-fit px-1">
+              forms effortlessly?
+            </p>
           </h2>
-          <p className="landing-sub-heading text-balance">
+          <p className="landing-sub-heading text-pretty">
             Join thousands of teams using Planetform to create beautiful, modern
             forms with powerful analytics and seamless integrations.
           </p>

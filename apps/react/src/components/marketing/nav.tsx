@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 export const Nav = () => {
   return (
     <nav className="w-full bg-background px-4 border-b py-2 fixed top-0 inset-x-0 z-50">
-      <div className="w-full flex items-center justify-between max-w-4xl mx-auto">
+      <div className="w-full flex items-center justify-between ">
         <div className="logo">
           <Logo />
         </div>

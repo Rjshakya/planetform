@@ -32,22 +32,22 @@ const features = [
 
 export const Features = () => {
   return (
-    <section id="features" className="w-full ">
-      <div className="grid px-2 md:px-20 bg-foreground  ">
+    <section id="features" className="w-full bg-foreground ">
+      <div className=" px-2 max-w-4xl mx-auto ">
         <div className="h-50 w-full" />
-        <div className="text-background space-y-8 px-1">
-          <Badge>Product highlights</Badge>
+        <div className=" text-background space-y-8 ">
+          <Badge variant={"secondary"} className="font-mono rounded-xs">Product highlights</Badge>
           <h1 className="landing-heading text-balance">
             Everything you need in one form builder
           </h1>
-          <p className="landing-sub-heading text-balance">
+          <p className="landing-sub-heading text-pretty">
             Planetform gives your team a single canvas to design, launch, and
             analyze form experiences—without wrestling code or rigid templates.
           </p>
         </div>
-         <div className="h-36 w-full" />
+        <div className="h-36 w-full" />
 
-        <div className="grid md:grid-cols-2">
+        <div className="grid md:grid-cols-2 gap-1 ">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (

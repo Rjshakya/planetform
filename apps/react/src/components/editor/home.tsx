@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { FormEditor } from "../tiptap/editor";
 import { useEffect } from "react";
 import { useFormStore } from "@/stores/useformStore";
+import { useEditorContentStore } from "@/stores/useEditorContent";
 
 export const EditorHome = () => {
   const form = useForm();
@@ -12,10 +13,12 @@ export const EditorHome = () => {
   }, [form]);
 
   return (
-    <div className="max-w-3xl mx-auto pt-8 px-4 grid gap-2">
+    <div className="grid gap-2">
       <FormEditor
         lastStepIndex={0}
-        content={`
+        content={
+          useEditorContentStore.getState().content ||
+          `
           <h2>Welcome to the Planetform !</h2>
           <p></p>
           <p></p>
@@ -27,7 +30,8 @@ export const EditorHome = () => {
           <p></p>
           <p></p>
            
-          `}
+          `
+        }
       />
     </div>
   );

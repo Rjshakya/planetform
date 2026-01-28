@@ -9,26 +9,10 @@ import { formField as formFieldTable } from "../db/schema/form.fields.js";
 import { formSetting as formSettingTable } from "../db/schema/form.settings.js";
 import { integration as integrationTable } from "../db/schema/integration.js";
 import { workspace as workspaceTable } from "../db/schema/workspace.js";
-import {
-  DatabaseError,
-  ParseError,
-  UnhandledException,
-} from "../errors.js";
+import { DatabaseError, ParseError, UnhandledException } from "../errors.js";
 import { getRedis } from "../utils/redis.js";
 import { getSubmissionService } from "./form.analytics.js";
-
-interface IgetFormService {
-  id: string | null;
-  name: string;
-  form_schema: string;
-  creator: string;
-  createdAt: Date;
-  updatedAt: Date;
-  customerId: string;
-  customisation: any;
-  closed: boolean | null;
-  closedMessage: string | null;
-}
+import z from "zod";
 
 export const createFormService = async ({
   formValues,
@@ -195,6 +179,49 @@ export const getFormWithFormFieldsService = async (
   });
 };
 
+interface IFormCustomization {
+  formBackgroundColor: string | null;
+  formFontFamily: string | null;
+  formFontSize: string | null;
+  actionBtnSize: string | null;
+  actionBtnColor: string | null;
+  formTextColor: string | null;
+  actionBtnTextColor: string | null;
+  inputBackgroundColor: string | null;
+  inputBorderColor: string | null;
+  actionBtnBorderColor: string | null;
+  formColorScheme: string | null;
+  customThankyouMessage: string | null;
+}
+
+interface IgetFormService {
+  id: string | null;
+  name: string;
+  form_schema: any;
+  creator: string;
+  createdAt: Date;
+  updatedAt: Date;
+  customerId: string;
+  customisation: IFormCustomization;
+  closed: boolean | null;
+  closedMessage: string | null;
+}
+
+export const formCustomizationSchema = z.object({
+  actionBtnBorderColor: z.string().nullable(),
+  actionBtnColor: z.string().nullable(),
+  actionBtnSize: z.string().nullable(),
+  actionBtnTextColor: z.string().nullable(),
+  customThankyouMessage: z.string().nullable(),
+  formBackgroundColor: z.string().nullable(),
+  formColorScheme: z.string().nullable(),
+  formFontFamily: z.string().nullable(),
+  formFontSize: z.string().nullable(),
+  formTextColor: z.string().nullable(),
+  inputBackgroundColor: z.string().nullable(),
+  inputBorderColor: z.string().nullable(),
+});
+
 export const getFormService = async (
   formId: typeof formTable.$inferInsert.shortId,
 ) => {
@@ -251,6 +278,8 @@ export const getFormService = async (
         formId: formId!,
       });
 
+      // giving the parsed schema , rather just a string
+      // to frontend , so that it can directly load form.
       const parsedSchema = form?.form_schema
         ? Result.try({
             try: () => JSON.parse(form.form_schema),
@@ -362,7 +391,8 @@ export const updateFormAndFormfieldsService = async (updateValues: {
 
         const fieldsInDBSet = new Set(fieldsInDB?.map((f) => f?.id));
 
-        // extracting existing  fields : - all the fields that are incoming
+        // extracting existing fields
+        // all the fields that are in incomingFields
         // and exist in db
         // these fields will be updated
         const existingIncomingFields = fields?.filter(
@@ -370,7 +400,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         );
 
         // extracting fields that are to be insert ,
-        // all the fields that are icoming and does't exist in db .
+        // all the fields that are in incomingFields and does't exist in db .
         // it means they have to be inserted
         const fieldsToInsert = fields?.filter((f) => !fieldsInDBSet.has(f.id!));
 
@@ -402,7 +432,6 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         }
 
         // update form - customization
-
         // if we have already customization then update it
         const [update] = await tx
           .update(formSettingTable)

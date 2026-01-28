@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { CommonMenu } from "../submissions/common-menu";
+import { CommonMenu } from "../common/common-menu";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
 import {
@@ -65,6 +65,7 @@ export const FormSettingHome = () => {
           style={{ scrollbarWidth: "none" }}
         >
           <TabsTrigger
+          className={'capitalize'}
             onClick={() =>
               navigate(
                 `/submissions/${formId}?name=${formName}&workspace=${workspace}`,
@@ -75,6 +76,7 @@ export const FormSettingHome = () => {
             submissions
           </TabsTrigger>
           <TabsTrigger
+          className={'capitalize'}
             onClick={() =>
               navigate(
                 `/analytics/${formId}?name=${formName}&workspace=${workspace}`,
@@ -85,6 +87,7 @@ export const FormSettingHome = () => {
             analytics
           </TabsTrigger>
           <TabsTrigger
+          className={'capitalize'}
             onClick={() =>
               navigate(
                 `/integrations/${formId}?name=${formName}&workspace=${workspace}`,
@@ -94,14 +97,16 @@ export const FormSettingHome = () => {
           >
             integration
           </TabsTrigger>
-          <TabsTrigger value={"settings"}>settings</TabsTrigger>
+          <TabsTrigger className={"capitalize"} value={"settings"}>
+            settings
+          </TabsTrigger>
         </TabsList>
         <TabsContent
           value={"settings"}
           className={""}
           render={
-            <div className="grid mt-4">
-              <div className="flex items-center  bg-card p-2 px-4 ring ring-foreground/10">
+            <div className=" grid gap-4 mt-4">
+              <div className="flex items-center  bg-muted rounded-md py-4 px-4 ring ring-foreground/10">
                 <Label
                   htmlFor="close-form"
                   className="w-full text-sm font-medium"
@@ -110,7 +115,7 @@ export const FormSettingHome = () => {
                 </Label>
                 <Switch id="close-form" />
               </div>
-              <Card className="flex flex-row gap-2">
+              <Card className="bg-muted flex flex-row gap-2">
                 <CardHeader className="w-full">
                   <CardTitle>Delete form</CardTitle>
                   <CardDescription>

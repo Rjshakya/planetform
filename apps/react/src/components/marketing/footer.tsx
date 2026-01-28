@@ -8,6 +8,7 @@ export const Footer = () => {
     <footer className="w-full border-t bg-background">
       <div className="px-4 sm:px-6 lg:px-8 pt-12 max-w-4xl mx-auto">
         <div className="h-12 w-full" />
+
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8 ">
           <div className="md:col-span-2 space-y-4">
             <Logo className="  justify-start" />
@@ -103,7 +104,25 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="select-none mt-4 h-full w-full flex min-h-dvh items-center justify-center px-6 md:px-0">
+        <div className="flex flex-row items-start sm:items-center justify-between gap-4 pb-4">
+          <div className="flex items-center gap-4 ">
+            <Link
+              to="/"
+              className="hover:text-foreground transition-colors text-xs"
+            >
+              Status
+            </Link>
+          </div>
+
+          <Link
+            className="hover:text-foreground transition-colors text-xs"
+            to="/auth"
+          >
+            Get started
+          </Link>
+        </div>
+
+        <div className="select-none mt-4 h-full w-full flex items-end justify-center px-6 md:px-0">
           <div className="flex gap-4 items-center">
             <div>
               <svg
@@ -137,22 +156,10 @@ export const Footer = () => {
                 </defs>
               </svg>
             </div>
-            <p className="text-5xl sm:text-9xl text-center tracking-tighter font-bold">
+            <p className="text-5xl sm:text-[120px] text-center tracking-tighter font-bold">
               PLANETFORM
             </p>
           </div>
-        </div>
-
-        <div className="flex flex-row items-start sm:items-center justify-between gap-4 pb-4">
-          <div className="flex items-center gap-4 ">
-            <Link to="/" className="hover:text-foreground transition-colors text-xs">
-              Status
-            </Link>
-          </div>
-
-          <Link className="hover:text-foreground transition-colors text-xs" to="/auth">
-            Get started
-          </Link>
         </div>
       </div>
     </footer>

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/jetbrains-mono";
-
+@import "@fontsource/geist-sans";
+@import "@fontsource-variable/geist-mono";
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -75,7 +75,8 @@
 }
 
 @theme inline {
-  --font-sans: "JetBrains Mono Variable", monospace;
+  --font-sans: "Geist Sans", sans-serif;
+  --font-mono: "Geist Mono Variable", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -116,6 +117,24 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+@layer utilities {
+  .form-input-style {
+    @apply bg-input/70 dark:bg-input/70 dark:hover:bg-input hover:bg-input transition-all duration-300 ease-in-out;
+  }
+
+  .mcq-multiple-choice-option {
+    @apply border-2 hover:scale-101 rounded-sm;
+  }
+
+  .mcp-single-choice-radio {
+    @apply rounded-xs size-4 text-xs p-1 ring ring-inherit bg-background grid place-content-center;
+  }
+
+  .file-upload-drag-area {
+    @apply relative flex min-h-52 flex-col items-center overflow-hidden  border-3 border-dashed border-accent-foreground/20 p-4 not-data-[files]:justify-center has-[input:focus]:border-ring has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50 rounded-md  bg-input/70 dark:bg-input/70 dark:hover:bg-input hover:bg-input transition-all duration-300 ease-in-out;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -128,11 +147,10 @@
   }
 
   .landing-heading {
-    @apply max-w-md text-2xl font-bold text-left;
+    @apply max-w-md text-3xl sm:text-5xl font-bold text-left tracking-tighter;
   }
 
   .landing-sub-heading {
-    @apply max-w-xs text-left text-xs 
+    @apply max-w-xs text-left text-sm;
   }
 }
-

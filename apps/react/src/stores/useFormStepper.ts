@@ -18,7 +18,7 @@ export const useFormSteps = create<StepperStore>((set, get) => ({
   },
   handlePrev: () => {
     const current = get().currentStep - 1;
-    if (current <= 0) return;
+    if (current < 0) return;
     set({ currentStep: current });
   },
   setTotalSteps: (t) => set({ totalSteps: t }),

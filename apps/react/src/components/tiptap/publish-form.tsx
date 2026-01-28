@@ -41,7 +41,7 @@ export const PublishForm = () => {
           name: formName,
           workspace: workspaceId,
         },
-        formCustomisation: JSON.stringify(customization),
+        formCustomisation: customization,
       },
     });
 

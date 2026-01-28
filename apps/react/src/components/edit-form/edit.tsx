@@ -1,5 +1,5 @@
 import { useForm } from "@/hooks/use-form";
-import { useEditorStore } from "@/stores/useEditorStore";
+import { useCustomizationStore } from "@/stores/useCustomizationStore";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FormRender } from "../form/render";
@@ -22,7 +22,7 @@ export const EditFormHome = () => {
     (() => setFormState(form?.form_schema))();
 
     const customization = form?.customisation || {};
-    useEditorStore.setState({ ...customization, isEditable: true });
+    useCustomizationStore.setState({ ...customization, isEditable: true });
   }, [form, hookForm, getHookForm]);
 
   if (useFormError) {
@@ -33,5 +33,5 @@ export const EditFormHome = () => {
     return <p>loading</p>;
   }
 
-  return formState && <FormRender content={formState} />;
+  return formState && <FormRender lastStepIndex={0} content={formState} />;
 };

@@ -33,11 +33,13 @@ import { useParams } from "react-router-dom";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { handleFileUpload } from "@/lib/file";
+import { RequiredIcon } from "../../required-icon";
 
 export const FileUploadInputView = (props: NodeViewProps) => {
   const { id, isRequired, label, type, maxFiles, maxSize, accept } = props?.node
     ?.attrs as InsertFileUploadParams;
 
+  const editor = props.editor;
   const { respondentId } = useFormStore((s) => s);
   const form = useFormStore.getState().getHookForm();
   const [state, setState] = useState<FileUploadState>({
@@ -386,7 +388,7 @@ export const FileUploadInputView = (props: NodeViewProps) => {
   }, []);
 
   return (
-    <NodeViewWrapper as={"div"} className="mb-8">
+    <NodeViewWrapper as={"div"} className="mb-4">
       <Controller
         control={form?.control}
         name={id}
@@ -405,7 +407,10 @@ export const FileUploadInputView = (props: NodeViewProps) => {
               id={id}
             >
               {/* {label.} */}
-              <NodeViewContent as="div" className=" min-w-5 w-full" />
+              <div className="flex items-center gap-2">
+                <NodeViewContent as="div" className=" min-w-5" />
+                {(isRequired && editor.isEditable) || <RequiredIcon />}
+              </div>
 
               {/* Drop area */}
               <div>
@@ -420,7 +425,8 @@ export const FileUploadInputView = (props: NodeViewProps) => {
                   }}
                   data-dragging={state.isDragging || undefined}
                   data-files={state.files.length > 0 || undefined}
-                  className="relative flex min-h-52 flex-col items-center overflow-hidden dark:bg-input/30  border-2 border-dashed border-accent-foreground/20 p-4 transition-colors not-data-[files]:justify-center has-[input:focus]:border-ring has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50"
+                  className="file-upload-drag-area"
+                  onClick={openFileDialog}
                 >
                   <input
                     className="sr-only"
@@ -448,10 +454,34 @@ export const FileUploadInputView = (props: NodeViewProps) => {
 
                   <div className="flex flex-col items-center justify-center px-4 py-3 text-center gap-3 mb-6">
                     <div
-                      className=" flex size-11 shrink-0 items-center justify-center border  bg-background"
+                      className=" flex shrink-0 items-center justify-center "
                       aria-hidden="true"
                     >
-                      <ImageIcon className="size-4 opacity-60" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="size-16 fill-primary"
+                        viewBox="0 0 24 24"
+                        fill="#fff"
+                      >
+                        <g clip-path="url(#clip0_4418_4278)">
+                          <path
+                            d="M13.47 14.3896H10.53C9.26 14.3896 8.5 15.1496 8.5 16.4196V19.3596C8.5 20.6296 9.26 21.3896 10.53 21.3896H13.47C14.74 21.3896 15.5 20.6296 15.5 19.3596V16.4196C15.5 15.1496 14.74 14.3896 13.47 14.3896ZM14.41 18.3196C14.31 18.4196 14.16 18.4896 14 18.4996H12.59L12.6 19.8896C12.59 20.0596 12.53 20.1996 12.41 20.3196C12.31 20.4196 12.16 20.4896 12 20.4896C11.67 20.4896 11.4 20.2196 11.4 19.8896V18.4896L10 18.4996C9.67 18.4996 9.4 18.2196 9.4 17.8896C9.4 17.5596 9.67 17.2896 10 17.2896L11.4 17.2996V15.8996C11.4 15.5696 11.67 15.2896 12 15.2896C12.33 15.2896 12.6 15.5696 12.6 15.8996L12.59 17.2896H14C14.33 17.2896 14.6 17.5596 14.6 17.8896C14.59 18.0596 14.52 18.1996 14.41 18.3196Z"
+                            fill="white"
+                            style={{ fill: "var(--fillg)" }}
+                          />
+                          <path
+                            opacity="0.4"
+                            d="M21.74 11.7396C21.13 9.73956 19.61 8.29956 17.7 7.86956C17.14 5.36956 15.6 3.57956 13.42 2.89956C11.04 2.16956 8.28 2.87956 6.55 4.68956C5.02 6.27956 4.52 8.46956 5.11 10.7996C2.98 11.3196 2 13.1796 2 14.8596C2 16.7396 3.23 18.8496 5.97 19.0396H8.5V16.4096C8.5 15.1396 9.26 14.3796 10.53 14.3796H13.47C14.74 14.3796 15.5 15.1396 15.5 16.4096V19.0396H16.31C16.32 19.0396 16.34 19.0396 16.35 19.0396C17.77 19.0396 19.13 18.5096 20.17 17.5596C21.8 16.1396 22.4 13.9096 21.74 11.7396Z"
+                            fill="white"
+                            style={{ fill: "var(--fillg)" }}
+                          />
+                        </g>
+                        <defs>
+                          <clipPath id="clip0_4418_4278">
+                            <rect width="24" height="24" fill="white" />
+                          </clipPath>
+                        </defs>
+                      </svg>
                     </div>
                     <span className=" text-sm font-medium">
                       Drop your files here or click
@@ -460,14 +490,14 @@ export const FileUploadInputView = (props: NodeViewProps) => {
                       (max. {maxSize / (1024 * 1024)}MB)
                     </span>
                   </div>
-                  <Button
+                  {/* <Button
                     onClick={openFileDialog}
                     size={"sm"}
                     variant={"outline"}
                     type="button"
                   >
                     select files
-                  </Button>
+                  </Button> */}
                 </div>
 
                 {state.errors.length > 0 && (

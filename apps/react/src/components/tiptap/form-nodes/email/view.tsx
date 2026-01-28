@@ -16,18 +16,14 @@ import { validationFn } from "@/lib/FormFieldValidations";
 // import { GitBranch } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { RequiredIcon } from "../../required-icon";
 
 export const EmailInput = (props: NodeViewProps) => {
-  const { label, id, isRequired, placeholder} = props?.node
+  const { label, id, isRequired, placeholder } = props?.node
     ?.attrs as InsertEmailInputParams;
 
   const form = useFormStore.getState().getHookForm();
-  // const isVisible = useConditionalVisibility(id);
-  // const { isControlled } = useConditionalIndicators(id);
-
-  // if (!isVisible && !props?.editor?.isEditable) {
-  //   return null;
-  // }
+  const editor = props.editor;
 
   return (
     <>
@@ -37,7 +33,7 @@ export const EmailInput = (props: NodeViewProps) => {
           name={id}
           rules={{ validate: validationFn({ isRequired, type: "emailInput" }) }}
           render={({ field, fieldState }) => (
-            <Field className=''>
+            <Field className="" data-invalid={fieldState?.invalid}>
               <FieldLabel
                 htmlFor={label}
                 aria-label={label}
@@ -45,30 +41,20 @@ export const EmailInput = (props: NodeViewProps) => {
                 id={id}
               >
                 <div className="flex items-center gap-2">
-                  <NodeViewContent
-                    // onKeyDown={(e) => e?.key === "Enter" && e?.preventDefault()}
-                    as="div"
-                    className="min-w-5 w-full"
-                  />
-                  {/* {isControlled && props.editor?.isEditable && (
-                    <Badge variant="outline" className="text-xs px-1 py-0 h-4">
-                      <GitBranch className="h-2 w-2 mr-1" />
-                      Logic
-                    </Badge>
-                  )} */}
+                  <NodeViewContent as="div" className="min-w-5 w-full" />
+                  {(isRequired && editor.isEditable) || <RequiredIcon />}
                 </div>
               </FieldLabel>
 
-              <InputGroup>
+              <InputGroup className="min-h-10 pl-1 form-input-style ">
                 <InputGroupInput
-                  className="pl-1!"
+                  className=""
                   placeholder={placeholder}
                   type={"email"}
                   required={isRequired}
                   value={field?.value || ""}
                   onChange={field?.onChange}
                   name={field?.name}
-                  // disabled={props?.editor?.isEditable}
                   ref={field?.ref}
                   onBlur={field?.onBlur}
                 />

@@ -19,6 +19,7 @@ import { mutate } from "swr";
 import {
   filterFormFieldsFromContent,
   getCustomization,
+  handleMultiPageFormFields,
 } from "@/lib/publish-form-helpers";
 import { keyOfuseForm } from "@/hooks/use-form";
 
@@ -34,7 +35,11 @@ export const UpdateForm = () => {
     if (!editor || !formId) return;
 
     const content = editor.getJSON();
-    const fields = filterFormFieldsFromContent(content, formId);
+    const fields = handleMultiPageFormFields(content, formId);
+
+    if (!fields) {
+      return toast.error("failed to save form");
+    }
 
     const res = await client.api.form.$put({
       json: {

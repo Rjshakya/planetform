@@ -103,7 +103,7 @@ export const GmailIntegration = ({
           userFrom={user?.email}
         />
       )}
-      <Card>
+      <Card className="">
         <CardHeader>
           <CardTitle>{integration.name}</CardTitle>
           <CardDescription>{integration.description}</CardDescription>
@@ -111,6 +111,7 @@ export const GmailIntegration = ({
         <CardContent>
           <CardAction className="flex justify-start w-full">
             <Button
+            
               onClick={
                 integration.connected
                   ? () =>

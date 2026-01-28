@@ -13,11 +13,13 @@ import { validationFn } from "@/lib/FormFieldValidations";
 
 import { Controller } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { RequiredIcon } from "../../required-icon";
 
 export const LongInputView = (props: NodeViewProps) => {
   const { label, id, isRequired, placeholder, rows } = props?.node
     ?.attrs as InsertLongInputParams;
 
+  const editor = props.editor;
   const form = useFormStore.getState().getHookForm();
   return (
     <>
@@ -35,10 +37,12 @@ export const LongInputView = (props: NodeViewProps) => {
                     as="div"
                     className="outline-none focus:outline-none inline-block min-w-5 w-full"
                   />
+                  {(isRequired && editor.isEditable) || <RequiredIcon />}
                 </div>
               </FieldLabel>
 
               <Textarea
+                className="form-input-style "
                 required={isRequired}
                 placeholder={placeholder}
                 {...field}

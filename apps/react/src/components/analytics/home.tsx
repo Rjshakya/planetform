@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { useAnalytics, type AnalyticsInterval } from "@/hooks/use-analytics";
-import { CommonMenu } from "../submissions/common-menu";
+import { CommonMenu } from "../common/common-menu";
 import { AnalyticsComp } from "./analytics-comp";
 import { BodySkeleton } from "../common/body-skeleton";
 import { Skeleton } from "../ui/skeleton";
@@ -36,9 +36,10 @@ export const AnalyticsHome = () => {
     <div className="max-w-3xl mx-auto pt-12 px-4 pb-8  ">
       <CommonMenu />
 
-      <Tabs defaultValue={"analytics"}>
-        <TabsList>
+      <Tabs className={''} defaultValue={"analytics"}>
+        <TabsList className={''}>
           <TabsTrigger
+            className={' capitalize'}
             onClick={() =>
               navigate(
                 `/submissions/${formId}?name=${formName}&workspace=${workspace}`,
@@ -48,8 +49,9 @@ export const AnalyticsHome = () => {
           >
             submissions
           </TabsTrigger>
-          <TabsTrigger value={"analytics"}>analytics</TabsTrigger>
+          <TabsTrigger className={'capitalize'} value={"analytics"}>analytics</TabsTrigger>
           <TabsTrigger
+           className={ ' capitalize'}
             onClick={() =>
               navigate(
                 `/integrations/${formId}?name=${formName}&workspace=${workspace}`,
@@ -59,11 +61,17 @@ export const AnalyticsHome = () => {
           >
             integration
           </TabsTrigger>
-          <TabsTrigger  onClick={() =>
+          <TabsTrigger
+           className={ ' capitalize'}
+            onClick={() =>
               navigate(
                 `/settings/${formId}?name=${formName}&workspace=${workspace}`,
               )
-            } value={"settings"}>settings</TabsTrigger>
+            }
+            value={"settings"}
+          >
+            settings
+          </TabsTrigger>
         </TabsList>
         <TabsContent
           value={"analytics"}

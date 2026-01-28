@@ -7,8 +7,8 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { SubmissionsComp, type Header, type RowValue } from "./data-table";
-import { CommonMenu } from "./common-menu";
+import { SubmissionsComp, type Header,  } from "./data-table";
+import { CommonMenu } from "../common/common-menu";
 import { BodySkeleton } from "../common/body-skeleton";
 import { Skeleton } from "../ui/skeleton";
 
@@ -53,8 +53,9 @@ export const SubmissionHome = () => {
 
       <Tabs defaultValue={"submissions"}>
         <TabsList>
-          <TabsTrigger value={"submissions"}>submissions</TabsTrigger>
+          <TabsTrigger className={'capitalize'} value={"submissions"}>submissions</TabsTrigger>
           <TabsTrigger
+            className={'capitalize'}
             onClick={() =>
               navigate(
                 `/analytics/${formId}?name=${formName}&workspace=${workspace}`,
@@ -65,6 +66,7 @@ export const SubmissionHome = () => {
             analytics
           </TabsTrigger>
           <TabsTrigger
+            className={'capitalize'}
             onClick={() =>
               navigate(
                 `/integrations/${formId}?name=${formName}&workspace=${workspace}`,
@@ -74,11 +76,17 @@ export const SubmissionHome = () => {
           >
             integration
           </TabsTrigger>
-          <TabsTrigger  onClick={() =>
+          <TabsTrigger
+            className={'capitalize'}
+            onClick={() =>
               navigate(
                 `/settings/${formId}?name=${formName}&workspace=${workspace}`,
               )
-            } value={"settings"}>settings</TabsTrigger>
+            }
+            value={"settings"}
+          >
+            settings
+          </TabsTrigger>
         </TabsList>
         <TabsContent
           value={"submissions"}

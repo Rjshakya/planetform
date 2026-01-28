@@ -328,7 +328,7 @@ export const AnalyticsComp = ({
               <CardHeader className=" gap-2 px-1 py-2  ">
                 <p className="text-xs text-primary ">{I.text}</p>
               </CardHeader>
-              <CardContent className="px-4 py-10 bg-accent/80 dark:bg-background  inset-shadow-xs inset-shadow-black/10 border ">
+              <CardContent className="rounded-md px-4 py-10 bg-accent/80 dark:bg-background  inset-shadow-xs inset-shadow-black/10 border ">
                 {I.data ? (
                   <AnalyticsBarChart data={I.data} interval={interval} />
                 ) : (
@@ -405,7 +405,7 @@ const CustomHatchedBar = (
   return (
     <>
       <rect
-        rx={0}
+        rx={2}
         x={x}
         y={y}
         width={width}

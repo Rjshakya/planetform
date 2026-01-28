@@ -92,10 +92,10 @@ export const DashboardHome = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="px-1 pb-1 bg-muted">
+      <div className="grid gap-1 md:grid-cols-2">
+        <div className="p-1 bg-muted rounded-sm">
           <h3 className="py-2 text-xs px-1">Workspaces</h3>
-          <Card className=" ring-0">
+          <Card className="bg-card ring-0 rounded-sm">
             <CardHeader>
               <CardDescription>total workspaces</CardDescription>
             </CardHeader>
@@ -104,9 +104,9 @@ export const DashboardHome = () => {
             </CardContent>
           </Card>
         </div>
-        <div className="px-1 pb-1 bg-muted">
+        <div className="p-1 bg-muted rounded-sm">
           <h3 className="pt-2 pb-2 text-xs px-1">Forms</h3>
-          <Card className=" ring-0">
+          <Card className="bg-card ring-0 rounded-sm">
             <CardHeader>
               <CardDescription>total forms</CardDescription>
             </CardHeader>

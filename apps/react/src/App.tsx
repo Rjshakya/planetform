@@ -9,7 +9,6 @@ import { DashboardHome } from "./components/dashboard/home";
 import { WorkspaceHome } from "./components/workspace/home";
 import { Protected } from "./components/protected-component";
 import { ThemeProvider, useTheme } from "./components/common/theme-provider";
-
 import { Editor } from "./pages/editor";
 import { EditorHome } from "./components/editor/home";
 import { FormHome } from "./components/form/home";
