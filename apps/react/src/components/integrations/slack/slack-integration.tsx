@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { linkSlack } from "@/lib/auth-client";
+import { clientUrl } from "@/lib/env";
 
 export const SlackIntegration = ({
   integration,
@@ -24,10 +26,21 @@ export const SlackIntegration = ({
   integration: IntegrationCard;
 }) => {
   const { formId } = useParams<{ formId: string }>();
+  const [searchParams] = useSearchParams();
+  const formName = searchParams.get("name");
+  const workspace = searchParams.get("workspace");
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState<SlackConfig>({
     webhookUrl: "",
   });
+
+  const handleLink = useCallback(async () => {
+    if (!formId || !formName || !workspace) return;
+
+    const callbackURL = `${clientUrl}${pathname}?name=${formName}&workspace=${workspace}&openDialog=true`;
+    await linkSlack(callbackURL);
+  }, [workspace, formName, formId]);
 
   const handleConnect = useCallback(async () => {
     if (!formId) return;
@@ -68,9 +81,8 @@ export const SlackIntegration = ({
         <CardContent>
           <CardAction className="flex justify-start w-full">
             <Button
-              disabled
               onClick={
-                integration.connected ? handleDisconnect : () => setOpen(true)
+                integration.connected ? handleDisconnect : () => handleLink()
               }
               variant="secondary"
               className=""
