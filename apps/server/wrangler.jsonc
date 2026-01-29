@@ -72,7 +72,7 @@
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "0befcaaf2a70413a8e8d8c1b8c26545f",
+      "id": "55054dd9bb9245729060d462d3daaf66",
       "localConnectionString": "postgresql://postgres:postgres@localhost/planeformDB",
     },
   ],

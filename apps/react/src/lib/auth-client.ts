@@ -19,7 +19,6 @@ export const signIn = async () => {
     provider: "google",
     callbackURL: `${clientUrl}/dashboard`,
     requestSignUp: true,
-    
   });
 };
 

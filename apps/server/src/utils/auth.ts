@@ -85,6 +85,12 @@ export const getAuth = async () => {
         ],
       }),
     ],
+    account: {
+      accountLinking: {
+        enabled: true,
+        trustedProviders:["notion" , "google"]
+      },
+    },
   });
 };
 

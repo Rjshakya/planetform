@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { getDb } from "../db/config";
 import { form as formTable } from "../db/schema/form";
 import { respondent as respondentTable } from "../db/schema/respondent";
@@ -50,11 +50,11 @@ export const getTotalWorkspacesService = async () => {
 export const getCustomerRespondentsService = async (userId: string) => {
   try {
     const db = await getDb();
-    const respondents = await db.$count(
-      respondentTable,
-      eq(respondentTable.formCreatorId, userId),
-    );
-    return respondents;
+    const [respondents] = await db
+      .select({ count: count() })
+      .from(respondentTable)
+      .where(eq(respondentTable.formCreatorId, userId));
+    return respondents.count;
   } catch (e) {
     commonCatch(e);
   }

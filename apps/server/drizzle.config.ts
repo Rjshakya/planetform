@@ -11,6 +11,6 @@ export default defineConfig({
 	schema: "./src/db/schema/*",
 	dialect: "postgresql",
 	dbCredentials: {
-		url: "postgresql://postgres:postgres@localhost/planeformDB",
+		url: "postgresql://postgres:postgres@localhost/planeformDB"
 	},
 });
