@@ -14,7 +14,7 @@ import {
 } from "./workflows";
 import {
   handleIntegrationQueue,
-  IntegrationQueueMesssage,
+  type IntegrationQueueMesssage,
 } from "./queues/integration-queue";
 
 const trusted_url = process.env.FRONTEND_URL;
