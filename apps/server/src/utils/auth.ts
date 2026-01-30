@@ -57,6 +57,9 @@ export const getAuth = async () => {
       slack: {
         clientId: env.SLACK_CLIENT_ID,
         clientSecret: env.SLACK_CLIENT_SECRET,
+        scope: ["channels:read", "chat:write"],
+        disableDefaultScope: true,
+        authorizationEndpoint:""
       },
     },
     plugins: [
