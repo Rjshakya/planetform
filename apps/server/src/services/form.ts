@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
 import { Result } from "better-result";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getDb } from "../db/config.js";
 import type { user } from "../db/schema/auth.js";
@@ -32,7 +32,7 @@ export const createFormService = async ({
           .returning();
 
         await tx.insert(formSettingTable).values({
-          formId: createdForm.shortId!,
+          formId: createdForm.shortId || "",
           customerId: createdForm?.creator,
           customisation: formCustomisation,
         });
@@ -96,10 +96,9 @@ export const getUserFormsService = async (
           name: formTable.name,
         })
         .from(formTable)
-        .where(eq(formTable.creator, userId!));
+        .where(eq(formTable.creator, userId));
 
       await redis.set(key, forms, { ex: 60 });
-
       return forms;
     },
     catch: (e) => new DatabaseError({ operation: "getUserForms", cause: e }),
@@ -111,10 +110,11 @@ export const deleteFormService = async (
 ) => {
   return Result.tryPromise({
     try: async () => {
+      if (!formId) throw new Error("[deleteFormService]:no form id found");
       const db = await getDb();
       const form = await db
         .delete(formTable)
-        .where(eq(formTable?.shortId, formId!))
+        .where(eq(formTable?.shortId, formId))
         .returning({
           id: formTable?.id,
         });
@@ -132,6 +132,9 @@ export const updateFormIdService = async (formUpdateValues: {
 }) => {
   return Result.tryPromise({
     try: async () => {
+      if (!formUpdateValues.formId)
+        throw new Error("[updateFormIdService]:no form id found");
+
       const db = await getDb();
       const updateForm = await db
         .update(formTable)
@@ -140,7 +143,7 @@ export const updateFormIdService = async (formUpdateValues: {
           form_schema: formUpdateValues.form_schema,
           updatedAt: new Date(),
         })
-        .where(eq(formTable.shortId, formUpdateValues.formId!))
+        .where(eq(formTable.shortId, formUpdateValues.formId))
         .returning({ formId: formTable.shortId });
 
       return updateForm[0];
@@ -154,6 +157,9 @@ export const getFormWithFormFieldsService = async (
 ) => {
   return Result.tryPromise({
     try: async () => {
+      if (!formId)
+        throw new Error("[getFormWithFormFieldsService]:no form id found");
+
       const redis = getRedis();
       const key = ` getFormWithFormFields-${formId}`;
       const cached = await redis.get<any>(key);
@@ -166,7 +172,7 @@ export const getFormWithFormFieldsService = async (
       const rows = await db
         .select()
         .from(formTable)
-        .where(eq(formTable.shortId, formId!))
+        .where(eq(formTable.shortId, formId))
         .leftJoin(formFieldTable, eq(formTable.shortId, formFieldTable.form))
         .orderBy(asc(formFieldTable.order));
 
@@ -178,6 +184,8 @@ export const getFormWithFormFieldsService = async (
       new DatabaseError({ operation: "getFormWithFormFields", cause: e }),
   });
 };
+
+
 
 interface IFormCustomization {
   formBackgroundColor: string | null;
@@ -227,6 +235,8 @@ export const getFormService = async (
 ) => {
   return Result.tryPromise({
     try: async () => {
+      if (!formId) throw new Error("[getFormService]:No form id");
+
       const kv = env.planetform_kv;
       const key = `getForm-${formId}`;
       const cached = await kv.get(key);
@@ -248,20 +258,26 @@ export const getFormService = async (
           createdAt: formTable.createdAt,
           updatedAt: formTable.updatedAt,
           customerId: formTable.creator,
-        })
-        .from(formTable)
-        .where(eq(formTable.shortId, formId!));
-
-      const [settings] = await db
-        .select({
           customisation: formSettingTable.customisation,
           isClosed: formSettingTable.closed,
           closedAfterSubmission: formSettingTable.closeAfterSubmissions,
           closingTime: formSettingTable.closingTime,
           closedMessage: formSettingTable.closedMessage,
         })
-        .from(formSettingTable)
-        .where(eq(formSettingTable.formId, formId!));
+        .from(formTable)
+        .leftJoin(formSettingTable, eq(formSettingTable.formId, formId))
+        .where(eq(formTable.shortId, formId));
+
+      // const [settings] = await db
+      //   .select({
+      //     customisation: formSettingTable.customisation,
+      //     isClosed: formSettingTable.closed,
+      //     closedAfterSubmission: formSettingTable.closeAfterSubmissions,
+      //     closingTime: formSettingTable.closingTime,
+      //     closedMessage: formSettingTable.closedMessage,
+      //   })
+      //   .from(formSettingTable)
+      //   .where(eq(formSettingTable.formId, formId));
 
       const {
         isClosed,
@@ -269,13 +285,13 @@ export const getFormService = async (
         customisation,
         closedAfterSubmission,
         closedMessage,
-      } = settings;
+      } = form;
 
       const success = await formClosingService({
         closedAfterSubmission,
         closingTime,
         isClosed,
-        formId: formId!,
+        formId: formId,
       });
 
       // giving the parsed schema , rather just a string
@@ -293,7 +309,7 @@ export const getFormService = async (
           ...form,
           form_schema: parsedSchema,
           customisation,
-          closed: success ? success?.closed : false,
+          closed: success ? success : false,
           closedMessage,
         }),
         {
@@ -305,7 +321,7 @@ export const getFormService = async (
         ...form,
         form_schema: parsedSchema,
         customisation,
-        closed: success ? success?.closed : false,
+        closed: success ? success : false,
         closedMessage,
       } as IgetFormService;
     },
@@ -356,18 +372,15 @@ export const updateFormAndFormfieldsService = async (updateValues: {
 }) => {
   return Result.tryPromise({
     try: async () => {
-      const {
-        formId,
-        fields,
-        formName,
-        form_schema,
-        formCustomisation,
-        userId,
-      } = updateValues;
+      const { formId, fields, formName, form_schema, formCustomisation } =
+        updateValues;
+
+      if (!formId)
+        throw new Error(" [updateFormAndFormfieldsService]:no form id  found ");
 
       const db = await getDb();
       const incomingFieldIds = fields?.map((f) => f?.id);
-      const updateAndGetIntegrations = await db.transaction(async (tx) => {
+      await db.transaction(async (tx) => {
         // update form schema
         const [form] = await tx
           .update(formTable)
@@ -376,7 +389,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
             form_schema: form_schema,
             updatedAt: new Date(),
           })
-          .where(eq(formTable.shortId, formId!))
+          .where(eq(formTable.shortId, formId))
           .returning({
             formId: formTable.shortId,
             customerId: formTable.creator,
@@ -387,7 +400,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         const fieldsInDB = await tx
           .select({ id: formFieldTable.id })
           .from(formFieldTable)
-          .where(eq(formFieldTable.form, formId!));
+          .where(eq(formFieldTable.form, formId));
 
         const fieldsInDBSet = new Set(fieldsInDB?.map((f) => f?.id));
 
@@ -402,7 +415,9 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         // extracting fields that are to be insert ,
         // all the fields that are in incomingFields and does't exist in db .
         // it means they have to be inserted
-        const fieldsToInsert = fields?.filter((f) => !fieldsInDBSet.has(f.id!));
+        const fieldsToInsert = fields?.filter(
+          (f) => !fieldsInDBSet.has(f.id ?? ""),
+        );
 
         // extracting all  the fields that have to be deleted
         // all the fields that does not exist in incoming field but
@@ -416,7 +431,7 @@ export const updateFormAndFormfieldsService = async (updateValues: {
           await tx
             .update(formFieldTable)
             .set(field)
-            .where(eq(formFieldTable.id, field.id!));
+            .where(eq(formFieldTable.id, field.id ?? ""));
         }
 
         // if we have fields to insert , then insert them
@@ -436,13 +451,13 @@ export const updateFormAndFormfieldsService = async (updateValues: {
         const [update] = await tx
           .update(formSettingTable)
           .set({ customisation: formCustomisation })
-          .where(eq(formSettingTable.formId, formId!))
+          .where(eq(formSettingTable.formId, formId))
           .returning();
 
         // other wise insert it
         if (!update?.id) {
           await tx.insert(formSettingTable).values({
-            formId: form.formId!,
+            formId: form.formId ?? "",
             customerId: form?.customerId,
             customisation: formCustomisation,
           });
@@ -454,29 +469,11 @@ export const updateFormAndFormfieldsService = async (updateValues: {
           .from(integrationTable)
           .where(
             and(
-              eq(integrationTable.formId, formId!),
+              eq(integrationTable.formId, formId),
               eq(integrationTable.type, "notion"),
             ),
           );
       });
-
-      // after updating form , and getting notion integration;
-      // we are creating new notion page/db after each form update
-      // because notion doesn't allow to delete field in db through api.
-      // so to keep them sync we are creating new notion page/db ,
-      // and if form has notion integrations then now it goes to new page/db.
-      if (updateAndGetIntegrations?.length) {
-        const notionIntegrtns = updateAndGetIntegrations.map((I) => ({
-          id: `${Date.now()}-Planetform${I?.id}`,
-          params: {
-            formId: I.formId!,
-            integrationId: I.id,
-            customerId: I.customerId!,
-            metaData: I.metaData!,
-            userId: userId,
-          },
-        }));
-      }
 
       return true;
     },
@@ -496,10 +493,9 @@ export const formClosingService = async (formSettings: {
   const { isClosed, closingTime, closedAfterSubmission, formId } = formSettings;
 
   const db = await getDb();
+
   if (isClosed) {
-    return {
-      closed: true,
-    };
+    return true;
   }
 
   if (closingTime) {
@@ -510,9 +506,7 @@ export const formClosingService = async (formSettings: {
         .set({ closed: true })
         .where(eq(formSettingTable.formId, formId))
         .returning({ isClosed: formSettingTable.closed });
-      return {
-        closed: closed?.isClosed,
-      };
+      return closed?.isClosed;
     }
   }
 
@@ -526,9 +520,9 @@ export const formClosingService = async (formSettings: {
         .where(eq(formSettingTable.formId, formId))
         .returning({ isClosed: formSettingTable.closed });
 
-      return {
-        closed: closed?.isClosed,
-      };
+      return closed?.isClosed;
     }
   }
+
+  return false;
 };

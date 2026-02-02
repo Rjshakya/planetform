@@ -68,6 +68,11 @@
       "binding": "WEBHOOK_INTEGRATION_WORKFLOW",
       "class_name": "WebHookIntegrationWorkflow",
     },
+    {
+      "name": "slack-integration-workflow",
+      "binding": "SLACK_INTEGRATION_WORKFLOW",
+      "class_name": "SlackIntegrationWorkflow",
+    }
   ],
   "hyperdrive": [
     {

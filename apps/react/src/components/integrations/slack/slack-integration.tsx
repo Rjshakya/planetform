@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import {
-  createWebhookIntegration,
+  createSlackIntegration,
   deleteIntegration,
   keyOfUseIntegrations,
 } from "@/hooks/use-integrations";
-import type { IntegrationCard, SlackConfig } from "../types";
+import type { IntegrationCard } from "../types";
 import { SlackConfigDialog } from "./slack-config-dialog";
 import {
   Card,
@@ -17,6 +17,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { linkSlack } from "@/lib/auth-client";
+import { clientUrl } from "@/lib/env";
+import { toast } from "sonner";
+import { toastPromiseOptions } from "@/lib/toast";
 
 export const SlackIntegration = ({
   integration,
@@ -24,20 +28,42 @@ export const SlackIntegration = ({
   integration: IntegrationCard;
 }) => {
   const { formId } = useParams<{ formId: string }>();
-  const [open, setOpen] = useState(false);
-  const [config, setConfig] = useState<SlackConfig>({
-    webhookUrl: "",
-  });
+  const [searchParams] = useSearchParams();
+  const formName = searchParams.get("name");
+  const workspace = searchParams.get("workspace");
+  const openDialog = searchParams.get("connect");
+  const { pathname } = useLocation();
+  const [open, setOpen] = useState(openDialog === "slack");
 
-  const handleConnect = useCallback(async () => {
-    if (!formId) return;
+  const handleLink = useCallback(async () => {
+    if (!formId || !formName || !workspace) return;
 
-    await createWebhookIntegration(formId, config.webhookUrl);
-    await mutate(keyOfUseIntegrations(formId));
+    const params = new URLSearchParams({
+      name: formName,
+      workspace: workspace,
+      connect: "slack",
+    });
+    const callbackURL = `${clientUrl}${pathname}?${params.toString()}`;
+    await linkSlack(callbackURL);
+  }, [workspace, formName, formId, pathname]);
 
-    setConfig({ webhookUrl: "" });
-    setOpen(false);
-  }, [formId, config.webhookUrl]);
+  const handleConnect = useCallback(
+    async (params: {
+      formId: string;
+      channelId: string;
+      channelName: string;
+      creator: string;
+      fields: string[];
+      message: string;
+    }) => {
+      if (!formId) return;
+
+      await createSlackIntegration(params);
+      await mutate(keyOfUseIntegrations(formId));
+      setOpen(false);
+    },
+    [formId],
+  );
 
   const handleDisconnect = useCallback(async () => {
     if (!integration.connected || !formId) return;
@@ -45,9 +71,9 @@ export const SlackIntegration = ({
     mutate(keyOfUseIntegrations(formId));
   }, [integration, formId]);
 
-  const handleConfigChange = useCallback((newConfig: SlackConfig) => {
-    setConfig(newConfig);
-  }, []);
+  if (!formId) {
+    return null;
+  }
 
   return (
     <>
@@ -55,9 +81,8 @@ export const SlackIntegration = ({
         <SlackConfigDialog
           open={open}
           onOpenChange={setOpen}
-          config={config}
-          onConfigChange={handleConfigChange}
           onConnect={handleConnect}
+          formId={formId}
         />
       )}
       <Card>
@@ -68,9 +93,18 @@ export const SlackIntegration = ({
         <CardContent>
           <CardAction className="flex justify-start w-full">
             <Button
-              disabled
               onClick={
-                integration.connected ? handleDisconnect : () => setOpen(true)
+                integration.connected
+                  ? () =>
+                      toast.promise(
+                        handleDisconnect,
+                        toastPromiseOptions({
+                          error: "failed to disintegrate slack",
+                          loading: "disintegrating...",
+                          success: "slack disintegrated",
+                        }),
+                      )
+                  : handleLink
               }
               variant="secondary"
               className=""

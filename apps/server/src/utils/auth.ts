@@ -8,13 +8,7 @@ import { auth } from "../db/schema";
 import { account } from "../db/schema/auth";
 import { DatabaseError } from "../errors";
 import { refreshGoogleAccessToken } from "./refresh-token";
-import {
-  polar,
-  checkout,
-  portal,
-  usage,
-  webhooks,
-} from "@polar-sh/better-auth";
+import { polar, checkout, portal, usage } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 
 export const polarClient = new Polar({
@@ -63,6 +57,9 @@ export const getAuth = async () => {
       slack: {
         clientId: env.SLACK_CLIENT_ID,
         clientSecret: env.SLACK_CLIENT_SECRET,
+        scope: ["channels:read", "chat:write"],
+        disableDefaultScope: true,
+        authorizationEndpoint:""
       },
     },
     plugins: [
@@ -88,7 +85,7 @@ export const getAuth = async () => {
     account: {
       accountLinking: {
         enabled: true,
-        trustedProviders:["notion" , "google"]
+        trustedProviders: ["notion", "google", "slack"],
       },
     },
   });

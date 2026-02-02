@@ -10,11 +10,12 @@ import {
   GmailIntegrationWorkflow,
   GoogleSheetIntegrationWorkflow,
   NotionIntegrationWorkflow,
+  SlackIntegrationWorkflow,
   WebHookIntegrationWorkflow,
 } from "./workflows";
 import {
   handleIntegrationQueue,
-  IntegrationQueueMesssage,
+  type IntegrationQueueMesssage,
 } from "./queues/integration-queue";
 
 const trusted_url = process.env.FRONTEND_URL;
@@ -80,6 +81,7 @@ export {
   GmailIntegrationWorkflow,
   GoogleSheetIntegrationWorkflow,
   NotionIntegrationWorkflow,
+  SlackIntegrationWorkflow,
   WebHookIntegrationWorkflow,
 };
 export default {

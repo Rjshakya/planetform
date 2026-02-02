@@ -61,11 +61,11 @@ export const FormSettingHome = () => {
 
       <Tabs className={""} defaultValue={"settings"}>
         <TabsList
-          className={"overflow-x-scroll w-full sm:w-fit "}
+          className={" "}
           style={{ scrollbarWidth: "none" }}
         >
           <TabsTrigger
-          className={'capitalize'}
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/submissions/${formId}?name=${formName}&workspace=${workspace}`,
@@ -76,7 +76,7 @@ export const FormSettingHome = () => {
             submissions
           </TabsTrigger>
           <TabsTrigger
-          className={'capitalize'}
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/analytics/${formId}?name=${formName}&workspace=${workspace}`,
@@ -87,7 +87,7 @@ export const FormSettingHome = () => {
             analytics
           </TabsTrigger>
           <TabsTrigger
-          className={'capitalize'}
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/integrations/${formId}?name=${formName}&workspace=${workspace}`,

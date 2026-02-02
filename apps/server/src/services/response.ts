@@ -5,7 +5,6 @@ import { formField as formFieldTable } from "../db/schema/form.fields.js";
 import { integration as integrationTable } from "../db/schema/integration.js";
 import { response as responsesTable } from "../db/schema/response.js";
 import { commonCatch } from "../utils/error.js";
-import { IntegrationQueueMesssage } from "../queues/integration-queue.js";
 
 export const createResponseService = async (
   responseValues: typeof responsesTable.$inferInsert,

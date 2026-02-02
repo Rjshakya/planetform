@@ -41,7 +41,7 @@ export const generatePutPresignedUrlService = async (
     const url = await getSignedUrl(storage, command, { expiresIn: 3600 });
     return {
       uploadUrl: url,
-      fileUrl: `${publicDomain}/${Key}`,
+      fileUrl: `${publicDomain}/formly-bucket/${Key}`,
     };
   } catch (e) {
     commonCatch(e);

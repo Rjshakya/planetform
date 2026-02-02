@@ -7,7 +7,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { SubmissionsComp, type Header,  } from "./data-table";
+import { SubmissionsComp, type Header } from "./data-table";
 import { CommonMenu } from "../common/common-menu";
 import { BodySkeleton } from "../common/body-skeleton";
 import { Skeleton } from "../ui/skeleton";
@@ -52,10 +52,12 @@ export const SubmissionHome = () => {
       <CommonMenu />
 
       <Tabs defaultValue={"submissions"}>
-        <TabsList>
-          <TabsTrigger className={'capitalize'} value={"submissions"}>submissions</TabsTrigger>
+        <TabsList className={""}>
+          <TabsTrigger className={"capitalize"} value={"submissions"}>
+            submissions
+          </TabsTrigger>
           <TabsTrigger
-            className={'capitalize'}
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/analytics/${formId}?name=${formName}&workspace=${workspace}`,
@@ -66,7 +68,7 @@ export const SubmissionHome = () => {
             analytics
           </TabsTrigger>
           <TabsTrigger
-            className={'capitalize'}
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/integrations/${formId}?name=${formName}&workspace=${workspace}`,
@@ -77,7 +79,7 @@ export const SubmissionHome = () => {
             integration
           </TabsTrigger>
           <TabsTrigger
-            className={'capitalize'}
+            className={"capitalize"}
             onClick={() =>
               navigate(
                 `/settings/${formId}?name=${formName}&workspace=${workspace}`,

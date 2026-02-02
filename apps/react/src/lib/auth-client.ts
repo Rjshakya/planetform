@@ -1,5 +1,6 @@
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
+import { client } from "./hc";
 
 const baseUrl = import.meta.env.VITE_BACKEND_URL as string;
 const clientUrl = import.meta.env.VITE_CLIENT_URL as string;
@@ -50,8 +51,30 @@ export const linkNotion = async (callbackURL: string) => {
 };
 
 export const linkSlack = async (callbackURL: string) => {
-  await authClient.linkSocial({
-    provider: "slack",
-    callbackURL,
+  const res = await client.api.integration.slack.auth.$post({
+    json: {
+      scopes: ["channels:read", "chat:write", "chat:write.public"],
+      callBackUrl: callbackURL,
+    },
   });
+
+  if (!res.ok) throw new Error("failed to link");
+
+  const data = await res.json();
+  const width = 600;
+  const height = 700;
+
+  // 2. Calculate center position
+  const left = window.screenX + (window.outerWidth - width) / 2;
+  const top = window.screenY + (window.outerHeight - height) / 2;
+
+  // 3. Open the popup instead of redirecting the current tab
+  const popup = window.open(
+    new URL(data.url), // This is the Slack auth URL from your server
+    "slack-auth",
+    `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`,
+  );
+
+  // 4. (Optional) Focus the popup if it was blocked/hidden
+  if (popup) popup.focus();
 };
