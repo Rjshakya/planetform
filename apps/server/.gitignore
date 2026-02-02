@@ -32,3 +32,5 @@ lerna-debug.log*
 # misc
 .DS_Store
 .opencode
+
+worker-configuration.d.ts

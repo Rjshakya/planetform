@@ -12,7 +12,7 @@ import {
   keyOfUseSlackChannels,
   useSlackChannels,
 } from "@/hooks/use-integrations";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect,  useState } from "react";
 import { useFormFields } from "@/hooks/use-formFields";
 import {
   Select,
