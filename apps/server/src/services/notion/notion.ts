@@ -186,7 +186,7 @@ export class NotionIntegrationService {
       try: async () => {
         return await this.client.pages.properties.retrieve(params);
       },
-      catch: (e) => this.error({ operation: "deletePage", cause: e }),
+      catch: (e) => this.error({ operation: "getPageProperties", cause: e }),
     });
   }
 }

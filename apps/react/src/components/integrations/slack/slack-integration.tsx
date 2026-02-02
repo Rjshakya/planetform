@@ -38,7 +38,12 @@ export const SlackIntegration = ({
   const handleLink = useCallback(async () => {
     if (!formId || !formName || !workspace) return;
 
-    const callbackURL = `${clientUrl}${pathname}?name=${formName}&workspace=${workspace}&connect=slack`;
+    const params = new URLSearchParams({
+      name: formName,
+      workspace: workspace,
+      connect: "slack",
+    });
+    const callbackURL = `${clientUrl}${pathname}?${params.toString()}`;
     await linkSlack(callbackURL);
   }, [workspace, formName, formId, pathname]);
 

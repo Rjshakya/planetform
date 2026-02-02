@@ -12,7 +12,7 @@ import {
   keyOfUseSlackChannels,
   useSlackChannels,
 } from "@/hooks/use-integrations";
-import { useEffect,  useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormFields } from "@/hooks/use-formFields";
 import {
   Select,
@@ -55,6 +55,14 @@ export const SlackConfigDialog = ({
     keyOfUseSlackChannels(formId),
   );
 
+  const [selectChannels, setSelectChannels] = useState<
+    {
+      channelId: string;
+      channelName: string;
+      creator: string;
+    }[]
+  >([]);
+
   const [fields, setFields] = useState<{ label: string; value: string }[]>();
   const [onConnectParams, setOnConnectParams] = useState<{
     formId: string;
@@ -94,6 +102,16 @@ export const SlackConfigDialog = ({
     })();
   }, [formFields]);
 
+  useEffect(() => {
+    if (!channels) return;
+    const _channels = channels.map((c) => ({
+      channelName: c.name,
+      channelId: c.id,
+      creator: c.creator,
+    }));
+    (() => setSelectChannels(_channels))();
+  }, [channels]);
+
   if (!formFields || !channels) {
     return null;
   }
@@ -119,14 +137,16 @@ export const SlackConfigDialog = ({
               {channels && channels.length > 0 && (
                 <Select
                   id="slack-channels"
-                  value={channels[0]}
+                  value={selectChannels[0].channelId}
                   onValueChange={(v) => {
                     if (!v) return;
+                    const _channel = selectChannels.find(
+                      (c) => c.channelId === v,
+                    );
+                    if (!_channel) return;
                     setOnConnectParams({
                       ...onConnectParams,
-                      channelId: v.id,
-                      channelName: v.name,
-                      creator: v.creator,
+                      ..._channel,
                     });
                   }}
                 >
@@ -139,7 +159,7 @@ export const SlackConfigDialog = ({
                     <SelectGroup>
                       <SelectLabel>Channels</SelectLabel>
                       {channels.map((item) => (
-                        <SelectItem key={item.id} value={item}>
+                        <SelectItem key={item.id} value={item.id}>
                           {item.name}
                         </SelectItem>
                       ))}
@@ -154,9 +174,7 @@ export const SlackConfigDialog = ({
               {/* <Label htmlFor="form-inputs">Inputs</Label> */}
               {fields && fields.length > 0 && (
                 <MultiSelect
-                  commandProps={{
-                    label: "Select Inputs",
-                  }}
+                  commandProps={{ label: "Select Inputs" }}
                   label="Inputs"
                   value={fields}
                   defaultOptions={fields}
@@ -167,6 +185,7 @@ export const SlackConfigDialog = ({
                   hidePlaceholderWhenSelected
                   placeholder="Select Inputs"
                   onChange={(v) => {
+                    setFields(v);
                     setOnConnectParams({
                       ...onConnectParams,
                       fields: v.map((v) => v.value),

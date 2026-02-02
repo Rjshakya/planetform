@@ -38,7 +38,6 @@ export const handleIntegrationQueue = async (
   messages: readonly Message<IntegrationQueueMesssage>[],
 ) => {
   for (const message of messages) {
-    console.log(message);
 
     const {
       formId,
@@ -120,6 +119,7 @@ export const handleIntegrationQueue = async (
     }
 
     if (type === SLACK_INTEGRATION_TYPE) {
+       if (!parsedMetaData?.id || !Array.isArray(parsedMetaData?.fields)) continue;
       await env.SLACK_INTEGRATION_WORKFLOW.create({
         id: `${respondentId}-slack-${integrationId}`,
         params: {

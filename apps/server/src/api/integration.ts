@@ -134,7 +134,7 @@ const integration = new Hono<{
           .optional()
           .refine((arg) => {
             if (!arg) return true;
-            return arg.startsWith(env.FRONTEND_URL);
+            return new URL(arg).origin === env.FRONTEND_URL;
           }),
         scopes: z.array(z.string()),
       }),

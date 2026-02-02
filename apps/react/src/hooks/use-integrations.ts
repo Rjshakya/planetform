@@ -105,7 +105,7 @@ export const createEmailNotificationIntegration = async (params: {
 
 export const getSlackChannels = async () => {
   const res = await client.api.integration.slack.channels.$get({});
-  if (!res.ok) throw new Error("failed to get slack errors");
+  if (!res.ok) throw new Error("failed to get slack channels");
 
   const parsed = await res.json();
   return parsed.channels;
