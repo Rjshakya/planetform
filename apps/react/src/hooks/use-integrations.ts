@@ -10,8 +10,21 @@ export const useIntegrations = (formId: string | null) => {
   return { integrations: data?.integrations, error, isLoading, mutate };
 };
 
+export const useSlackChannels = (key: string | null) => {
+  const fetcher = () => getSlackChannels();
+  const { data, error, isLoading } = useSWR(key, fetcher);
+  return {
+    channels: data,
+    slackChannelsError: error,
+    channelsLoading: isLoading,
+  };
+};
+
 export const keyOfUseIntegrations = (formId: string) =>
   `useIntegrations:${formId}`;
+
+export const keyOfUseSlackChannels = (formId: string) =>
+  `useSlackChannels:${formId}`;
 
 export const getIntegrations = async (formId: string) => {
   const res = await client.api.integration[":formId"].$get({
@@ -88,6 +101,28 @@ export const createEmailNotificationIntegration = async (params: {
   if (!res.ok)
     throw new Error("Failed to create email notification integration");
   return data;
+};
+
+export const getSlackChannels = async () => {
+  const res = await client.api.integration.slack.channels.$get({});
+  if (!res.ok) throw new Error("failed to get slack errors");
+
+  const parsed = await res.json();
+  return parsed.channels;
+};
+
+export const createSlackIntegration = async (params: {
+  formId: string;
+  channelId: string;
+  channelName: string;
+  creator: string;
+  fields: string[];
+  message: string;
+}) => {
+  const res = await client.api.integration.slack.$post({ json: params });
+  if (!res.ok) throw new Error("failed to create slack integration");
+  const parsed = await res.json();
+  return parsed;
 };
 
 export const deleteIntegration = async (integrationId: string) => {

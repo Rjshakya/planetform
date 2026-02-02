@@ -178,3 +178,17 @@ export class WorkspaceServiceError extends TaggedError(
     super({ ...args, message: `Workspace ${args.operation} failed: ${msg}` });
   }
 }
+
+export class SlackIntegrationError extends TaggedError(
+  "SlackIntegrationError",
+)<{
+  operation: string;
+  message: string;
+  cause: unknown;
+}>() {
+  constructor(args: { operation: string; cause: unknown }) {
+    const msg =
+      args.cause instanceof Error ? args.cause.message : String(args.cause);
+    super({ ...args, message: `Slack ${args.operation} failed: ${msg}` });
+  }
+}

@@ -7,28 +7,96 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { SlackConfig } from "../types";
+import {
+  keyOfUseSlackChannels,
+  useSlackChannels,
+} from "@/hooks/use-integrations";
+import { useEffect, useMemo, useState } from "react";
+import { useFormFields } from "@/hooks/use-formFields";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { Loader } from "lucide-react";
+import { toastPromiseOptions } from "@/lib/toast";
+import MultiSelect from "@/components/common/multi-select";
 
 interface SlackConfigDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  config: SlackConfig;
-  onConfigChange: (config: SlackConfig) => void;
-  onConnect: () => Promise<void>;
+  onConnect: (params: {
+    formId: string;
+    channelId: string;
+    channelName: string;
+    creator: string;
+    fields: string[];
+    message: string;
+  }) => Promise<void>;
+  formId: string;
 }
 
 export const SlackConfigDialog = ({
   open,
   onOpenChange,
-  config,
-  onConfigChange,
   onConnect,
+  formId,
 }: SlackConfigDialogProps) => {
-  const handleWebhookUrlChange = (webhookUrl: string) => {
-    onConfigChange({ webhookUrl });
-  };
+  const { formFields, formFieldsError, formFieldsLoading } =
+    useFormFields(formId);
+  const { channels, channelsLoading, slackChannelsError } = useSlackChannels(
+    keyOfUseSlackChannels(formId),
+  );
+
+  const [fields, setFields] = useState<{ label: string; value: string }[]>();
+  const [onConnectParams, setOnConnectParams] = useState<{
+    formId: string;
+    channelId: string;
+    channelName: string;
+    creator: string;
+    fields: string[];
+    message: string;
+  }>({
+    fields: [],
+    message: "",
+    formId,
+    channelId: "",
+    channelName: "",
+    creator: "",
+  });
+
+  useEffect(() => {
+    if (slackChannelsError || formFieldsError) {
+      toast.error(
+        slackChannelsError
+          ? "failed to get slack channels"
+          : "failed to get form fields",
+      );
+    }
+  }, [slackChannelsError, formFieldsError]);
+
+  useEffect(() => {
+    if (!formFields || !formFields.length) return;
+    (() => {
+      const _fields = formFields.map((v) => ({ label: v.label, value: v.id }));
+      setFields(_fields);
+      setOnConnectParams({
+        ...onConnectParams,
+        fields: _fields.map((v) => v.value),
+      });
+    })();
+  }, [formFields]);
+
+  if (!formFields || !channels) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,25 +107,103 @@ export const SlackConfigDialog = ({
             Enter your Slack incoming webhook URL to receive form submissions.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="webhook-url">Webhook URL</Label>
-            <Input
-              id="webhook-url"
-              type="url"
-              placeholder="https://hooks.slack.com/services/..."
-              value={config.webhookUrl}
-              onChange={(e) => handleWebhookUrlChange(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Create a webhook in your Slack workspace settings
-            </p>
+        {channelsLoading || formFieldsLoading ? (
+          <div className="size-full grid place-content-center">
+            <Loader className=" animate-spin" />
           </div>
-        </div>
+        ) : (
+          <div className="space-y-4 py-4">
+            {/* select channels */}
+            <div className="space-y-2 w-full">
+              <Label htmlFor="slack-channels">Slack channel</Label>
+              {channels && channels.length > 0 && (
+                <Select
+                  id="slack-channels"
+                  value={channels[0]}
+                  onValueChange={(v) => {
+                    if (!v) return;
+                    setOnConnectParams({
+                      ...onConnectParams,
+                      channelId: v.id,
+                      channelName: v.name,
+                      creator: v.creator,
+                    });
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue className={""}>
+                      {onConnectParams.channelName || "select channel"}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className={"w-full"}>
+                    <SelectGroup>
+                      <SelectLabel>Channels</SelectLabel>
+                      {channels.map((item) => (
+                        <SelectItem key={item.id} value={item}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+
+            {/* select fields */}
+            <div className="space-y-2 w-full">
+              {/* <Label htmlFor="form-inputs">Inputs</Label> */}
+              {fields && fields.length > 0 && (
+                <MultiSelect
+                  commandProps={{
+                    label: "Select Inputs",
+                  }}
+                  label="Inputs"
+                  value={fields}
+                  defaultOptions={fields}
+                  emptyIndicator={
+                    <p className="text-center text-sm">No results found</p>
+                  }
+                  hideClearAllButton
+                  hidePlaceholderWhenSelected
+                  placeholder="Select Inputs"
+                  onChange={(v) => {
+                    setOnConnectParams({
+                      ...onConnectParams,
+                      fields: v.map((v) => v.value),
+                    });
+                  }}
+                />
+              )}
+            </div>
+
+            {/* message */}
+            <div className="space-y-2">
+              <Label htmlFor="message">Message</Label>
+              <Textarea
+                id="message"
+                value={onConnectParams.message}
+                onChange={(e) => {
+                  setOnConnectParams({
+                    ...onConnectParams,
+                    message: e.currentTarget.value,
+                  });
+                }}
+              />
+            </div>
+          </div>
+        )}
         <DialogFooter>
           <Button
-            onClick={onConnect}
-            disabled={!config.webhookUrl}
+            onClick={() =>
+              toast.promise(
+                () => onConnect(onConnectParams),
+                toastPromiseOptions({
+                  error: "failed to integrate with slack",
+                  loading: "integrating...",
+                  success: "Slack integrated",
+                }),
+              )
+            }
             className="w-full"
           >
             Connect Slack

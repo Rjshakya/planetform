@@ -8,16 +8,20 @@ import {
   CreateGmailIntegrationServiceSchema,
   CreateNotionIntegrationServiceSchema,
   CreateSheetIntegrationServiceSchema,
+  CreateSlackIntegrationSchema,
   createEmailNotificationIntegrationService,
   createGmailIntegrationService,
   createNotionIntegrationService,
   createSheetIntegrationService,
+  createSlackIntegration,
   createWebHookIntegrationService,
   createWebHookIntegrationServiceSchema,
   deleteIntegrationService,
   getIntegrationsService,
+  getSlackChannels,
 } from "../services/integration";
 import { SlackOauthService } from "../services/slack/oauth";
+import { env } from "cloudflare:workers";
 
 const integration = new Hono<{
   Variables: {
@@ -125,7 +129,13 @@ const integration = new Hono<{
     zValidator(
       "json",
       z.object({
-        callBackUrl: z.string().optional(),
+        callBackUrl: z
+          .url()
+          .optional()
+          .refine((arg) => {
+            if (!arg) return true;
+            return arg.startsWith(env.FRONTEND_URL);
+          }),
         scopes: z.array(z.string()),
       }),
     ),
@@ -145,11 +155,50 @@ const integration = new Hono<{
 
     if ("data" in verify) {
       await slackOauth.saveAccount({ userId, ...verify.data });
-      return c.json("integrated", 200);
+      if (verify?.callbackURL) {
+        return c.redirect(verify.callbackURL);
+      }
     }
 
-    return verify;
+    return c.html(`
+          <html>
+            <body>
+              <p>Integration successful! Closing window...</p>
+              <script>
+                window.close();
+              </script>
+            </body>
+          </html>`);
   })
+
+  // Slack routes
+  .get("/slack/channels", async (c) => {
+    const userId = c.get("userId");
+    const result = await getSlackChannels(userId);
+
+    if (Result.isOk(result)) {
+      return c.json({ channels: result.value }, 200);
+    }
+    return c.json(result.error, 400);
+  })
+
+  .post(
+    "/slack",
+    zValidator("json", CreateSlackIntegrationSchema),
+    async (c) => {
+      const userId = c.get("userId");
+      const params = c.req.valid("json");
+      const result = await createSlackIntegration({
+        ...params,
+        userId,
+      });
+
+      if (Result.isOk(result)) {
+        return c.json(result.value, 200);
+      }
+      return c.json(result.error, 400);
+    },
+  )
 
   .delete(
     "/:integrationId",

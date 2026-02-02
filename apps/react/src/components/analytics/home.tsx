@@ -37,7 +37,7 @@ export const AnalyticsHome = () => {
       <CommonMenu />
 
       <Tabs className={''} defaultValue={"analytics"}>
-        <TabsList className={''}>
+        <TabsList className={' '}>
           <TabsTrigger
             className={' capitalize'}
             onClick={() =>

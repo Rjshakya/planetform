@@ -10,6 +10,7 @@ import {
   GmailIntegrationWorkflow,
   GoogleSheetIntegrationWorkflow,
   NotionIntegrationWorkflow,
+  SlackIntegrationWorkflow,
   WebHookIntegrationWorkflow,
 } from "./workflows";
 import {
@@ -80,6 +81,7 @@ export {
   GmailIntegrationWorkflow,
   GoogleSheetIntegrationWorkflow,
   NotionIntegrationWorkflow,
+  SlackIntegrationWorkflow,
   WebHookIntegrationWorkflow,
 };
 export default {

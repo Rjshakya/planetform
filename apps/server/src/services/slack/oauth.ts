@@ -2,6 +2,7 @@ import { env } from "cloudflare:workers";
 import { getDb } from "../../db/config";
 import { account } from "../../db/schema/auth";
 import { v7 } from "uuid";
+import { and, eq } from "drizzle-orm";
 
 interface slackOauth {
   clientId: string;
@@ -105,6 +106,29 @@ export class SlackOauthService implements slackOauth {
   }) {
     if (params && "access_token" in params && params.team?.id) {
       const db = await getDb();
+
+      const [existingAcc] = await db
+        .select({ id: account.id })
+        .from(account)
+        .where(
+          and(
+            eq(account.providerId, "slack"),
+            eq(account.userId, params.userId),
+          ),
+        );
+
+      if (existingAcc?.id) {
+        await db
+          .update(account)
+          .set({
+            accessToken: params.access_token,
+            accountId: params.team.id,
+          })
+          .where(eq(account.id, existingAcc.id));
+
+        return;
+      }
+
       await db.insert(account).values({
         accountId: params.team.id,
         createdAt: new Date(),

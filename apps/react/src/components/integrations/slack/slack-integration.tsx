@@ -3,11 +3,11 @@ import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { mutate } from "swr";
 import { Button } from "@/components/ui/button";
 import {
-  createWebhookIntegration,
+  createSlackIntegration,
   deleteIntegration,
   keyOfUseIntegrations,
 } from "@/hooks/use-integrations";
-import type { IntegrationCard, SlackConfig } from "../types";
+import type { IntegrationCard } from "../types";
 import { SlackConfigDialog } from "./slack-config-dialog";
 import {
   Card,
@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/card";
 import { linkSlack } from "@/lib/auth-client";
 import { clientUrl } from "@/lib/env";
+import { toast } from "sonner";
+import { toastPromiseOptions } from "@/lib/toast";
 
 export const SlackIntegration = ({
   integration,
@@ -29,28 +31,34 @@ export const SlackIntegration = ({
   const [searchParams] = useSearchParams();
   const formName = searchParams.get("name");
   const workspace = searchParams.get("workspace");
+  const openDialog = searchParams.get("connect");
   const { pathname } = useLocation();
-  const [open, setOpen] = useState(false);
-  const [config, setConfig] = useState<SlackConfig>({
-    webhookUrl: "",
-  });
+  const [open, setOpen] = useState(openDialog === "slack");
 
   const handleLink = useCallback(async () => {
     if (!formId || !formName || !workspace) return;
 
-    const callbackURL = `${clientUrl}${pathname}?name=${formName}&workspace=${workspace}&openDialog=true`;
+    const callbackURL = `${clientUrl}${pathname}?name=${formName}&workspace=${workspace}&connect=slack`;
     await linkSlack(callbackURL);
-  }, [workspace, formName, formId]);
+  }, [workspace, formName, formId, pathname]);
 
-  const handleConnect = useCallback(async () => {
-    if (!formId) return;
+  const handleConnect = useCallback(
+    async (params: {
+      formId: string;
+      channelId: string;
+      channelName: string;
+      creator: string;
+      fields: string[];
+      message: string;
+    }) => {
+      if (!formId) return;
 
-    await createWebhookIntegration(formId, config.webhookUrl);
-    await mutate(keyOfUseIntegrations(formId));
-
-    setConfig({ webhookUrl: "" });
-    setOpen(false);
-  }, [formId, config.webhookUrl]);
+      await createSlackIntegration(params);
+      await mutate(keyOfUseIntegrations(formId));
+      setOpen(false);
+    },
+    [formId],
+  );
 
   const handleDisconnect = useCallback(async () => {
     if (!integration.connected || !formId) return;
@@ -58,9 +66,9 @@ export const SlackIntegration = ({
     mutate(keyOfUseIntegrations(formId));
   }, [integration, formId]);
 
-  const handleConfigChange = useCallback((newConfig: SlackConfig) => {
-    setConfig(newConfig);
-  }, []);
+  if (!formId) {
+    return null;
+  }
 
   return (
     <>
@@ -68,9 +76,8 @@ export const SlackIntegration = ({
         <SlackConfigDialog
           open={open}
           onOpenChange={setOpen}
-          config={config}
-          onConfigChange={handleConfigChange}
           onConnect={handleConnect}
+          formId={formId}
         />
       )}
       <Card>
@@ -82,7 +89,17 @@ export const SlackIntegration = ({
           <CardAction className="flex justify-start w-full">
             <Button
               onClick={
-                integration.connected ? handleDisconnect : () => handleLink()
+                integration.connected
+                  ? () =>
+                      toast.promise(
+                        handleDisconnect,
+                        toastPromiseOptions({
+                          error: "failed to disintegrate slack",
+                          loading: "disintegrating...",
+                          success: "slack disintegrated",
+                        }),
+                      )
+                  : handleLink
               }
               variant="secondary"
               className=""

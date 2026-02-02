@@ -74,7 +74,7 @@ export const IntegrationsHome = () => {
       <CommonMenu />
 
       <Tabs defaultValue={"integrations"}>
-        <TabsList>
+        <TabsList className={" "}>
           <TabsTrigger
             className={"capitalize"}
             onClick={() =>
@@ -120,7 +120,7 @@ export const IntegrationsHome = () => {
                 <CardDescription>your live connections</CardDescription>
               </CardHeader>
 
-              <CardContent>
+              <CardContent className="grid gap-1">
                 {integrations &&
                   integrations.length > 0 &&
                   integrations.map((intgre) => {

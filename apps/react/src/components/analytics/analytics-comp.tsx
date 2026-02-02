@@ -308,7 +308,7 @@ export const AnalyticsComp = ({
           value={interval}
           onValueChange={(v) => setInterval(v as AnalyticsInterval)}
         >
-          <SelectTrigger className="w-[120px] ">
+          <SelectTrigger className="w-30 ">
             <SelectValue>{interval || "last 24 hr"}</SelectValue>
           </SelectTrigger>
           <SelectContent className={""}>
