@@ -1,11 +1,11 @@
-import { eq, name } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getDb } from "../db/config.js";
 import { form } from "../db/schema/form.js";
 import { workspace as workspaceTable } from "../db/schema/workspace.js";
 import { commonCatch } from "../utils/error.js";
-import { getIsProUser } from "../utils/subscription.js";
 import { Result } from "better-result";
 import { WorkspaceServiceError } from "../errors.js";
+import { isPaidCustomer } from "./polar/customer.js";
 
 interface IupdateWorkspace {
   data: {
@@ -25,9 +25,13 @@ export const createWorkspaceService = async (
       .where(eq(workspaceTable.owner, workspaceValues.owner));
 
     if (workspaces.length) {
-      const isProUser = await getIsProUser(workspaceValues.owner);
-      if (!isProUser) {
-        return false;
+      const isProUser = await isPaidCustomer(workspaceValues.owner);
+      if (Result.isOk(isProUser)) {
+        if (!isProUser.value) {
+          throw new Error(
+            "user already has a workspace, limit is 1 for free users",
+          );
+        }
       }
     }
 
@@ -160,13 +164,13 @@ export const updateWorkspaceFormService = async (params: IupdateWorkspace) => {
 };
 
 export const deleteWorkspaceService = async (
-  workspaceId: typeof workspaceTable.$inferInsert.id,
+  workspaceId: typeof workspaceTable.$inferSelect.id,
 ) => {
   try {
     const db = await getDb();
     const deleted = await db
       .delete(workspaceTable)
-      .where(eq(workspaceTable.id, workspaceId!))
+      .where(eq(workspaceTable.id, workspaceId))
       .returning({ id: workspaceTable.id, user: workspaceTable.owner });
 
     return deleted[0];

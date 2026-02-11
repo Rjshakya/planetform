@@ -97,7 +97,7 @@ export const DashboardHome = () => {
           <h3 className="py-2 text-xs px-1">Workspaces</h3>
           <Card className="bg-card ring-0 rounded-sm">
             <CardHeader>
-              <CardDescription>total workspaces</CardDescription>
+              <CardDescription>Total workspaces</CardDescription>
             </CardHeader>
             <CardContent className="text-xl">
               {analytics?.TotalWorkspaces}
@@ -108,7 +108,7 @@ export const DashboardHome = () => {
           <h3 className="pt-2 pb-2 text-xs px-1">Forms</h3>
           <Card className="bg-card ring-0 rounded-sm">
             <CardHeader>
-              <CardDescription>total forms</CardDescription>
+              <CardDescription>Total forms</CardDescription>
             </CardHeader>
             <CardContent className="text-xl">
               {analytics?.TotalForms}

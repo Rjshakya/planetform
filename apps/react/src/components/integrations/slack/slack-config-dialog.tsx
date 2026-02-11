@@ -61,7 +61,7 @@ export const SlackConfigDialog = ({
       channelName: string;
       creator: string;
     }[]
-  >([]);
+  >([{ channelId: "", channelName: "", creator: "" }]);
 
   const [fields, setFields] = useState<{ label: string; value: string }[]>();
   const [onConnectParams, setOnConnectParams] = useState<{
@@ -148,6 +148,7 @@ export const SlackConfigDialog = ({
                       ...onConnectParams,
                       ..._channel,
                     });
+                    setSelectChannels([_channel, ...selectChannels]);
                   }}
                 >
                   <SelectTrigger className="w-full">

@@ -87,9 +87,8 @@ export {
 export default {
   fetch: app.fetch,
   queue: async (
+    // biome-ignore lint: no-explicit-any
     batch: MessageBatch<any>,
-    env: Cloudflare.Env,
-    ctx: ExecutionContext,
   ) => {
     const queue = batch.queue;
     if (queue === "planetform-integrations-queue") {

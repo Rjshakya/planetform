@@ -1,7 +1,5 @@
 import { env } from "cloudflare:workers";
-import { eq } from "drizzle-orm";
 import z from "zod";
-import { getDb } from "../db/config";
 import type { response } from "../db/schema/response";
 import {
   GMAIL_INTEGRATION_TYPE,
@@ -38,7 +36,6 @@ export const handleIntegrationQueue = async (
   messages: readonly Message<IntegrationQueueMesssage>[],
 ) => {
   for (const message of messages) {
-
     const {
       formId,
       values,
@@ -119,7 +116,8 @@ export const handleIntegrationQueue = async (
     }
 
     if (type === SLACK_INTEGRATION_TYPE) {
-       if (!parsedMetaData?.id || !Array.isArray(parsedMetaData?.fields)) continue;
+      if (!parsedMetaData?.id || !Array.isArray(parsedMetaData?.fields))
+        continue;
       await env.SLACK_INTEGRATION_WORKFLOW.create({
         id: `${respondentId}-slack-${integrationId}`,
         params: {

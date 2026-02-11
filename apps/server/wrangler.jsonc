@@ -54,6 +54,11 @@
       "class_name": "GmailIntegrationWorkflow",
     },
     {
+      "name": "email-integration-workflow",
+      "binding": "EMAIL_INTEGRATION_WORKFLOW",
+      "class_name": "EmailIntegrationWorkflow",
+    },
+    {
       "name": "google-sheet-integration-workflow",
       "binding": "GOOGLE_SHEET_INTEGRATION_WORKFLOW",
       "class_name": "GoogleSheetIntegrationWorkflow",

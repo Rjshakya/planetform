@@ -1,4 +1,4 @@
-import { type Product } from "@polar-sh/sdk/models/components/product.js";
+import { type Product } from "@polar-sh/sdk/models/components/product";
 import { polarClient } from "../utils/auth";
 import { Result } from "better-result";
 import { env } from "cloudflare:workers";

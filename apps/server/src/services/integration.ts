@@ -13,6 +13,7 @@ import { getNotionInitialDataSource } from "../workflows/helpers";
 import { GoogleSheetService } from "./google/sheet";
 import { NotionIntegrationService } from "./notion/notion";
 import type { WebhookData } from "./webhook/webhook";
+import { NOTIFICATION_EMAIL } from "../utils/mail";
 
 export const SHEET_INTEGRATION_TYPE = "sheets";
 export const NOTION_INTEGRATION_TYPE = "notion";
@@ -311,7 +312,7 @@ export const createEmailNotificationIntegrationService = (
 
       const metaData = {
         to: email,
-        from: env.PLANETFORM_EMAIL_NOTIFICATION_ADDRESS,
+        from: NOTIFICATION_EMAIL,
         subject,
         body,
       };
