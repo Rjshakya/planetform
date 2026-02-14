@@ -1,3 +1,5 @@
+import type { JSX } from "react";
+
 export interface IntegrationCard {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface IntegrationCard {
   connected: boolean;
   description: string;
   index:number
+  icon:JSX.Element
 }
 
 export interface IntegrationConfig {

@@ -11,6 +11,7 @@ import { CommonMenu } from "../common/common-menu";
 import { AnalyticsComp } from "./analytics-comp";
 import { BodySkeleton } from "../common/body-skeleton";
 import { Skeleton } from "../ui/skeleton";
+import { AnimatePresence, motion } from "motion/react";
 
 export const AnalyticsHome = () => {
   const { formId } = useParams();
@@ -36,10 +37,10 @@ export const AnalyticsHome = () => {
     <div className="max-w-3xl mx-auto pt-12 px-4 pb-8  ">
       <CommonMenu />
 
-      <Tabs className={''} defaultValue={"analytics"}>
-        <TabsList className={' '}>
+      <Tabs className={""} defaultValue={"analytics"}>
+        <TabsList className={" "}>
           <TabsTrigger
-            className={' capitalize'}
+            className={" capitalize"}
             onClick={() =>
               navigate(
                 `/submissions/${formId}?name=${formName}&workspace=${workspace}`,
@@ -49,9 +50,11 @@ export const AnalyticsHome = () => {
           >
             submissions
           </TabsTrigger>
-          <TabsTrigger className={'capitalize'} value={"analytics"}>analytics</TabsTrigger>
+          <TabsTrigger className={"capitalize"} value={"analytics"}>
+            analytics
+          </TabsTrigger>
           <TabsTrigger
-           className={ ' capitalize'}
+            className={" capitalize"}
             onClick={() =>
               navigate(
                 `/integrations/${formId}?name=${formName}&workspace=${workspace}`,
@@ -62,7 +65,7 @@ export const AnalyticsHome = () => {
             integration
           </TabsTrigger>
           <TabsTrigger
-           className={ ' capitalize'}
+            className={" capitalize"}
             onClick={() =>
               navigate(
                 `/settings/${formId}?name=${formName}&workspace=${workspace}`,
@@ -73,21 +76,30 @@ export const AnalyticsHome = () => {
             settings
           </TabsTrigger>
         </TabsList>
-        <TabsContent
-          value={"analytics"}
-          className={""}
-          render={
-            <div className="grid">
-              <AnalyticsComp
-                data={analytics!}
-                error={analyticsErr}
-                isLoading={isLoading}
-                interval={interval}
-                setInterval={setInterval}
-              />
-            </div>
-          }
-        />
+        <AnimatePresence>
+          <TabsContent
+            value={"analytics"}
+            className={""}
+            render={
+              <motion.div
+                key="submissions-analytics-content" // Unique key is vital for AnimatePresence
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="grid"
+              >
+                <AnalyticsComp
+                  data={analytics!}
+                  error={analyticsErr}
+                  isLoading={isLoading}
+                  interval={interval}
+                  setInterval={setInterval}
+                />
+              </motion.div>
+            }
+          />
+        </AnimatePresence>
       </Tabs>
     </div>
   );

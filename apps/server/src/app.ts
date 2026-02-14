@@ -12,6 +12,8 @@ import {
   NotionIntegrationWorkflow,
   SlackIntegrationWorkflow,
   WebHookIntegrationWorkflow,
+  EmailIntegrationWorkflow,
+  CustomerOnboardingWorkflow,
 } from "./workflows";
 import {
   handleIntegrationQueue,
@@ -78,6 +80,8 @@ export const app = new Hono()
   });
 
 export {
+  CustomerOnboardingWorkflow,
+  EmailIntegrationWorkflow,
   GmailIntegrationWorkflow,
   GoogleSheetIntegrationWorkflow,
   NotionIntegrationWorkflow,

@@ -28,7 +28,8 @@ import {
 } from "../ui/input-group";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import { integrationCardsData } from "./index";
+import { integrationCardsData } from "./integrations";
+import { AnimatePresence, motion } from "motion/react";
 
 export const IntegrationsHome = () => {
   const { formId } = useParams();
@@ -112,91 +113,100 @@ export const IntegrationsHome = () => {
             settings
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={"integrations"} className="mt-4 grid gap-4">
-          {integrations && integrations.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Connections</CardTitle>
-                <CardDescription>your live connections</CardDescription>
-              </CardHeader>
+        <AnimatePresence>
+          <TabsContent value={"integrations"} className="mt-4 grid gap-4">
+            {integrations && integrations.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Connections</CardTitle>
+                  <CardDescription>your live connections</CardDescription>
+                </CardHeader>
 
-              <CardContent className="grid gap-1">
-                {integrations &&
-                  integrations.length > 0 &&
-                  integrations.map((intgre) => {
-                    const metaData = JSON.parse(intgre.metaData || "{}");
-                    const url =
-                      metaData && metaData?.url ? metaData.url : intgre.type;
+                <CardContent className="grid gap-1">
+                  {integrations &&
+                    integrations.length > 0 &&
+                    integrations.map((intgre) => {
+                      const metaData = JSON.parse(intgre.metaData || "{}");
+                      const url =
+                        metaData && metaData?.url ? metaData.url : intgre.type;
+                      return (
+                        <InputGroup key={intgre.id}>
+                          <InputGroupInput value={url} />
+                          <InputGroupAddon align={"inline-end"}>
+                            <InputGroupButton
+                              onClick={async () => {
+                                if (!window.navigator) return;
+
+                                await window.navigator.clipboard.writeText(url);
+
+                                toast.success("copied");
+                              }}
+                            >
+                              <Copy />
+                            </InputGroupButton>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      );
+                    })}
+                </CardContent>
+              </Card>
+            )}
+
+            <motion.div
+              key="integrations-context" // Unique key is vital for AnimatePresence
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="grid sm:grid-cols-3 gap-4"
+            >
+              {integrationUICards.map((integration, i) => {
+                switch (integration.type) {
+                  case "sheets":
                     return (
-                      <InputGroup key={intgre.id}>
-                        <InputGroupInput value={url} />
-                        <InputGroupAddon align={"inline-end"}>
-                          <InputGroupButton
-                            onClick={async () => {
-                              if (!window.navigator) return;
-
-                              await window.navigator.clipboard.writeText(url);
-
-                              toast.success("copied");
-                            }}
-                          >
-                            <Copy />
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
+                      <GoogleSheetIntegration
+                        key={integration.id}
+                        integration={{
+                          ...integration,
+                          index: i,
+                        }}
+                      />
                     );
-                  })}
-              </CardContent>
-            </Card>
-          )}
-
-          <div className="grid sm:grid-cols-3 gap-4">
-            {integrationUICards.map((integration, i) => {
-              switch (integration.type) {
-                case "sheets":
-                  return (
-                    <GoogleSheetIntegration
-                      key={integration.id}
-                      integration={{
-                        ...integration,
-                        index: i,
-                      }}
-                    />
-                  );
-                case "notion":
-                  return (
-                    <NotionIntegration
-                      key={integration.id}
-                      integration={{ ...integration, index: i }}
-                    />
-                  );
-                case "gmail":
-                  return (
-                    <GmailIntegration
-                      key={integration.id}
-                      integration={{ ...integration, index: i }}
-                    />
-                  );
-                case "slack":
-                  return (
-                    <SlackIntegration
-                      key={integration.id}
-                      integration={{ ...integration, index: i }}
-                    />
-                  );
-                case "webhook":
-                  return (
-                    <WebhookIntegration
-                      key={integration.id}
-                      integration={{ ...integration, index: i }}
-                    />
-                  );
-                default:
-                  return null;
-              }
-            })}
-          </div>
-        </TabsContent>
+                  case "notion":
+                    return (
+                      <NotionIntegration
+                        key={integration.id}
+                        integration={{ ...integration, index: i }}
+                      />
+                    );
+                  case "gmail":
+                    return (
+                      <GmailIntegration
+                        key={integration.id}
+                        integration={{ ...integration, index: i }}
+                      />
+                    );
+                  case "slack":
+                    return (
+                      <SlackIntegration
+                        key={integration.id}
+                        integration={{ ...integration, index: i }}
+                      />
+                    );
+                  case "webhook":
+                    return (
+                      <WebhookIntegration
+                        key={integration.id}
+                        integration={{ ...integration, index: i }}
+                      />
+                    );
+                  default:
+                    return null;
+                }
+              })}
+            </motion.div>
+          </TabsContent>
+        </AnimatePresence>
       </Tabs>
     </div>
   );

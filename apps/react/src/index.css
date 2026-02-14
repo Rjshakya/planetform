@@ -3,6 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource/geist-sans";
 @import "@fontsource-variable/geist-mono";
+@plugin 'tailwind-scrollbar';
 @custom-variant dark (&:is(.dark *));
 
 :root {

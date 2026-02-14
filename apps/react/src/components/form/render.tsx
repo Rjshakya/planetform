@@ -9,12 +9,6 @@ export const FormRender = ({
   lastStepIndex: number;
 }) => {
   return (
-    <div className=" ">
-      <FormEditor
-        lastStepIndex={lastStepIndex}
-        content={content}
-        className=""
-      />
-    </div>
+    <FormEditor lastStepIndex={lastStepIndex} content={content} className="" />
   );
 };

@@ -1,102 +1,52 @@
-// import {
-// 	env,
-// 	WorkflowEntrypoint,
-// 	type WorkflowEvent,
-// 	type WorkflowStep,
-// } from "cloudflare:workers";
-// import { NonRetryableError } from "cloudflare:workflows";
-// import { eq } from "drizzle-orm";
-// import { getDb } from "../db/config";
-// import { user } from "../db/schema/auth";
-// import { sendNewCustomerEmail } from "../utils/sendEmail";
+import {
+  WorkflowEntrypoint,
+  type WorkflowEvent,
+  type WorkflowStep,
+} from "cloudflare:workers";
+import { sendZeptoMail } from "../services/zepto-mail/mail";
+import { PERSONAL_EMAIL } from "../utils/mail";
 
-// export interface IdodoCustomerCreateflow {
-// 	userId: string;
-// 	name: string;
-// 	email: string;
-// }
+export interface ICustomerOnboardingWorkflowParams {
+  userEmail: string;
+  userId: string;
+  userName: string;
+}
 
-// export class DodoCustomerCreateFlow extends WorkflowEntrypoint {
-// 	async run(
-// 		event: Readonly<WorkflowEvent<IdodoCustomerCreateflow>>,
-// 		step: WorkflowStep,
-// 	) {
-// 		const { email, name, userId } = event.payload;
-// 		if (!email || !name || !userId) {
-// 			throw new NonRetryableError("email , name or userId doesn't exist");
-// 		}
+export class CustomerOnboardingWorkflow extends WorkflowEntrypoint {
+  async run(
+    event: Readonly<WorkflowEvent<ICustomerOnboardingWorkflowParams>>,
+    step: WorkflowStep,
+  ) {
+    const { userEmail, userId, userName } = event.payload;
 
-// 		const customer = await step.do(
-// 			"create-dodo-customer",
-// 			{
-// 				retries: { delay: "15 seconds", limit: 5, backoff: "exponential" },
-// 				timeout: "20 minutes",
-// 			},
-// 			async () => {
-// 				try {
-// 					const db = await getDb();
-// 					const customer = await dodoPayments.customers.list({
-// 						email: email,
-// 					});
-// 					const customerId = customer?.items?.[0]?.customer_id;
+    await step.do("sendWelcomeEmail", async () => {
+      try {
+        await sendZeptoMail({
+          emailParams: {
+            from: { address: PERSONAL_EMAIL, name: "raj" },
+            to: [
+              {
+                email_address: {
+                  address: userEmail,
+                  name: userName,
+                },
+              },
+            ],
+            subject: "Welcome to Planetform!",
+            textbody: `Hi ${userName},\n\n Welcome to Planetform! , I'm raj, founder of planetform. I'm very excited to have you on board and i am very glad you chose planetform. If you have any questions or need assistance, feel free to reach out.\n\nBest regards,\nThe Planetform Team`,
+          },
+          mailFromMe: true,
+        });
+      } catch (error) {
+        console.error({
+          message: "Failed to send welcome email",
+          error,
+          userEmail,
+          userId,
+        });
 
-// 					if (customerId) {
-// 						await dodoPayments.customers.update(customerId, { name });
-// 						const [cusInDb] = await db
-// 							.update(user)
-// 							.set({
-// 								dodoCustomerId: customerId,
-// 							})
-// 							.where(eq(user.id, userId))
-// 							.returning({ id: user.id, email: user.email, name: user.name });
-
-// 						return cusInDb;
-// 					} else {
-// 						const newCustomer = await dodoPayments.customers.create({
-// 							email,
-// 							name,
-// 						});
-// 						if (!newCustomer?.customer_id) {
-// 							throw new Error("dodoPayments customer creation error");
-// 						}
-// 						const [cusInDb] = await db
-// 							.update(user)
-// 							.set({
-// 								dodoCustomerId: newCustomer?.customer_id,
-// 							})
-// 							.where(eq(user.id, userId))
-// 							.returning({ id: user.id, email: user.email, name: user.name });
-
-// 						console.log("new customer created", newCustomer);
-
-// 						return cusInDb;
-// 					}
-// 				} catch (e) {
-// 					console.log(e);
-// 					throw new Error("failed to create-dodo-customer");
-// 				}
-// 			},
-// 		);
-
-// 		await step.sleep("sleep before sending email", "2 seconds");
-
-// 		await step.do("send-email", async () => {
-// 			try {
-// 				if (!customer?.email || !customer?.name) {
-// 					throw new NonRetryableError(
-// 						"customer email not found , failed to send email",
-// 					);
-// 				}
-
-// 				await sendNewCustomerEmail({
-// 					email: customer?.email,
-// 					name: customer?.name,
-// 				});
-// 			} catch (e) {
-// 				console.log(e);
-
-// 				throw new Error("failed to send welcome email");
-// 			}
-// 		});
-// 	}
-// }
+        throw new Error("Failed to send welcome email");
+      }
+    });
+  }
+}

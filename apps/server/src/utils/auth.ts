@@ -10,7 +10,6 @@ import { DatabaseError } from "../errors";
 import { refreshGoogleAccessToken } from "./refresh-token";
 import { polar, checkout, portal, usage } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-import { sendZeptoMail } from "../services/zepto-mail/mail";
 
 export const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -90,31 +89,15 @@ export const getAuth = async () => {
       user: {
         create: {
           async after(user) {
-            try {
-              await sendZeptoMail({
-                emailParams: {
-                  from: { address: "raj@planetform.xyz", name: "raj" },
-                  to: [
-                    {
-                      email_address: {
-                        address: user.email as string,
-                        name: user.name,
-                      },
-                    },
-                  ],
-                  subject: "Welcome to Planetform!",
-                  textbody: `Hi ${user.name},\n\n Welcome to Planetform! , I'm raj, founder of planetform. I'm very excited to have you on board and i am very glad you chose planetform. If you have any questions or need assistance, feel free to reach out.\n\nBest regards,\nThe Planetform Team`,
-                },
-                mailFromMe: true,
-              });
-            } catch (e) {
-              console.error({
-                error: e,
-                message: "Failed to send welcome email to user after sign up",
-                userId: user.id,
-                email: user.email,
-              });
-            }
+            const { id, email, name } = user;
+            await env.CUSTOMER_ONBOARDING_WORKFLOW.create({
+              id: `customer_onboarding_${user.id}`,
+              params: {
+                userEmail: email,
+                userId: id,
+                userName: name,
+              },
+            });
           },
         },
       },
@@ -153,10 +136,16 @@ export const getUserCredentials = (
         );
 
       if (providerId === "google" && acc.refreshToken) {
-        const tokens = (
-          await refreshGoogleAccessToken(acc.refreshToken)
-        ).unwrap();
-        return tokens;
+        const tokens = await refreshGoogleAccessToken(acc.refreshToken);
+        const credentials = tokens.match({
+          ok: (c) => c,
+          err: (e) => {
+            console.error(e);
+            throw new Error("failed to get user credentials");
+          },
+        });
+
+        return credentials;
       }
 
       return {

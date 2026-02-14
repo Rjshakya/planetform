@@ -1,13 +1,12 @@
 import { env } from "cloudflare:workers";
 import { Result } from "better-result";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { getDb } from "../db/config.js";
 import type { user } from "../db/schema/auth.js";
 import { form as formTable } from "../db/schema/form.js";
 import { formField as formFieldTable } from "../db/schema/form.fields.js";
 import { formSetting as formSettingTable } from "../db/schema/form.settings.js";
-import { integration as integrationTable } from "../db/schema/integration.js";
 import { workspace as workspaceTable } from "../db/schema/workspace.js";
 import { DatabaseError, ParseError, UnhandledException } from "../errors.js";
 import { getRedis } from "../utils/redis.js";
@@ -185,8 +184,6 @@ export const getFormWithFormFieldsService = async (
   });
 };
 
-
-
 interface IFormCustomization {
   formBackgroundColor: string | null;
   formFontFamily: string | null;
@@ -268,17 +265,6 @@ export const getFormService = async (
         .leftJoin(formSettingTable, eq(formSettingTable.formId, formId))
         .where(eq(formTable.shortId, formId));
 
-      // const [settings] = await db
-      //   .select({
-      //     customisation: formSettingTable.customisation,
-      //     isClosed: formSettingTable.closed,
-      //     closedAfterSubmission: formSettingTable.closeAfterSubmissions,
-      //     closingTime: formSettingTable.closingTime,
-      //     closedMessage: formSettingTable.closedMessage,
-      //   })
-      //   .from(formSettingTable)
-      //   .where(eq(formSettingTable.formId, formId));
-
       const {
         isClosed,
         closingTime,
@@ -298,9 +284,9 @@ export const getFormService = async (
       // to frontend , so that it can directly load form.
       const parsedSchema = form?.form_schema
         ? Result.try({
-            try: () => JSON.parse(form.form_schema),
-            catch: (e) => new ParseError({ data: form.form_schema, cause: e }),
-          }).unwrap()
+          try: () => JSON.parse(form.form_schema),
+          catch: (e) => new ParseError({ data: form.form_schema, cause: e }),
+        }).unwrap()
         : {};
 
       await kv.put(
@@ -309,7 +295,7 @@ export const getFormService = async (
           ...form,
           form_schema: parsedSchema,
           customisation,
-          closed: success ? success : false,
+          closed: success,
           closedMessage,
         }),
         {
@@ -321,7 +307,7 @@ export const getFormService = async (
         ...form,
         form_schema: parsedSchema,
         customisation,
-        closed: success ? success : false,
+        closed: success,
         closedMessage,
       } as IgetFormService;
     },
@@ -462,17 +448,6 @@ export const updateFormAndFormfieldsService = async (updateValues: {
             customisation: formCustomisation,
           });
         }
-
-        // at the end return  the form - notion integrations
-        return await tx
-          .select()
-          .from(integrationTable)
-          .where(
-            and(
-              eq(integrationTable.formId, formId),
-              eq(integrationTable.type, "notion"),
-            ),
-          );
       });
 
       return true;
@@ -501,26 +476,23 @@ export const formClosingService = async (formSettings: {
   if (closingTime) {
     const now = new Date();
     if (closingTime <= now) {
-      const [closed] = await db
+      await db
         .update(formSettingTable)
         .set({ closed: true })
-        .where(eq(formSettingTable.formId, formId))
-        .returning({ isClosed: formSettingTable.closed });
-      return closed?.isClosed;
+        .where(eq(formSettingTable.formId, formId));
+      return true;
     }
   }
 
   if (closedAfterSubmission) {
     const submissions = await getSubmissionService(formId);
-
     if (submissions && submissions >= closedAfterSubmission) {
-      const [closed] = await db
+      await db
         .update(formSettingTable)
         .set({ closed: true })
-        .where(eq(formSettingTable.formId, formId))
-        .returning({ isClosed: formSettingTable.closed });
+        .where(eq(formSettingTable.formId, formId));
 
-      return closed?.isClosed;
+      return true;
     }
   }
 

@@ -58,6 +58,12 @@
       "binding": "EMAIL_INTEGRATION_WORKFLOW",
       "class_name": "EmailIntegrationWorkflow",
     },
+
+     {
+      "name": "customer-onboarding-workflow",
+      "binding": "CUSTOMER_ONBOARDING_WORKFLOW",
+      "class_name": "CustomerOnboardingWorkflow",
+    },
     {
       "name": "google-sheet-integration-workflow",
       "binding": "GOOGLE_SHEET_INTEGRATION_WORKFLOW",

@@ -1,0 +1,30 @@
+import { type NodeViewProps, NodeViewWrapper } from "@tiptap/react";
+import { useFormStore } from "@/stores/useformStore";
+import { useWatch } from "react-hook-form";
+
+const FieldReferenceView = (props: NodeViewProps) => {
+  const { fieldId, fieldLabel } = props.node.attrs;
+  const form = useFormStore.getState().getHookForm();
+
+  // Watch field value for live updates
+  // const fieldValue = form?.watch(fieldId);
+  const fieldValue = useWatch({
+    control: form?.control,
+    name: fieldId,
+  });
+
+ 
+  return (
+    <NodeViewWrapper as="span" className="inline">
+      <span
+        className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-primary/10 text-primary text-sm font-medium mx-0.5"
+        contentEditable={false}
+      >
+        <span className="opacity-60 mr-0.5">@</span>
+        <span>{fieldValue}</span>
+      </span>
+    </NodeViewWrapper>
+  );
+};
+
+export default FieldReferenceView;

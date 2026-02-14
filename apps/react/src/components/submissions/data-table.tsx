@@ -64,6 +64,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import { AnimatePresence, motion } from "motion/react";
 
 export type RowValue = {
   [field: string]: {
@@ -280,60 +281,73 @@ export const SubmissionDataTable = ({
       <div>
         <div className="flex flex-wrap items-center gap-3 mb-1">
           {/* Delete button */}
-          {table.getSelectedRowModel().rows.length > 0 && (
-            <AlertDialog>
-              <AlertDialogTrigger
-                render={
-                  <Button className="ml-auto flex items-center" variant="outline">
-                    <TrashIcon
-                      className="-ms-1 opacity-60"
-                      size={16}
-                      aria-hidden="true"
-                    />
-                    Delete
-                    <div className="pt-1.5 bg-destructive text-foreground grid place-content-center py-1 size-4 rounded border text-[0.625rem] font-medium">
-                      {table.getSelectedRowModel().rows.length}
+          <AnimatePresence>
+            {table.getSelectedRowModel().rows.length > 0 && (
+              <motion.div
+                animate={{ height: "auto" }}
+                exit={{ height: 0 }}
+                transition={{ ease: "easeInOut" }}
+                className=""
+              >
+                <AlertDialog>
+                  <AlertDialogTrigger
+                    render={
+                      <Button
+                        className="ml-auto flex items-center"
+                        variant="outline"
+                      >
+                        <TrashIcon
+                          className="-ms-1 opacity-60"
+                          size={16}
+                          aria-hidden="true"
+                        />
+                        Delete
+                        <div className="pt-1.5 bg-destructive text-foreground grid place-content-center py-1 size-4 rounded border text-[0.625rem] font-medium">
+                          {table.getSelectedRowModel().rows.length}
+                        </div>
+                      </Button>
+                    }
+                  />
+                  <AlertDialogContent>
+                    <div className="flex flex-col gap-2 max-sm:items-center sm:flex-row sm:gap-4">
+                      <div
+                        className="flex size-9 shrink-0 items-center justify-center rounded-full border"
+                        aria-hidden="true"
+                      >
+                        <CircleAlertIcon className="opacity-80" size={16} />
+                      </div>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete {table.getSelectedRowModel().rows.length}{" "}
+                          selected{" "}
+                          {table.getSelectedRowModel().rows.length === 1
+                            ? "row"
+                            : "rows"}
+                          .
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
                     </div>
-                  </Button>
-                }
-              />
-              <AlertDialogContent>
-                <div className="flex flex-col gap-2 max-sm:items-center sm:flex-row sm:gap-4">
-                  <div
-                    className="flex size-9 shrink-0 items-center justify-center rounded-full border"
-                    aria-hidden="true"
-                  >
-                    <CircleAlertIcon className="opacity-80" size={16} />
-                  </div>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete{" "}
-                      {table.getSelectedRowModel().rows.length} selected{" "}
-                      {table.getSelectedRowModel().rows.length === 1
-                        ? "row"
-                        : "rows"}
-                      .
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                </div>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteRows}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteRows}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
-      <div
-        className="overflow-x-auto relative  "
-        style={{ scrollbarWidth: "thin" }}
+      <motion.div
+        layout
+        className="overflow-x-auto relative scrollbar scrollbar-track-background scrollbar-thumb-accent"
       >
         <Table className="table-fixed  ">
           <TableHeader className=" ">
@@ -557,7 +571,7 @@ export const SubmissionDataTable = ({
             )}
           </TableBody>
         </Table>
-      </div>
+      </motion.div>
       <div className="flex items-center justify-between gap-8">
         {/* Results per page */}
         {/* Page number information */}

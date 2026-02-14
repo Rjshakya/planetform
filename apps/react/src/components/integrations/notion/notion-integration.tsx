@@ -113,6 +113,12 @@ export const NotionIntegration = ({
         />
       )}
       <Card>
+        <div className="px-4">
+          <Button className={""} variant={"secondary"} size={"icon"}>
+            {integration.icon}
+          </Button>
+        </div>
+
         <CardHeader>
           <CardTitle>{integration.name}</CardTitle>
           <CardDescription>{integration.description}</CardDescription>

@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { Button } from "../ui/button";
-import { Trash, TriangleAlert } from "lucide-react";
+import { Loader, Trash, TriangleAlert } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,12 +25,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { deleteForm } from "@/hooks/use-form";
+import { deleteForm, toggleFormClose, useFormSettings } from "@/hooks/use-form";
 import { toast } from "sonner";
 import { toastPromiseOptions } from "@/lib/toast";
 import { clientUrl } from "@/lib/hc";
 import { mutate } from "swr";
 import { keyOfuseWorkspace } from "@/hooks/use-workspace";
+import { AnimatePresence, motion } from "motion/react";
 
 export const FormSettingHome = () => {
   const { formId } = useParams();
@@ -39,6 +40,7 @@ export const FormSettingHome = () => {
   const formName = searchParams.get("name");
   const workspace = searchParams.get("workspace");
   const [open, onOpenChange] = useState(false);
+  const { formSettings, useFormSettingsLoading } = useFormSettings(formId);
 
   const handleDeleteForm = useCallback(async () => {
     if (!formId || !workspace) return;
@@ -55,15 +57,20 @@ export const FormSettingHome = () => {
     navigate(`${clientUrl}/dashboard/${workspace}`);
   }, [formId, navigate, workspace]);
 
+  if (useFormSettingsLoading) {
+    return (
+      <div className="w-full">
+        <Loader className="animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto pt-12 px-4 pb-8  ">
       <CommonMenu />
 
       <Tabs className={""} defaultValue={"settings"}>
-        <TabsList
-          className={" "}
-          style={{ scrollbarWidth: "none" }}
-        >
+        <TabsList className={" "} style={{ scrollbarWidth: "none" }}>
           <TabsTrigger
             className={"capitalize"}
             onClick={() =>
@@ -101,71 +108,108 @@ export const FormSettingHome = () => {
             settings
           </TabsTrigger>
         </TabsList>
-        <TabsContent
-          value={"settings"}
-          className={""}
-          render={
-            <div className=" grid gap-4 mt-4">
-              <div className="flex items-center  bg-muted rounded-md py-4 px-4 ring ring-foreground/10">
-                <Label
-                  htmlFor="close-form"
-                  className="w-full text-sm font-medium"
-                >
-                  Close form
-                </Label>
-                <Switch id="close-form" />
-              </div>
-              <Card className="bg-muted flex flex-row gap-2">
-                <CardHeader className="w-full">
-                  <CardTitle>Delete form</CardTitle>
-                  <CardDescription>
-                    this action will delete form permanently{" "}
-                  </CardDescription>
-                </CardHeader>
-                <CardAction className="px-4">
-                  <AlertDialog open={open} onOpenChange={onOpenChange}>
-                    <AlertDialogTrigger
-                      render={
-                        <Button
-                          size={"sm"}
-                          className={"flex items-center gap-2"}
-                          variant={"destructive"}
-                        >
-                          Delete <Trash />
-                        </Button>
-                      }
-                    />
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
-                          <TriangleAlert />
-                        </AlertDialogMedia>
-                        <AlertDialogTitle>
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete your form and it's submissions from our
-                          database.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          variant={"destructive"}
-                          onClick={handleDeleteForm}
-                        >
-                          Continue
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </CardAction>
-              </Card>
-            </div>
-          }
-        />
+
+        <AnimatePresence>
+          <TabsContent
+            value={"settings"}
+            className={""}
+            render={
+              <motion.div
+                key="form-settings-context" // Unique key is vital for AnimatePresence
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className=" grid gap-4 mt-4"
+              >
+                <CloseForm
+                  closed={formSettings?.closed || false}
+                  formId={formId || ""}
+                />
+                <Card className="bg-muted flex flex-row gap-2">
+                  <CardHeader className="w-full">
+                    <CardTitle>Delete form</CardTitle>
+                    <CardDescription>
+                      this action will delete form permanently{" "}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardAction className="px-4">
+                    <AlertDialog open={open} onOpenChange={onOpenChange}>
+                      <AlertDialogTrigger
+                        render={
+                          <Button
+                            size={"sm"}
+                            className={"flex items-center gap-2"}
+                            variant={"destructive"}
+                          >
+                            Delete <Trash />
+                          </Button>
+                        }
+                      />
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                            <TriangleAlert />
+                          </AlertDialogMedia>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your form and it's submissions from our
+                            database.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            variant={"destructive"}
+                            onClick={handleDeleteForm}
+                          >
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardAction>
+                </Card>
+              </motion.div>
+            }
+          />
+        </AnimatePresence>
       </Tabs>
+    </div>
+  );
+};
+
+export const CloseForm = ({
+  closed,
+  formId,
+}: {
+  closed: boolean;
+  formId: string;
+}) => {
+  const [isClosed, setIsClosed] = useState(closed);
+
+  const toggleClose = useCallback(
+    async (closed: boolean) => {
+      setIsClosed(closed);
+      await toggleFormClose({ closed, formId });
+      toast.success(closed ? "form is closed" : "form is open");
+    },
+    [formId],
+  );
+
+  return (
+    <div className="flex items-center  bg-muted rounded-md py-4 px-4 ring ring-foreground/10">
+      <Label htmlFor="close-form" className="w-full text-sm font-medium">
+        Close form
+      </Label>
+      <Switch
+        checked={isClosed}
+        onCheckedChange={(e) => toggleClose(e)}
+        id="close-form"
+      />
     </div>
   );
 };

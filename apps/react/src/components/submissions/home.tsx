@@ -11,6 +11,7 @@ import { SubmissionsComp, type Header } from "./data-table";
 import { CommonMenu } from "../common/common-menu";
 import { BodySkeleton } from "../common/body-skeleton";
 import { Skeleton } from "../ui/skeleton";
+import { AnimatePresence, motion } from "motion/react";
 
 export const SubmissionHome = () => {
   const { formId } = useParams();
@@ -90,20 +91,29 @@ export const SubmissionHome = () => {
             settings
           </TabsTrigger>
         </TabsList>
-        <TabsContent
-          value={"submissions"}
-          className={""}
-          render={
-            <div className="mt-4">
-              <SubmissionsComp
-                headers={responses?.headers as Header[]}
-                rows={responses?.rows as any[]}
-                formId={formId}
-                pageCount={responses?.totalPages as number}
-              />
-            </div>
-          }
-        />
+        <AnimatePresence>
+          <TabsContent
+            value={"submissions"}
+            className={""}
+            render={
+              <motion.div
+                key="submissions-content" // Unique key is vital for AnimatePresence
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration:0.3,  ease: "easeInOut" }}
+                className="mt-4"
+              >
+                <SubmissionsComp
+                  headers={responses?.headers as Header[]}
+                  rows={responses?.rows as any[]}
+                  formId={formId}
+                  pageCount={responses?.totalPages as number}
+                />
+              </motion.div>
+            }
+          />
+        </AnimatePresence>
       </Tabs>
     </div>
   );

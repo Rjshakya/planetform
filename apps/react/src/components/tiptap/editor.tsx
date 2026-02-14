@@ -59,7 +59,6 @@ export function FormEditor({
 
   const editor = useFormEditor(content || "", isEditable);
   const [isEditablePage] = useState(pathname.includes("/edit"));
-  const isPreview = pathname.includes("/preview");
   const form = getHookForm();
 
   const handleFormSubmit = useCallback(
@@ -74,6 +73,7 @@ export function FormEditor({
         await handleSubmit({ values, formId: formId ?? "", path: pathname });
         editor.chain().clearContent().setContent(ThankyouMessage).run();
         form.reset();
+
         mutate(
           getUseResponsesKey({
             formId: formId ?? "",
@@ -123,7 +123,7 @@ export function FormEditor({
     <div
       id="editorParent"
       className={cn(
-        `${isEditablePage ? "min-h-dvh" : "flex flex-col items-center justify-center min-h-dvh"}`,
+        `${isEditablePage ? "min-h-dvh" : " flex flex-col items-center justify-center "}`,
         className,
         `p-5`,
       )}
@@ -132,7 +132,6 @@ export function FormEditor({
       }}
     >
       <div className={`max-w-2xl mx-auto w-full relative`}>
-        <PrevBtn formId={formId} isPreview={isPreview} />
         <EditorContext.Provider value={{ editor }}>
           {/* Top bar of editor */}
           <TopBar editor={editor} isEditable={isEditable} />
@@ -179,15 +178,16 @@ export const PrevBtn = ({
   formId: string | undefined;
   isPreview: boolean;
 }) => {
-  const { handlePrev, currentStep, totalSteps } = useFormSteps((s) => s);
+  const { isSubmitted } = useFormStore((s) => s);
+  const { handlePrev, currentStep } = useFormSteps((s) => s);
 
-  if (currentStep === 0 || currentStep === totalSteps || !formId) {
+  if (currentStep === 0 || isSubmitted || !formId) {
     return null;
   }
 
   return (
     <div className="w-full">
-      <Button onClick={handlePrev} size={"icon-sm"}>
+      <Button onClick={handlePrev} size={"icon-sm"} variant={"secondary"}>
         <ArrowLeft />
       </Button>
     </div>

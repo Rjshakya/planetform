@@ -24,7 +24,7 @@ import {
 
 const form = new Hono<{
   Variables: {
-    userId: string | null;
+    userId: string;
   };
 }>()
 
@@ -131,10 +131,23 @@ const form = new Hono<{
   .post(
     "/settings/update",
     authMiddleware,
-    zValidator("json", formSettingObject),
+    zValidator(
+      "json",
+      z.object({
+        formId: z.string(),
+        closed: z.boolean().optional(),
+        closedMessage: z.string().optional(),
+        closingTime: z.date().optional(),
+        closeAfterSubmissions: z.number().optional(),
+      }),
+    ),
     async (c) => {
+      const userId = c.get("userId");
       const params = c.req.valid("json");
-      const settings = await updateFormSettingService(params);
+      const settings = await updateFormSettingService({
+        ...params,
+        customerId: userId,
+      });
       return c.json({ settings });
     },
   )

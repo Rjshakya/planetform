@@ -1,5 +1,5 @@
 import { client } from "@/lib/hc";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 export type Form =
   | {
@@ -42,6 +42,20 @@ export const useForm = (formId: string) => {
   };
 };
 
+export const useFormSettings = (formId: string | undefined) => {
+  const fetcher = (key: string) => getFormSettings(key.split(":")[1]);
+  const { data, error, isLoading } = useSWR(
+    formId ? `useFormSettings:${formId}` : null,
+    fetcher,
+  );
+
+  return {
+    formSettings: data,
+    useFormSettingsError: error,
+    useFormSettingsLoading: isLoading,
+  };
+};
+
 export const keyOfuseForm = (formId: string) => `useForm:${formId}`;
 
 export const getFormForRender = async (formId: string) => {
@@ -59,4 +73,32 @@ export const deleteForm = async (formId: string) => {
   }
 
   return deleted;
+};
+
+export const toggleFormClose = async ({
+  closed,
+  formId,
+}: {
+  closed: boolean;
+  formId: string;
+}) => {
+  const res = await client.api.form.settings.update.$post({
+    json: { closed, formId },
+  });
+
+  if (!res.ok) throw new Error("failed to close/open form");
+  const data = await res.json();
+  mutate(`useFormSettings:${formId}`);
+  return data.settings;
+};
+
+export const getFormSettings = async (formId: string) => {
+  const res = await client.api.form.settings[":formId"].$get({
+    param: { formId },
+  });
+  if (!res.ok) throw new Error("failed to get form settings");
+
+  const data = await res.json();
+
+  return data.settings;
 };
