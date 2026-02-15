@@ -30,9 +30,19 @@ export const filterFormFieldsFromContent = (
   );
 
   const formFields: IFormField[] = inputNodes!.map((f, i) => {
+    const labelFromContent = f.content
+      ?.map((c) => {
+        if (c.type === "text") {
+          return c.text || "";
+        }
+        return "";
+      })
+      .join("")
+      .trim();
+
     return {
       form: form,
-      label: f?.content?.[0]?.text?.trim() || f?.attrs?.label.trim(),
+      label: labelFromContent || f?.attrs?.label.trim(),
       id: f.attrs?.id,
       type: f?.type,
       subType: f?.attrs?.type,

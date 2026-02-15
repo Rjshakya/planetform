@@ -96,7 +96,7 @@ export const WorkspaceHome = () => {
           <div className=" grid bg-muted p-1 rounded-md">
             <h3 className=" text-xs py-2 pl-1">Forms</h3>
             <ItemGroup className="bg-card gap-0 ">
-              {workspace && workspace.forms.length > 0 ? (
+              {workspace && workspace?.forms && workspace.forms.length > 0 ? (
                 workspace.forms?.map((f, i) => {
                   return (
                     <Item

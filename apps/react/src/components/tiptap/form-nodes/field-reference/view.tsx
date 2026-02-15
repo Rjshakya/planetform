@@ -5,6 +5,7 @@ import { useWatch } from "react-hook-form";
 const FieldReferenceView = (props: NodeViewProps) => {
   const { fieldId, fieldLabel } = props.node.attrs;
   const form = useFormStore.getState().getHookForm();
+  const editable = props.editor.isEditable;
 
   // Watch field value for live updates
   // const fieldValue = form?.watch(fieldId);
@@ -13,7 +14,14 @@ const FieldReferenceView = (props: NodeViewProps) => {
     name: fieldId,
   });
 
- 
+  if (!editable) {
+    return (
+      <NodeViewWrapper as="span" className="inline">
+        {fieldValue}
+      </NodeViewWrapper>
+    );
+  }
+
   return (
     <NodeViewWrapper as="span" className="inline">
       <span
@@ -21,7 +29,7 @@ const FieldReferenceView = (props: NodeViewProps) => {
         contentEditable={false}
       >
         <span className="opacity-60 mr-0.5">@</span>
-        <span>{fieldValue}</span>
+        <span>{fieldValue || fieldLabel}</span>
       </span>
     </NodeViewWrapper>
   );

@@ -1,5 +1,5 @@
 import { client } from "@/lib/hc";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 
 export interface IworkspaceWithForms {
   name: string | null;
@@ -38,7 +38,7 @@ export const useUserWorkspace = (userId: string) => {
 };
 
 export const useWorkspaceWithForms = (userId: string) => {
-  const fetcher = () => getWorkspaceWithForms(userId);
+  const fetcher = (key: string) => getWorkspaceWithForms(key.split(":")[1]);
   const { data, error, isLoading, mutate } = useSWR(
     userId ? `useWorkspaceWithForms:${userId}` : null,
     fetcher,
@@ -97,6 +97,7 @@ export const createWorkspace = async (name: string, owner: string) => {
   const res = await client.api.workspace.$post({ json: { owner, name } });
   if (!res.ok) throw new Error("failed to createWorkspace");
   const json = await res.json();
+  mutate(`useWorkspaceWithForms:${owner}`);
   return json.workspace?.id;
 };
 
@@ -110,6 +111,7 @@ export const updateWorkspace = async (
   if (!res.ok) throw new Error("failed to update workspace");
 
   const json = await res.json();
+  mutate(`useWorkspace:${workspaceId}`);
   return json.workspace?.id;
 };
 
@@ -120,5 +122,7 @@ export const deleteWorkspace = async (workspaceId: string) => {
 
   if (!res.ok) throw new Error("failed to delete workspace");
   const json = await res.json();
+  mutate(`useWorkspace:${workspaceId}`);
+
   return json.message;
 };

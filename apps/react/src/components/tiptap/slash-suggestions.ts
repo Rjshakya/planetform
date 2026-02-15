@@ -54,7 +54,7 @@ const groups: CommandGroupType[] = [
             .insertShortInput({
               id: v7(),
               isRequired: true,
-              label: "Question for short answers",
+              label: "Question:",
               placeholder: "write anything",
               type: "text",
             })
@@ -73,7 +73,7 @@ const groups: CommandGroupType[] = [
             .insertLongInput({
               id: v7(),
               isRequired: true,
-              label: "Question for long answers",
+              label: "Question:",
               placeholder: "write anything",
               rows: 6,
             })
@@ -131,7 +131,7 @@ const groups: CommandGroupType[] = [
             .insertmultipleChoiceInput({
               id: parentId,
               isRequired: true,
-              label: "Question for multiple choices",
+              label: "Question:",
               type: "multiple",
               isDropdown: false,
               options: [
@@ -167,7 +167,7 @@ const groups: CommandGroupType[] = [
             .insertmultipleChoiceInput({
               id: parentId,
               isRequired: true,
-              label: "Question for single choice",
+              label: "Question:",
               type: "single",
               isDropdown: false,
               options: [

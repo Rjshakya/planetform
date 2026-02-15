@@ -1,18 +1,14 @@
+import { Loader, Trash, TriangleAlert } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { toast } from "sonner";
+import { mutate } from "swr";
+import { deleteForm, useFormSettings } from "@/hooks/use-form";
+import { keyOfuseWorkspace } from "@/hooks/use-workspace";
+import { clientUrl } from "@/lib/hc";
+import { toastPromiseOptions } from "@/lib/toast";
 import { CommonMenu } from "../common/common-menu";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { Button } from "../ui/button";
-import { Loader, Trash, TriangleAlert } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,13 +21,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { deleteForm, toggleFormClose, useFormSettings } from "@/hooks/use-form";
-import { toast } from "sonner";
-import { toastPromiseOptions } from "@/lib/toast";
-import { clientUrl } from "@/lib/hc";
-import { mutate } from "swr";
-import { keyOfuseWorkspace } from "@/hooks/use-workspace";
-import { AnimatePresence, motion } from "motion/react";
+import { Button } from "../ui/button";
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { CloseSettings } from "./close-settings";
 
 export const FormSettingHome = () => {
   const { formId } = useParams();
@@ -122,9 +122,16 @@ export const FormSettingHome = () => {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className=" grid gap-4 mt-4"
               >
-                <CloseForm
-                  closed={formSettings?.closed || false}
+                <CloseSettings
                   formId={formId || ""}
+                  currentSettings={
+                    formSettings || {
+                      closed: false,
+                      closingTime: null,
+                      closeAfterSubmissions: null,
+                      closedMessage: null,
+                    }
+                  }
                 />
                 <Card className="bg-muted flex flex-row gap-2">
                   <CardHeader className="w-full">
@@ -178,38 +185,6 @@ export const FormSettingHome = () => {
           />
         </AnimatePresence>
       </Tabs>
-    </div>
-  );
-};
-
-export const CloseForm = ({
-  closed,
-  formId,
-}: {
-  closed: boolean;
-  formId: string;
-}) => {
-  const [isClosed, setIsClosed] = useState(closed);
-
-  const toggleClose = useCallback(
-    async (closed: boolean) => {
-      setIsClosed(closed);
-      await toggleFormClose({ closed, formId });
-      toast.success(closed ? "form is closed" : "form is open");
-    },
-    [formId],
-  );
-
-  return (
-    <div className="flex items-center  bg-muted rounded-md py-4 px-4 ring ring-foreground/10">
-      <Label htmlFor="close-form" className="w-full text-sm font-medium">
-        Close form
-      </Label>
-      <Switch
-        checked={isClosed}
-        onCheckedChange={(e) => toggleClose(e)}
-        id="close-form"
-      />
     </div>
   );
 };

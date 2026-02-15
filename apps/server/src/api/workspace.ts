@@ -75,8 +75,11 @@ const workspace = new Hono<{
     zValidator("param", z.object({ workspaceId: z.string().nonempty() })),
     async (c) => {
       const { workspaceId } = c.req.valid("param");
-      await deleteWorkspaceService(workspaceId);
-      return c.json({ message: "Workspace deleted successfully" });
+      const deleted = await deleteWorkspaceService(workspaceId);
+      return c.json({
+        message: "Workspace deleted successfully",
+        data: deleted,
+      });
     },
   );
 

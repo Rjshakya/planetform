@@ -284,9 +284,9 @@ export const getFormService = async (
       // to frontend , so that it can directly load form.
       const parsedSchema = form?.form_schema
         ? Result.try({
-          try: () => JSON.parse(form.form_schema),
-          catch: (e) => new ParseError({ data: form.form_schema, cause: e }),
-        }).unwrap()
+            try: () => JSON.parse(form.form_schema),
+            catch: (e) => new ParseError({ data: form.form_schema, cause: e }),
+          }).unwrap()
         : {};
 
       await kv.put(

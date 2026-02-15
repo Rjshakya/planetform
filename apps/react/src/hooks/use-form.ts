@@ -1,5 +1,5 @@
-import { client } from "@/lib/hc";
 import useSWR, { mutate } from "swr";
+import { client } from "@/lib/hc";
 
 export type Form =
   | {
@@ -26,6 +26,8 @@ export type Form =
       };
       closed: boolean | null;
       closedMessage: string | null;
+      closingTime: string | null;
+      closeAfterSubmissions: number | null;
     }
   | undefined;
 
@@ -78,12 +80,41 @@ export const deleteForm = async (formId: string) => {
 export const toggleFormClose = async ({
   closed,
   formId,
+  closingTime,
+  closeAfterSubmissions,
+  closedMessage,
 }: {
   closed: boolean;
   formId: string;
+  closingTime?: Date | null;
+  closeAfterSubmissions?: number | null;
+  closedMessage?: string;
 }) => {
+  const payload: {
+    closed: boolean;
+    formId: string;
+    closingTime?: Date;
+    closeAfterSubmissions?: number;
+    closedMessage?: string;
+  } = {
+    closed,
+    formId,
+  };
+
+  if (closingTime !== undefined && closingTime !== null) {
+    payload.closingTime = closingTime;
+  }
+
+  if (closeAfterSubmissions !== undefined && closeAfterSubmissions !== null) {
+    payload.closeAfterSubmissions = closeAfterSubmissions;
+  }
+
+  if (closedMessage !== undefined && closedMessage !== null) {
+    payload.closedMessage = closedMessage;
+  }
+
   const res = await client.api.form.settings.update.$post({
-    json: { closed, formId },
+    json: payload,
   });
 
   if (!res.ok) throw new Error("failed to close/open form");

@@ -12,6 +12,7 @@ import { useFormRender } from "@/hooks/use-form-render";
 import { useFormSteps } from "@/stores/useFormStepper";
 import { AnimatePresence, motion } from "motion/react";
 import { PrevBtn } from "../tiptap/editor";
+import { useCustomizationStore } from "@/stores/useCustomizationStore";
 
 export const FormHome = () => {
   const { formId } = useParams();
@@ -20,6 +21,9 @@ export const FormHome = () => {
   const pages = useFormRender(form);
   const { pathname } = useLocation();
   const isPreview = pathname.includes("/preview");
+  const { formBackgroundColor, formFontFamily } = useCustomizationStore(
+    (s) => s,
+  );
 
   if (useFormError) {
     return (
@@ -52,7 +56,12 @@ export const FormHome = () => {
   }
 
   return (
-    <main className=" no-scrollbar min-h-dvh flex flex-col items-center justify-center">
+    <main
+      style={{
+        backgroundColor: formBackgroundColor || undefined,
+      }}
+      className=" no-scrollbar min-h-dvh flex flex-col items-center justify-center"
+    >
       <motion.div
         key={"form-navigation-btn"}
         layout

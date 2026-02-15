@@ -42,7 +42,6 @@ export function FormEditor({
   const { pathname } = useLocation();
 
   const {
-    formBackgroundColor,
     formTextColor,
     formFontFamily,
     formFontSize,
@@ -127,9 +126,9 @@ export function FormEditor({
         className,
         `p-5`,
       )}
-      style={{
-        backgroundColor: formBackgroundColor || undefined,
-      }}
+      // style={{
+      //   backgroundColor: formBackgroundColor || undefined,
+      // }}
     >
       <div className={`max-w-2xl mx-auto w-full relative`}>
         <EditorContext.Provider value={{ editor }}>
@@ -204,6 +203,13 @@ export const TopBar = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { setContent } = usePreviewStore((s) => s);
+  const togglePreview = useCallback(() => {
+    useCustomizationStore.setState({ isEditable: !isEditable });
+    const jsonContent = editor.getJSON();
+    setContent(jsonContent);
+    console.log(jsonContent);
+    navigate("/preview");
+  }, [editor, isEditable, navigate, setContent]);
 
   if (!location.pathname.includes("/edit")) return null;
 
@@ -226,12 +232,13 @@ export const TopBar = ({
         <CustomizationPanel />
         <Button
           variant={"secondary"}
-          onClick={() => {
-            useCustomizationStore.setState({ isEditable: !isEditable });
-            const jsonContent = editor.getJSON();
-            setContent(jsonContent);
-            navigate("/preview");
-          }}
+          onClick={togglePreview}
+          // onClick={() => {
+          //   useCustomizationStore.setState({ isEditable: !isEditable });
+          //   const jsonContent = editor.getJSON();
+          //   setContent(jsonContent);
+          //   navigate("/preview");
+          // }}
         >
           {isEditable ? "Preview" : "Edit"}
         </Button>

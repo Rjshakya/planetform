@@ -168,12 +168,12 @@ export const deleteWorkspaceService = async (
 ) => {
   try {
     const db = await getDb();
-    const deleted = await db
+    const [deleted] = await db
       .delete(workspaceTable)
       .where(eq(workspaceTable.id, workspaceId))
       .returning({ id: workspaceTable.id, user: workspaceTable.owner });
 
-    return deleted[0];
+    return deleted;
   } catch (e) {
     commonCatch(e);
   }
