@@ -1,10 +1,15 @@
 {
-	"extends": "./tsconfig.json",
-	"compilerOptions": {
-		"outDir": "./dist",
-		"declaration": true,
-		"declarationMap": true,
-		"types": ["./worker-configuration.d.ts"]
-	},
-	"include": ["src/hc.ts"]
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "types": ["./worker-configuration.d.ts"],
+    "rootDir": "src"
+  },
+  "include": ["src/hc.ts"],
+  "exclude": [
+    "dist", // Stop TSC from looking inside the output folder
+    "node_modules"
+  ]
 }

@@ -1,6 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import z from "zod";
+import jwt from "jsonwebtoken";
+import { env } from "cloudflare:workers";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import {
   createFormService,
@@ -14,13 +16,17 @@ import {
 import {
   createFormSettingService,
   getFormSettingService,
+  resetFormSettings,
+  setFormPassword,
   updateFormSettingService,
+  verifyPassword,
 } from "../services/form.setting";
 import {
   formObject,
   formSettingObject,
   multipleFormFieldObject,
 } from "../utils/validation";
+import { ApiResponse } from "../utils/api";
 
 const form = new Hono<{
   Variables: {
@@ -137,8 +143,8 @@ const form = new Hono<{
         formId: z.string(),
         closed: z.boolean().optional(),
         closedMessage: z.string().optional(),
-        closingTime: z.date().optional(),
-        closeAfterSubmissions: z.number().optional(),
+        closingTime: z.coerce.date().optional().nullable(),
+        closeAfterSubmissions: z.number().optional().nullable(),
       }),
     ),
     async (c) => {
@@ -149,6 +155,85 @@ const form = new Hono<{
         customerId: userId,
       });
       return c.json({ settings });
+    },
+  )
+  .post(
+    "/settings/reset",
+    zValidator("json", z.object({ formId: z.string() })),
+    async (c) => {
+      const { formId } = c.req.valid("json");
+      const res = await resetFormSettings(formId);
+      return c.json(
+        ApiResponse({ data: res, message: "Form settings reset successfully" }),
+      );
+    },
+  )
+  .post(
+    "/settings/password",
+    zValidator("json", z.object({ formId: z.string(), password: z.string() })),
+    async (c) => {
+      const { formId, password } = c.req.valid("json");
+      const res = await setFormPassword(formId, password);
+      return c.json(ApiResponse({ data: res, message: "password set" }), 200);
+    },
+  )
+  .post(
+    "/settings/password/verify",
+    zValidator("json", z.object({ formId: z.string(), password: z.string() })),
+    async (c) => {
+      const { formId, password } = c.req.valid("json");
+      const res = await verifyPassword(formId, password);
+      return c.json(
+        ApiResponse({
+          data: { success: res.success, token: res.token },
+          message: res.success ? "Password verified" : "Invalid password",
+        }),
+        res.success ? 200 : 401,
+      );
+    },
+  )
+  .post(
+    "/settings/password/check-auth",
+    zValidator("json", z.object({ formId: z.string(), token: z.string() })),
+    async (c) => {
+      const { formId, token } = c.req.valid("json");
+
+      try {
+        const secret = env.JWT_SECRET;
+        const decoded = jwt.verify(token, secret) as {
+          formId: string;
+          type: string;
+        };
+
+        if (
+          decoded.formId !== formId ||
+          decoded.type !== "password_protected_form"
+        ) {
+          return c.json(
+            ApiResponse({
+              data: { isAuthenticated: false },
+              message: "Invalid token",
+            }),
+            401,
+          );
+        }
+
+        return c.json(
+          ApiResponse({
+            data: { isAuthenticated: true },
+            message: "Token valid",
+          }),
+          200,
+        );
+      } catch (error) {
+        return c.json(
+          ApiResponse({
+            data: { isAuthenticated: false },
+            message: "Invalid or expired token",
+          }),
+          401,
+        );
+      }
     },
   )
 

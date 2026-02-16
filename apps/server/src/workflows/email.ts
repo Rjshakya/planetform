@@ -5,13 +5,15 @@ import {
 } from "cloudflare:workers";
 import type { response as responsesTable } from "../db/schema/response";
 import { sendZeptoMail } from "../services/zepto-mail/mail";
+import { getSubmissionRecord, handleMailBody } from "./helpers";
+import z from "zod";
+import { NonRetryableError } from "cloudflare:workflows";
 
 type EmailMetaData = {
   from: string;
-  to: string;
   subject: string;
   body: string;
-  isDynamicBody: boolean;
+  emailFormFieldId: string;
 };
 
 export interface IEmailIntegrationWorkflow {
@@ -40,8 +42,38 @@ export class EmailIntegrationWorkflow extends WorkflowEntrypoint {
       return;
     }
 
+    const submissionsRecord = await step.do(
+      "get-submission-record",
+      async () => {
+        const { submission } = await getSubmissionRecord({
+          formId,
+          values,
+          keyIsLabel: false,
+        });
+
+        return submission;
+      },
+    );
+
+    const to = await step.do("get-recipient-email", async () => {
+      const emailId = submissionsRecord[mail.emailFormFieldId];
+      const schema = z.email();
+      const { success } = schema.safeParse(emailId);
+      if (!success) {
+        throw new NonRetryableError("Not valid email , cancel further process");
+      }
+      return emailId;
+    });
+
+    const body = await step.do("handle-mail-body", async () => {
+      return await handleMailBody({
+        body: mail.body,
+        submissions: submissionsRecord,
+      });
+    });
+
     await step.do("send-zepto-mail", async () => {
-      const { body, from, subject, to } = mail;
+      const { from, subject } = mail;
 
       await sendZeptoMail({
         emailParams: {

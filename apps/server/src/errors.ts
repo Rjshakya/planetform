@@ -192,3 +192,14 @@ export class SlackIntegrationError extends TaggedError(
     super({ ...args, message: `Slack ${args.operation} failed: ${msg}` });
   }
 }
+
+export class BcryptError extends TaggedError("BcryptError")<{
+  operation: string;
+  message: string;
+  cause: unknown;
+}>() {
+  constructor(args: { operation: string; cause: unknown; message: string }) {
+    const { cause, message, operation } = args;
+    super({ cause, message, operation });
+  }
+}

@@ -20,7 +20,7 @@ export const NOTION_INTEGRATION_TYPE = "notion";
 export const WEBHOOK_INTEGRATION_TYPE = "webhook";
 export const GMAIL_INTEGRATION_TYPE = "gmail";
 export const EMAIL_NOTIFICATION_TYPE = "email-notification";
-export const EMAIL_TO_RESPONDENT_INTEGRATION = "email-to-respondent";
+export const EMAIL_TO_RESPONDENT_INTEGRATION_TYPE = "email-to-respondent";
 export const SLACK_INTEGRATION_TYPE = "slack";
 
 type CreateSheetIntegrationServiceParams = {
@@ -351,7 +351,7 @@ export const CreateEmailToRespondentIntegrationSchema = z.object({
   body: z.string(),
 });
 
-export const createEmailToRespondentIntegrationParams = (
+export const createEmailToRespondentIntegrationService = (
   params: CreateEmailToRespondentIntegrationParams,
 ) => {
   return Result.tryPromise({
@@ -368,12 +368,12 @@ export const createEmailToRespondentIntegrationParams = (
         .where(
           and(
             eq(integrationTable.formId, formId),
-            eq(integrationTable.type, EMAIL_TO_RESPONDENT_INTEGRATION),
+            eq(integrationTable.type, EMAIL_TO_RESPONDENT_INTEGRATION_TYPE),
           ),
         );
 
       if (existingIntegration.length > 0) {
-        throw new Error("createEmailToRespondentIntegrationParams");
+        throw new Error("same integration exist");
       }
 
       // insert in db
@@ -389,7 +389,7 @@ export const createEmailToRespondentIntegrationParams = (
         .insert(integrationTable)
         .values({
           formId,
-          type: EMAIL_TO_RESPONDENT_INTEGRATION,
+          type: EMAIL_TO_RESPONDENT_INTEGRATION_TYPE,
           metaData: JSON.stringify(metaData),
         })
         .returning({ id: integrationTable.id });

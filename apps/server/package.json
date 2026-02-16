@@ -1,59 +1,63 @@
 {
-	"name": "@planetform/server",
-	"type": "module",
-	"exports": {
-		"./hc": {
-			"import": {
-				"default": "./dist/hc.js",
-				"types": "./dist/hc.d.ts"
-			}
-		}
-	},
-	"scripts": {
-		"dev": "wrangler dev --port 8000",
-		"build": "tsc -p tsconfig.build.json",
-		"start": "node dist/server.js",
-		"deploy": "wrangler deploy --minify",
-		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
-		"secret": "wrangler secret bulk .env.production"
-	},
-	"dependencies": {
-		"@aws-sdk/client-s3": "^3.916.0",
-		"@aws-sdk/s3-request-presigner": "^3.916.0",
-		"@googleapis/gmail": "^15.0.0",
-		"@hono/zod-validator": "^0.7.5",
-		"@notionhq/client": "^5.7.0",
-		"@polar-sh/better-auth": "^1.6.4",
-		"@polar-sh/sdk": "^0.42.2",
-		"@upstash/redis": "^1.35.5",
-		"better-auth": "^1.4.15",
-		"better-result": "^2.3.0",
-		"cloudflare": "^5.1.0",
-		"date-fns": "^4.1.0",
-		"dotenv": "^17.2.0",
-		"drizzle-orm": "^0.44.3",
-		"drizzle-zod": "^0.8.2",
-		"google-auth-library": "^10.4.0",
-		"google-spreadsheet": "^5.0.2",
-		"hono": "^4.10.6",
-		"mimetext": "^3.0.27",
-		"nanoid": "^5.1.6",
-		"pg": "^8.16.3",
-		"postgres": "^3.4.7",
-		"resend": "^6.6.0",
-		"short-unique-id": "^5.3.2",
-		"uuid": "^11.1.0",
-		"zeptomail": "7.0.1-alpha-3",
-		"zod": "^4.0.5"
-	},
-	"devDependencies": {
-		"@aws-lite/s3-types": "^0.2.6",
-		"@biomejs/biome": "2.3.11",
-		"@types/node": "^24.5.2",
-		"@types/pg": "^8.15.4",
-		"drizzle-kit": "^0.31.4",
-		"tsup": "^8.5.0",
-		"typescript": "^5.9.3",
-		"wrangler": "^4.60.0"
-	}
+  "name": "@planetform/server",
+  "type": "module",
+  "exports": {
+    "./hc": {
+      "import": {
+        "default": "./dist/hc.js",
+        "types": "./dist/hc.d.ts"
+      }
+    }
+  },
+  "scripts": {
+    "dev": "wrangler dev --port 8000",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "secret": "wrangler secret bulk .env.production",
+    "db:push": "pnpm drizzle-kit push"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.916.0",
+    "@aws-sdk/s3-request-presigner": "^3.916.0",
+    "@googleapis/gmail": "^15.0.0",
+    "@hono/zod-validator": "^0.7.5",
+    "@notionhq/client": "^5.7.0",
+    "@polar-sh/better-auth": "^1.6.4",
+    "@polar-sh/sdk": "^0.42.2",
+    "@upstash/redis": "^1.35.5",
+    "bcryptjs": "^3.0.3",
+    "better-auth": "^1.4.15",
+    "better-result": "^2.3.0",
+    "cloudflare": "^5.1.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.0",
+    "drizzle-orm": "^0.44.3",
+    "drizzle-zod": "^0.8.2",
+    "google-auth-library": "^10.4.0",
+    "google-spreadsheet": "^5.0.2",
+    "hono": "^4.10.6",
+    "jsonwebtoken": "^9.0.3",
+    "mimetext": "^3.0.27",
+    "nanoid": "^5.1.6",
+    "pg": "^8.16.3",
+    "postgres": "^3.4.7",
+    "resend": "^6.6.0",
+    "short-unique-id": "^5.3.2",
+    "uuid": "^11.1.0",
+    "zeptomail": "7.0.1-alpha-3",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@aws-lite/s3-types": "^0.2.6",
+    "@biomejs/biome": "2.3.11",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.5.2",
+    "@types/pg": "^8.15.4",
+    "drizzle-kit": "^0.31.4",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.60.0"
+  }
 }

@@ -1,29 +1,16 @@
-import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { toggleFormClose } from "@/hooks/use-form";
-import { cn } from "@/lib/utils";
-
-type CloseMethod = "immediate" | "date" | "submissions";
+import { toggleFormClose } from "@/hooks/use-form-settings";
+import { DatePickerInput } from "../ui/date-picker";
+import { Separator } from "../ui/separator";
+import { InputGroup, InputGroupInput } from "../ui/input-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface CloseSettingsProps {
   formId: string;
@@ -39,281 +26,266 @@ interface CloseSettingsProps {
 export const CloseSettings = ({
   formId,
   currentSettings,
-  currentSubmissionCount = 0,
 }: CloseSettingsProps) => {
-  const [closeMethod, setCloseMethod] = useState<CloseMethod>(() => {
-    if (currentSettings.closed) return "immediate";
-    if (currentSettings.closingTime) return "date";
-    if (currentSettings.closeAfterSubmissions) return "submissions";
-    return "immediate";
+  const [toggleAdditionSetting, setToggleAddtionalSetting] = useState(false);
+  const [additionalSetting, setAdditonalSetting] = useState<{
+    date: string | null;
+    submission: number | null;
+    closedMessage: string;
+  }>({
+    date: currentSettings.closingTime || null,
+    submission: currentSettings.closeAfterSubmissions || null,
+    closedMessage: currentSettings.closedMessage || "",
   });
 
-  const [closingDate, setClosingDate] = useState<Date | undefined>(() => {
-    return currentSettings.closingTime
-      ? new Date(currentSettings.closingTime)
-      : undefined;
-  });
+  const toggleClose = (c: boolean) =>
+    toast.promise(
+      toggleFormClose({
+        formId,
+        closed: c,
+        closeAfterSubmissions: null,
+        closingTime: null,
+      }),
+      {
+        success: `Form is ${c ? "closed" : "open"}`,
+        error: "Failed to close form",
+      },
+    );
 
-  const [closingTime, setClosingTime] = useState<string>(() => {
-    if (currentSettings.closingTime) {
-      return format(new Date(currentSettings.closingTime), "HH:mm");
-    }
-    return "23:59";
-  });
-
-  const [submissionLimit, setSubmissionLimit] = useState<string>(() => {
-    return currentSettings.closeAfterSubmissions?.toString() || "";
-  });
-
-  const [closedMessage, setClosedMessage] = useState(() => {
-    return currentSettings.closedMessage || "This form is closed.";
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
-
-  const isDateInFuture = useCallback((date: Date, time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    const dateWithTime = new Date(date);
-    dateWithTime.setHours(hours, minutes, 0, 0);
-    return dateWithTime > new Date();
-  }, []);
-
-  const validationError = useMemo(() => {
-    if (closeMethod === "date") {
-      if (!closingDate) {
-        return "Please select a closing date";
-      }
-      if (!isDateInFuture(closingDate, closingTime)) {
-        return "Closing date and time must be in the future";
-      }
-    }
-    if (closeMethod === "submissions") {
-      const limit = parseInt(submissionLimit, 10);
-      if (!submissionLimit || Number.isNaN(limit) || limit < 1) {
-        return "Please enter a valid submission limit (minimum 1)";
-      }
-    }
-    return null;
-  }, [closeMethod, closingDate, closingTime, submissionLimit, isDateInFuture]);
-
-  const submissionWarning = useMemo(() => {
-    if (closeMethod === "submissions") {
-      const limit = parseInt(submissionLimit, 10);
-      if (!Number.isNaN(limit) && limit <= currentSubmissionCount) {
-        return `Warning: This limit (${limit}) has already been reached (current: ${currentSubmissionCount}). Form will close immediately.`;
-      }
-    }
-    return null;
-  }, [closeMethod, submissionLimit, currentSubmissionCount]);
-
-  const handleApply = useCallback(async () => {
-    if (validationError) {
-      toast.error(validationError);
-      return;
-    }
-
-    setIsSubmitting(true);
+  const handleConfirm = async () => {
     try {
-      let closingTimeDate: Date | undefined;
-      let submissionCount: number | undefined;
+      const { date, submission, closedMessage } = additionalSetting;
 
-      if (closeMethod === "date" && closingDate) {
-        const [hours, minutes] = closingTime.split(":").map(Number);
-        closingTimeDate = new Date(closingDate);
-        closingTimeDate.setHours(hours, minutes, 0, 0);
-      }
-
-      if (closeMethod === "submissions" && submissionLimit) {
-        submissionCount = parseInt(submissionLimit, 10);
-      }
+      const payload = {
+        submission: submission,
+        date: date ? new Date(date) : null,
+        closedMessage: closedMessage || "This form is closed",
+      };
 
       await toggleFormClose({
-        closed: closeMethod === "immediate",
+        closed: false,
+        closeAfterSubmissions: payload.submission,
+        closingTime: payload.date,
+        closedMessage: payload.closedMessage,
         formId,
-        closingTime: closeMethod === "date" ? closingTimeDate : null,
-        closeAfterSubmissions:
-          closeMethod === "submissions" ? submissionCount : null,
-        closedMessage: closedMessage.trim() || undefined,
       });
 
-      toast.success(
-        closeMethod === "immediate"
-          ? "Form closed successfully"
-          : "Auto-close settings applied successfully",
+      return toast.success(
+        `Your form is scheduled to close at Date ${payload.date || "N/A"} or after ${payload.submission || "N/A"} Submissions`,
       );
-    } catch (error) {
-      toast.error("Failed to update form settings");
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
+    } catch {
+      toast.error("failed to schedule close form");
     }
-  }, [
-    closeMethod,
-    closingDate,
-    closingTime,
-    submissionLimit,
-    closedMessage,
-    formId,
-    validationError,
-  ]);
+  };
 
   return (
-    <Card className="bg-muted">
-      <CardHeader>
-        <CardTitle>Form Close Settings</CardTitle>
-        <CardDescription>
-          Choose how you want to close this form
-        </CardDescription>
+    <Card className="bg-muted overflow-hidden">
+      <CardHeader className="pb-4 flex items-center justify-between">
+        <CardTitle>Close form</CardTitle>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={!!currentSettings.closed}
+            onCheckedChange={toggleClose}
+          />
+          <Button
+            onClick={() => setToggleAddtionalSetting(!toggleAdditionSetting)}
+            size={"icon-xs"}
+            variant={"outline"}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-4"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <path
+                d="M19.92 8.9502L13.4 15.4702C12.63 16.2402 11.37 16.2402 10.6 15.4702L4.07996 8.9502"
+                stroke="#fff"
+                strokeWidth="1.5"
+                strokeMiterlimit="10"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <RadioGroup
-          value={closeMethod}
-          onValueChange={(value) => setCloseMethod(value as CloseMethod)}
-          className="space-y-4"
-        >
-          {/* Immediate Close */}
-          <div className="flex items-start space-x-3 space-y-0">
-            <RadioGroupItem value="immediate" id="immediate" />
-            <div className="space-y-1 leading-none">
-              <Label htmlFor="immediate" className="font-medium">
-                Close form immediately
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Form will be closed right now
-              </p>
-            </div>
-          </div>
-
-          {/* Date Close */}
-          <div className="flex items-start space-x-3 space-y-0">
-            <RadioGroupItem value="date" id="date" />
-            <div className="space-y-3 leading-none flex-1">
-              <Label htmlFor="date" className="font-medium">
-                Close on specific date
-              </Label>
-              {closeMethod === "date" && (
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <Popover
-                    open={datePickerOpen}
-                    onOpenChange={setDatePickerOpen}
-                  >
-                    <PopoverTrigger
-                      render={
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full sm:w-[240px] justify-start text-left font-normal",
-                            !closingDate && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {closingDate ? (
-                            format(closingDate, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </Button>
+      <AnimatePresence>
+        {toggleAdditionSetting && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "auto" }}
+            exit={{ height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <CardContent>
+              <div className=" mb-4">Schedule closing</div>
+              <div className="bg-background p-4 rounded-sm">
+                <div className="grid gap-3">
+                  <Label>Close on date</Label>
+                  <div className="flex gap-2 items-center">
+                    <DatePickerInput
+                      dateProp={additionalSetting.date}
+                      className="w-52"
+                      onDateChange={(d) =>
+                        setAdditonalSetting({
+                          ...additionalSetting,
+                          date: d ? new Date(d).toISOString() : null,
+                        })
                       }
                     />
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={closingDate}
-                        onSelect={(date) => {
-                          setClosingDate(date);
-                          setDatePickerOpen(false);
-                        }}
-                        disabled={(date) =>
-                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Button
+                            onClick={() =>
+                              setAdditonalSetting({
+                                ...additionalSetting,
+                                date: null,
+                              })
+                            }
+                            size={"icon"}
+                            variant={"secondary"}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="size-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M14.8901 5.08039C14.0201 4.82039 13.0601 4.65039 12.0001 4.65039C7.21008 4.65039 3.33008 8.53039 3.33008 13.3204C3.33008 18.1204 7.21008 22.0004 12.0001 22.0004C16.7901 22.0004 20.6701 18.1204 20.6701 13.3304C20.6701 11.5504 20.1301 9.89039 19.2101 8.51039"
+                                stroke="#fff"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M16.13 5.32L13.24 2"
+                                stroke="#fff"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M16.13 5.32031L12.76 7.78031"
+                                stroke="#fff"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </Button>
                         }
-                        initialFocus
                       />
-                    </PopoverContent>
-                  </Popover>
-                  <Input
-                    type="time"
-                    value={closingTime}
-                    onChange={(e) => setClosingTime(e.target.value)}
-                    className="w-full sm:w-[120px]"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Submission Limit */}
-          <div className="flex items-start space-x-3 space-y-0">
-            <RadioGroupItem value="submissions" id="submissions" />
-            <div className="space-y-3 leading-none flex-1">
-              <Label htmlFor="submissions" className="font-medium">
-                Close after number of submissions
-              </Label>
-              {closeMethod === "submissions" && (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground whitespace-nowrap">
-                      Close after:
-                    </span>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={submissionLimit}
-                      onChange={(e) => setSubmissionLimit(e.target.value)}
-                      placeholder="100"
-                      className="w-24"
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      submissions
-                    </span>
+                      <TooltipContent>Reset</TooltipContent>
+                    </Tooltip>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Currently: {currentSubmissionCount} submission
-                    {currentSubmissionCount !== 1 ? "s" : ""}
-                  </p>
-                  {submissionWarning && (
-                    <p className="text-sm text-amber-600">
-                      {submissionWarning}
-                    </p>
-                  )}
+                  <span className="text-xs text-muted-foreground">
+                    Form will closed on the date you set
+                  </span>
                 </div>
-              )}
-            </div>
-          </div>
-        </RadioGroup>
 
-        {/* Closed Message */}
-        <div className="space-y-2 pt-4 border-t">
-          <Label htmlFor="closed-message">Closed Form Message</Label>
-          <Textarea
-            id="closed-message"
-            value={closedMessage}
-            onChange={(e) => setClosedMessage(e.target.value)}
-            placeholder="This form is closed."
-            maxLength={500}
-            rows={3}
-          />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>This message will be shown when the form is closed</span>
-            <span>{closedMessage.length}/500</span>
-          </div>
-        </div>
+                <Separator className={"my-5"} />
 
-        {/* Apply Button */}
-        <div className="pt-2">
-          <Button
-            onClick={handleApply}
-            disabled={isSubmitting || !!validationError}
-            className="w-full sm:w-auto"
-          >
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {closeMethod === "immediate" ? "Close Form Now" : "Apply Settings"}
-          </Button>
-          {validationError && (
-            <p className="text-sm text-destructive mt-2">{validationError}</p>
-          )}
-        </div>
-      </CardContent>
+                <div className="grid gap-3">
+                  <Label>Close on submissions</Label>
+                  <div className="flex gap-2 items-center">
+                    <InputGroup className="w-52">
+                      <InputGroupInput
+                        value={additionalSetting.submission || ""}
+                        onChange={(e) =>
+                          setAdditonalSetting({
+                            ...additionalSetting,
+                            submission: e.target.valueAsNumber,
+                          })
+                        }
+                        type="number"
+                        placeholder="50"
+                      />
+                    </InputGroup>
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Button
+                            onClick={() =>
+                              setAdditonalSetting({
+                                ...additionalSetting,
+                                submission: null,
+                              })
+                            }
+                            size={"icon"}
+                            variant={"secondary"}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="size-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M14.8901 5.08039C14.0201 4.82039 13.0601 4.65039 12.0001 4.65039C7.21008 4.65039 3.33008 8.53039 3.33008 13.3204C3.33008 18.1204 7.21008 22.0004 12.0001 22.0004C16.7901 22.0004 20.6701 18.1204 20.6701 13.3304C20.6701 11.5504 20.1301 9.89039 19.2101 8.51039"
+                                stroke="#fff"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M16.13 5.32L13.24 2"
+                                stroke="#fff"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M16.13 5.32031L12.76 7.78031"
+                                stroke="#fff"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </Button>
+                        }
+                      />
+                      <TooltipContent>Reset</TooltipContent>
+                    </Tooltip>
+                  </div>
+
+                  <span className="text-xs text-muted-foreground">
+                    Form will closed after number of submissions you set
+                  </span>
+                </div>
+              </div>
+
+              <div className=" my-4">Closed message</div>
+              <div className="bg-background p-4 rounded-sm">
+                <div className="grid gap-3">
+                  <div className="">
+                    <Textarea
+                      placeholder="Oops , form is closed now :("
+                      value={additionalSetting.closedMessage}
+                      onChange={(e) =>
+                        setAdditonalSetting({
+                          ...additionalSetting,
+                          closedMessage: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Message to show , when form is close
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-5 w-full">
+                <Button onClick={handleConfirm}>Confirm</Button>
+              </div>
+            </CardContent>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Card>
   );
 };

@@ -1,0 +1,105 @@
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { setFormPass } from "@/hooks/use-form-settings";
+import { toastPromiseOptions } from "@/lib/toast";
+
+interface IFormPasswordSettingsProps {
+  formId: string;
+  currentSettings: {
+    isPasswordProtected: boolean | null | undefined;
+  };
+}
+
+export const FormPasswordSettings = ({
+  currentSettings,
+  formId,
+}: IFormPasswordSettingsProps) => {
+  const [pass, setPass] = useState(
+    currentSettings.isPasswordProtected ? "YOUR-FORM-IS-PROTECTED" : "",
+  );
+
+  const handleSetPass = () =>
+    toast.promise(
+      async () => await setFormPass(formId, pass),
+      toastPromiseOptions({
+        success: "password is set",
+        error: "failed to set password",
+        loading: "setting.....",
+      }),
+    );
+
+  return (
+    <Card className="bg-muted">
+      <CardHeader>
+        <CardTitle className="flex items-center  gap-2">
+          <p>Password</p>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="size-4"
+                    viewBox="0 0 24 24"
+                    fill="#fff"
+                  >
+                    <g clip-path="url(#clip0_4418_4942)">
+                      <path
+                        opacity="0.4"
+                        d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                        fill="white"
+                        style={{ fill: "var(--fillg)" }}
+                      />
+                      <path
+                        d="M12 13.75C12.41 13.75 12.75 13.41 12.75 13V8C12.75 7.59 12.41 7.25 12 7.25C11.59 7.25 11.25 7.59 11.25 8V13C11.25 13.41 11.59 13.75 12 13.75Z"
+                        fill="white"
+                        style={{ fill: "var(--fillg)" }}
+                      />
+                      <path
+                        d="M12.92 15.6209C12.87 15.5009 12.8 15.3909 12.71 15.2909C12.61 15.2009 12.5 15.1309 12.38 15.0809C12.14 14.9809 11.86 14.9809 11.62 15.0809C11.5 15.1309 11.39 15.2009 11.29 15.2909C11.2 15.3909 11.13 15.5009 11.08 15.6209C11.03 15.7409 11 15.8709 11 16.0009C11 16.1309 11.03 16.2609 11.08 16.3809C11.13 16.5109 11.2 16.6109 11.29 16.7109C11.39 16.8009 11.5 16.8709 11.62 16.9209C11.74 16.9709 11.87 17.0009 12 17.0009C12.13 17.0009 12.26 16.9709 12.38 16.9209C12.5 16.8709 12.61 16.8009 12.71 16.7109C12.8 16.6109 12.87 16.5109 12.92 16.3809C12.97 16.2609 13 16.1309 13 16.0009C13 15.8709 12.97 15.7409 12.92 15.6209Z"
+                        fill="white"
+                        style={{ fill: "var(--fillg)" }}
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_4418_4942">
+                        <rect width="24" height="24" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+                </span>
+              }
+            />
+            <TooltipContent>Make your form password protected</TooltipContent>
+          </Tooltip>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-2">
+        <Input
+          type="password"
+          disabled={!!currentSettings.isPasswordProtected}
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+          placeholder="Type your password here"
+        />
+        <div>
+          <Button
+            disabled={!!currentSettings.isPasswordProtected}
+            variant={"outline"}
+            onClick={() => handleSetPass()}
+          >
+            Confirm
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

@@ -5,11 +5,13 @@ import z from "zod";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import {
   CreateEmailNotificationIntegrationServiceSchema,
+  CreateEmailToRespondentIntegrationSchema,
   CreateGmailIntegrationServiceSchema,
   CreateNotionIntegrationServiceSchema,
   CreateSheetIntegrationServiceSchema,
   CreateSlackIntegrationSchema,
   createEmailNotificationIntegrationService,
+  createEmailToRespondentIntegrationService,
   createGmailIntegrationService,
   createNotionIntegrationService,
   createSheetIntegrationService,
@@ -22,6 +24,7 @@ import {
 } from "../services/integration";
 import { SlackOauthService } from "../services/slack/oauth";
 import { env } from "cloudflare:workers";
+import { ApiResponse } from "../utils/api";
 
 const integration = new Hono<{
   Variables: {
@@ -197,6 +200,21 @@ const integration = new Hono<{
         return c.json(result.value, 200);
       }
       return c.json(result.error, 400);
+    },
+  )
+  .post(
+    "/email-to-respondent",
+    zValidator("json", CreateEmailToRespondentIntegrationSchema),
+    async (c) => {
+      const params = c.req.valid("json");
+      const res = await createEmailToRespondentIntegrationService(params);
+      const data = res.match({
+        ok: (v) => v,
+        err: (e) => {
+          throw e;
+        },
+      });
+      return c.json(ApiResponse({ data, message: "integration-created" }), 200);
     },
   )
 

@@ -30,6 +30,7 @@ import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { integrationCardsData } from "./integrations";
 import { AnimatePresence, motion } from "motion/react";
+import { EmailIntegration } from "./email/email-integration";
 
 export const IntegrationsHome = () => {
   const { formId } = useParams();
@@ -198,6 +199,15 @@ export const IntegrationsHome = () => {
                       <WebhookIntegration
                         key={integration.id}
                         integration={{ ...integration, index: i }}
+                      />
+                    );
+                  case "email":
+                    return (
+                      <EmailIntegration
+                        integration={{
+                          ...integration,
+                          index: i,
+                        }}
                       />
                     );
                   default:

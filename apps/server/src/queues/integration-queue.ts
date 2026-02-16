@@ -2,12 +2,15 @@ import { env } from "cloudflare:workers";
 import z from "zod";
 import type { response } from "../db/schema/response";
 import {
+  CreateEmailToRespondentIntegrationSchema,
+  EMAIL_TO_RESPONDENT_INTEGRATION_TYPE,
   GMAIL_INTEGRATION_TYPE,
   NOTION_INTEGRATION_TYPE,
   SHEET_INTEGRATION_TYPE,
   SLACK_INTEGRATION_TYPE,
   WEBHOOK_INTEGRATION_TYPE,
 } from "../services/integration";
+import { NOTIFICATION_EMAIL } from "../utils/mail";
 
 export type IntegrationQueueMesssage = {
   formId: string;
@@ -30,6 +33,13 @@ export const gmailMetaDataSchema = z.object({
   subject: z.string(),
   body: z.string(),
   isDynamicBody: z.boolean(),
+});
+
+export const emailMetaDataSchema = z.object({
+  emailFormFieldId: z.string(),
+  from: z.string(),
+  subject: z.string(),
+  body: z.string(),
 });
 
 export const handleIntegrationQueue = async (
@@ -126,6 +136,27 @@ export const handleIntegrationQueue = async (
           values,
           integrationId,
           metaData: parsedMetaData,
+        },
+      });
+    }
+
+    if (type === EMAIL_TO_RESPONDENT_INTEGRATION_TYPE) {
+      const { success, data } = emailMetaDataSchema.safeParse(parsedMetaData);
+      if (!success) continue;
+
+      await env.EMAIL_INTEGRATION_WORKFLOW.create({
+        id: `${respondentId}-email-${integrationId}`,
+        params: {
+          formId,
+          userId,
+          values,
+          integrationId,
+          metaData: {
+            body: data.body,
+            emailFormFieldId: data.emailFormFieldId,
+            subject: data.subject,
+            from: NOTIFICATION_EMAIL,
+          },
         },
       });
     }

@@ -7,19 +7,18 @@ import type { PageProperties } from "../services/notion/notion";
 export const getSubmissionRecord = async (params: {
   formId: string;
   values: (typeof response.$inferInsert)[];
-  shouldKeyIncludeIndex: boolean;
+  keyIsLabel: boolean;
 }) => {
-  const { formId, shouldKeyIncludeIndex, values } = params;
+  const { formId, keyIsLabel, values } = params;
   const formFields = await getFormFields(formId);
 
   const submission = {} as Record<string, string>;
   for (const val of values) {
     const field = formFields?.find((f) => f.id === val?.form_field);
     if (!field) continue;
-    const index = field.index?.toString();
     let key = field.id.trim();
-    if (shouldKeyIncludeIndex) {
-      key = `${index}_${field?.label}`.trim() || "";
+    if (keyIsLabel) {
+      key = `${field?.label}`.trim() || "";
     }
     submission[key] = val.value as string;
   }
@@ -97,26 +96,19 @@ export const getNotionPropertiesFromSubmission = async (params: {
 
 export const handleMailBody = async (params: {
   body: string;
-  formId: string;
-  values: (typeof response.$inferInsert)[];
+  submissions: Record<string, string>;
 }) => {
-  const { body, formId, values } = params;
-
-  const { submission } = await getSubmissionRecord({
-    formId,
-    values,
-    shouldKeyIncludeIndex: false,
-  });
+  const { body, submissions } = params;
 
   //  this regex will check for value in these template variable {{}}
   // if our submission record has value for the value we find in template variable
   // we put that otherwise we put "no value"
 
-  const templateVarialbeRegex = /\{\{\s*(.*?)\s*\}\}/g;
+  const templateVariableRegex = /\{\{\s*(.*?)\s*\}\}/g;
   const bodyWithValueForTemplateVariable = body.replace(
-    templateVarialbeRegex,
-    (match, id) => {
-      return submission[id] !== undefined ? submission[id] : "no value";
+    templateVariableRegex,
+    (_, id) => {
+      return submissions[id] !== undefined ? submissions[id] : "no value";
     },
   );
 

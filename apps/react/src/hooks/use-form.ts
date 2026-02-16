@@ -28,6 +28,7 @@ export type Form =
       closedMessage: string | null;
       closingTime: string | null;
       closeAfterSubmissions: number | null;
+      isPasswordProtected: boolean;
     }
   | undefined;
 
@@ -41,20 +42,6 @@ export const useForm = (formId: string) => {
     form: data?.form as Form,
     useFormError: error,
     useFormLoading: isLoading,
-  };
-};
-
-export const useFormSettings = (formId: string | undefined) => {
-  const fetcher = (key: string) => getFormSettings(key.split(":")[1]);
-  const { data, error, isLoading } = useSWR(
-    formId ? `useFormSettings:${formId}` : null,
-    fetcher,
-  );
-
-  return {
-    formSettings: data,
-    useFormSettingsError: error,
-    useFormSettingsLoading: isLoading,
   };
 };
 
@@ -75,52 +62,6 @@ export const deleteForm = async (formId: string) => {
   }
 
   return deleted;
-};
-
-export const toggleFormClose = async ({
-  closed,
-  formId,
-  closingTime,
-  closeAfterSubmissions,
-  closedMessage,
-}: {
-  closed: boolean;
-  formId: string;
-  closingTime?: Date | null;
-  closeAfterSubmissions?: number | null;
-  closedMessage?: string;
-}) => {
-  const payload: {
-    closed: boolean;
-    formId: string;
-    closingTime?: Date;
-    closeAfterSubmissions?: number;
-    closedMessage?: string;
-  } = {
-    closed,
-    formId,
-  };
-
-  if (closingTime !== undefined && closingTime !== null) {
-    payload.closingTime = closingTime;
-  }
-
-  if (closeAfterSubmissions !== undefined && closeAfterSubmissions !== null) {
-    payload.closeAfterSubmissions = closeAfterSubmissions;
-  }
-
-  if (closedMessage !== undefined && closedMessage !== null) {
-    payload.closedMessage = closedMessage;
-  }
-
-  const res = await client.api.form.settings.update.$post({
-    json: payload,
-  });
-
-  if (!res.ok) throw new Error("failed to close/open form");
-  const data = await res.json();
-  mutate(`useFormSettings:${formId}`);
-  return data.settings;
 };
 
 export const getFormSettings = async (formId: string) => {

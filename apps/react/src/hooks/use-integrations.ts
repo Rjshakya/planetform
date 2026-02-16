@@ -1,4 +1,4 @@
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { client } from "@/lib/hc";
 
 export const useIntegrations = (formId: string | null) => {
@@ -121,6 +121,21 @@ export const createSlackIntegration = async (params: {
 }) => {
   const res = await client.api.integration.slack.$post({ json: params });
   if (!res.ok) throw new Error("failed to create slack integration");
+  const parsed = await res.json();
+  return parsed;
+};
+
+export const createEmailToRespondentIntegrations = async (params: {
+  formId: string;
+  emailFormFieldId: string;
+  subject: string;
+  body: string;
+}) => {
+  const res = await client.api.integration["email-to-respondent"].$post({
+    json: params,
+  });
+
+  if (!res.ok) throw new Error("failed to create email integration");
   const parsed = await res.json();
   return parsed;
 };

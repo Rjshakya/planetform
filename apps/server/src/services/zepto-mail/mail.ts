@@ -22,9 +22,9 @@ type SendEmailParams =
  *
  * @param SendEmailParams
  * @returns true if email is sent successfully, otherwise throws an error;
- * 
+ *
  * notification mail: notifications@planetform.xyz
- * 
+ *
  * mail from me: raj@planetform.xyz
  */
 export const sendZeptoMail = async ({
@@ -52,7 +52,7 @@ export const sendZeptoMail = async ({
   const result = await Result.tryPromise(execute);
 
   if (Result.isOk(result)) {
-    console.log(`Email sent successfully to ${to} , from : ${from}`);
+    console.log(`Email sent successfully to ${to[0].email_address.address} , from : ${from.address}`);
     return true;
   } else {
     console.error({

@@ -210,6 +210,7 @@ interface IgetFormService {
   customisation: IFormCustomization;
   closed: boolean | null;
   closedMessage: string | null;
+  isPasswordProtected: boolean;
 }
 
 export const formCustomizationSchema = z.object({
@@ -260,6 +261,7 @@ export const getFormService = async (
           closedAfterSubmission: formSettingTable.closeAfterSubmissions,
           closingTime: formSettingTable.closingTime,
           closedMessage: formSettingTable.closedMessage,
+          isPasswordProtected: formSettingTable.isPasswordProtected,
         })
         .from(formTable)
         .leftJoin(formSettingTable, eq(formSettingTable.formId, formId))
@@ -271,6 +273,14 @@ export const getFormService = async (
         customisation,
         closedAfterSubmission,
         closedMessage,
+        createdAt,
+        creator,
+        customerId,
+        form_schema,
+        id,
+        name,
+        updatedAt,
+        isPasswordProtected,
       } = form;
 
       const success = await formClosingService({
@@ -282,7 +292,7 @@ export const getFormService = async (
 
       // giving the parsed schema , rather just a string
       // to frontend , so that it can directly load form.
-      const parsedSchema = form?.form_schema
+      const parsedSchema = form_schema
         ? Result.try({
             try: () => JSON.parse(form.form_schema),
             catch: (e) => new ParseError({ data: form.form_schema, cause: e }),
@@ -292,11 +302,19 @@ export const getFormService = async (
       await kv.put(
         key,
         JSON.stringify({
-          ...form,
+          createdAt,
+          creator,
+          customerId,
+          id,
+          name,
+          updatedAt,
           form_schema: parsedSchema,
           customisation,
           closed: success,
           closedMessage,
+          closingTime,
+          closedAfterSubmission,
+          isPasswordProtected,
         }),
         {
           expirationTtl: 60,
@@ -304,11 +322,19 @@ export const getFormService = async (
       );
 
       return {
-        ...form,
+        createdAt,
+        creator,
+        customerId,
+        id,
+        name,
+        updatedAt,
         form_schema: parsedSchema,
         customisation,
         closed: success,
         closedMessage,
+        closingTime,
+        closedAfterSubmission,
+        isPasswordProtected,
       } as IgetFormService;
     },
     catch: (e) => {
@@ -498,3 +524,6 @@ export const formClosingService = async (formSettings: {
 
   return false;
 };
+
+export const deleteFormCache = async (formId: string) =>
+  await env.planetform_kv.delete(`getForm-${formId}`);

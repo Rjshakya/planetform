@@ -56,7 +56,7 @@ export class GoogleSheetIntegrationWorkflow extends WorkflowEntrypoint<IgoogleSh
 			const submission = await getSubmissionRecord({
 				formId,
 				values,
-				shouldKeyIncludeIndex: true,
+				keyIsLabel: true,
 			});
 			const sheetService = new GoogleSheetService({
 				userID: userId,
