@@ -4,7 +4,7 @@ import { contextStorage } from "hono/context-storage";
 import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
 import api from "./api";
-import { getDb } from "./db/config";
+import { wideLogger } from "hono-wide-logger";
 import { getAuth } from "./utils/auth";
 import {
   GmailIntegrationWorkflow,
@@ -22,7 +22,7 @@ import {
 
 const trusted_url = process.env.FRONTEND_URL;
 const trusted_domain = process.env.TRUSTED_DOMAIN;
-export const app = new Hono()
+export const app = new Hono<{ Variables: { userId: string | null } }>()
   .use(
     cors({
       origin:
@@ -62,16 +62,21 @@ export const app = new Hono()
   .get("/", async (c) => {
     return c.redirect(trusted_domain);
   })
-  .get("/health/private", async (c) => {
-    const db = await getDb();
-    const result = await db.execute(`SELECT NOW()`);
+  .get("/health", async (c) => {
     return c.json(
       {
         message: "server is up and running",
-        result,
       },
       200,
     );
+  })
+  .use(wideLogger())
+  .use("*", async (c, next) => {
+    const logger = c.get("wide-logger");
+    const userId = c.get("userId");
+    logger.addContext("user", { id: userId });
+    logger.addContext("infra", { platform: "cloudflare" });
+    await next();
   })
   .route("/api", api)
   .onError((e, c) => {

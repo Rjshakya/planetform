@@ -1,6 +1,11 @@
-import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import {
+  MarketingContainer,
+  MarketingHeader,
+  MarketingSection,
+} from "./marketing-layout";
 
 const testimonials = [
   {
@@ -35,26 +40,17 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <section id="testimonials" className="w-full   ">
-      <div className=" px-2 max-w-4xl mx-auto ">
-         <div className="h-50 w-full" />
-        <div className="space-y-8 ">
-          <Badge className="font-mono rounded-xs">Testimonials</Badge>
-          <h1 className="landing-heading text-balance">
-            Loved by teams building better forms
-          </h1>
-          <p className="landing-sub-heading text-balance">
-            See what teams are saying about Planetform and how it's helping them
-            create better form experiences.
-          </p>
-        </div>
+    <MarketingSection id="testimonials">
+      <MarketingContainer>
+        <MarketingHeader
+          badge={<Badge className="font-mono rounded-xs">Testimonials</Badge>}
+          title="Loved by teams building better forms"
+          description="See what teams are saying about Planetform and how it's helping them create better form experiences."
+        />
 
-         <div className="h-36 w-full" />
-
-        <div className="grid md:grid-cols-2 gap-2">
+        <div className="grid md:grid-cols-2 gap-4">
           {testimonials.map((testimonial, i) => (
-            <Card key={i} className="">
-
+            <Card key={i}>
               <CardHeader>
                 <div className="flex gap-1">
                   {Array.from({ length: testimonial.rating }).map((_, idx) => (
@@ -65,7 +61,7 @@ export const Testimonials = () => {
                   ))}
                 </div>
               </CardHeader>
-              <CardContent className="text-muted-foreground  ">
+              <CardContent className="text-muted-foreground">
                 {testimonial.content}
               </CardContent>
               <CardFooter className="grid">
@@ -77,8 +73,7 @@ export const Testimonials = () => {
             </Card>
           ))}
         </div>
-         <div className="h-50 w-full" />
-      </div>
-    </section>
+      </MarketingContainer>
+    </MarketingSection>
   );
 };

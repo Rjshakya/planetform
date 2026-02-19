@@ -52,7 +52,9 @@ export const sendZeptoMail = async ({
   const result = await Result.tryPromise(execute);
 
   if (Result.isOk(result)) {
-    console.log(`Email sent successfully to ${to[0].email_address.address} , from : ${from.address}`);
+    console.log(
+      `Email sent successfully to ${to[0].email_address.address} , from : ${from.address}`,
+    );
     return true;
   } else {
     console.error({

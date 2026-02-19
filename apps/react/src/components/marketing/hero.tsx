@@ -1,10 +1,10 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { FormEditor } from "../tiptap/editor";
-import { useForm } from "react-hook-form";
-import { useFormStore } from "@/stores/useformStore";
 import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useFormStore } from "@/stores/useformStore";
+import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 export const Hero = () => {
   const hookForm = useForm();
@@ -15,39 +15,37 @@ export const Hero = () => {
       useFormStore.setState({ form: hookForm });
     }
   }, [getHookForm, hookForm]);
+
   return (
-    <section
-      id="hero"
-      className="w-full relative overflow-hidden pt-36 sm:pt-50 text-black min-h-dvh"
-    >
-      {/* Main text block */}
-      <div className={`px-2 max-w-4xl mx-auto `}>
-        <h1 className="landing-heading mb-4 text-balance  ">
+    <MarketingSection id="hero" className="relative overflow-hidden">
+      {/* Grid background - positioned absolutely to cover entire section */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(100, 100, 100, 0.35) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(100, 100, 100, 0.35) 1px, transparent 1px)
+          `,
+          backgroundSize: "54px 54px",
+        }}
+      />
+      <MarketingContainer className="relative z-10 bg-background border-2 py-12">
+        <h1 className="landing-heading mb-6 text-balance">
           Make forms your users actually love to fill .
         </h1>
 
-        {/* Subheading */}
-        <p className="landing-sub-heading  mb-8 text-pretty font-medium">
+        <p className="landing-sub-heading mb-8 text-pretty font-medium">
           Create stunning, with our powerful notion-like editor. Collect
           submissions, insights, and integrate with your favorite tools—all in
           one place.
         </p>
 
-        {/* CTA */}
-
         <Link to={"/auth"}>
-          <Button variant={"secondary"} size={"lg"} className="b">
+          <Button variant="default" size="lg">
             Create your form for free
           </Button>
         </Link>
-
-        <div className=" absolute w-full h-full inset-0 -z-10">
-          <img
-            className="size-full object-cover  object-bottom"
-            src={"/Frame@2x.png"}
-          />
-        </div>
-      </div>
-    </section>
+      </MarketingContainer>
+    </MarketingSection>
   );
 };

@@ -1,35 +1,19 @@
 import {
   ChartLine,
   Ellipsis,
-  Loader,
   MoveUpRight,
   Pencil,
   PlusIcon,
   TrashIcon,
   TriangleAlert,
 } from "lucide-react";
-import { Button } from "../ui/button";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemGroup,
-  ItemTitle,
-} from "../ui/item";
+import { useCallback, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useWorkspace } from "@/hooks/use-workspace";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { toast } from "sonner";
 import { deleteForm } from "@/hooks/use-form";
-import { useCallback, useState } from "react";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { toastPromiseOptions } from "@/lib/toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { WorkspaceSettings } from "./setting";
+import { WorkspaceSkeleton } from "../common/skeletons";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +25,23 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemTitle,
+} from "../ui/item";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { EmptyForms } from "./empty-forms";
+import { WorkspaceSettings } from "./setting";
 
 export const WorkspaceHome = () => {
   const { workspaceId } = useParams();
@@ -68,11 +68,7 @@ export const WorkspaceHome = () => {
   }
 
   if (workspaceLoading) {
-    return (
-      <div className=" w-full min-h-screen grid place-content-center">
-        <Loader className=" animate-spin" />
-      </div>
-    );
+    return <WorkspaceSkeleton />;
   }
 
   return (
@@ -122,7 +118,7 @@ export const WorkspaceHome = () => {
                               </Button>
                             }
                           />
-                          <DropdownMenuContent className={`p-1`}>
+                          <DropdownMenuContent className={"p-1"}>
                             <DropdownMenuItem>
                               <Link
                                 className="flex items-center gap-2"

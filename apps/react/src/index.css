@@ -148,10 +148,10 @@
   }
 
   .landing-heading {
-    @apply max-w-md text-3xl sm:text-5xl font-bold text-left tracking-tighter;
+    @apply max-w-lg text-3xl sm:text-5xl font-sans font-semibold  text-left tracking-tighter;
   }
 
   .landing-sub-heading {
-    @apply max-w-xs text-left text-sm;
+    @apply max-w-sm text-left text-sm;
   }
 }

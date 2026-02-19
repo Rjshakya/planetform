@@ -2,15 +2,15 @@ import { env } from "cloudflare:workers";
 import { Result } from "better-result";
 import { asc, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { getDb } from "../db/config.js";
-import type { user } from "../db/schema/auth.js";
-import { form as formTable } from "../db/schema/form.js";
-import { formField as formFieldTable } from "../db/schema/form.fields.js";
-import { formSetting as formSettingTable } from "../db/schema/form.settings.js";
-import { workspace as workspaceTable } from "../db/schema/workspace.js";
-import { DatabaseError, ParseError, UnhandledException } from "../errors.js";
-import { getRedis } from "../utils/redis.js";
-import { getSubmissionService } from "./form.analytics.js";
+import { getDb } from "../db/config";
+import type { user } from "../db/schema/auth";
+import { form as formTable } from "../db/schema/form";
+import { formField as formFieldTable } from "../db/schema/form.fields";
+import { formSetting as formSettingTable } from "../db/schema/form.settings";
+import { workspace as workspaceTable } from "../db/schema/workspace";
+import { DatabaseError, ParseError, UnhandledException } from "../errors";
+import { getRedis } from "../utils/redis";
+import { getSubmissionService } from "./form.analytics";
 import z from "zod";
 
 export const createFormService = async ({
@@ -474,6 +474,8 @@ export const updateFormAndFormfieldsService = async (updateValues: {
             customisation: formCustomisation,
           });
         }
+
+        await deleteFormCache(formId);
       });
 
       return true;
@@ -506,6 +508,7 @@ export const formClosingService = async (formSettings: {
         .update(formSettingTable)
         .set({ closed: true })
         .where(eq(formSettingTable.formId, formId));
+      await deleteFormCache(formId);
       return true;
     }
   }
@@ -518,6 +521,7 @@ export const formClosingService = async (formSettings: {
         .set({ closed: true })
         .where(eq(formSettingTable.formId, formId));
 
+      await deleteFormCache(formId);
       return true;
     }
   }

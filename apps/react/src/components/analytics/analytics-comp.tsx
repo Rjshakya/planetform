@@ -1,11 +1,10 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Loader, TriangleAlert } from "lucide-react";
 import {
   Select,
@@ -16,23 +15,14 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { AnalyticsInterval } from "@/hooks/use-analytics";
-import {
-  eachDayOfInterval,
-  eachHourOfInterval,
-  eachMonthOfInterval,
-  eachWeekOfInterval,
-  format,
-  isEqual,
-  subDays,
-  subHours,
-} from "date-fns";
+import { handleChartData } from "./helpers";
 
-interface IAnalyticsObj {
+export interface IAnalyticsObj {
   count: number;
   date: string;
 }
 
-type AnalyticsData = {
+export type AnalyticsData = {
   visitors: IAnalyticsObj[] | undefined;
   uniqueVisitors: IAnalyticsObj[] | undefined;
   submissions: IAnalyticsObj[] | undefined;
@@ -71,8 +61,6 @@ export const AnalyticsComp = ({
   interval: AnalyticsInterval;
   setInterval: (v: AnalyticsInterval) => void;
 }) => {
-  const { formId } = useParams();
-
   const cards = useMemo(() => {
     if (!data) return;
     return [
@@ -318,7 +306,7 @@ export const AnalyticsComp = ({
           </SelectContent>
         </Select>
       </div>
-      <div className=" grid md:grid-cols-1 grid-cols-1 md:gap-4 gap-2 ">
+      <div className=" grid md:grid-cols-2 grid-cols-1 md:gap-4 gap-2 ">
         {cards?.map((I) => {
           return (
             <Card
@@ -454,115 +442,115 @@ const DottedBackgroundPattern = () => {
 };
 
 // helpers
-export const handleChartData = (
-  data: IAnalyticsObj[],
-  interval: AnalyticsInterval,
-): IAnalyticsObj[] => {
-  if (interval.includes("h")) {
-    const series = getHourSeriesBasedOnInterval(interval, data);
+// export const handleChartData = (
+//   data: IAnalyticsObj[],
+//   interval: AnalyticsInterval,
+// ): IAnalyticsObj[] => {
+//   if (interval.includes("h")) {
+//     const series = getHourSeriesBasedOnInterval(interval, data);
 
-    const dataWithSeries: IAnalyticsObj[] = series.map((s) => {
-      const dataOfThisHour = data.find((d) => {
-        const date = new Date(d.date);
-        return isEqual(s, date);
-      });
+//     const dataWithSeries: IAnalyticsObj[] = series.map((s) => {
+//       const dataOfThisHour = data.find((d) => {
+//         const date = new Date(d.date);
+//         return isEqual(s, date);
+//       });
 
-      const date = format(s, "Haaa");
+//       const date = format(s, "Haaa");
 
-      if (!dataOfThisHour) {
-        return { count: 0, date };
-      }
+//       if (!dataOfThisHour) {
+//         return { count: 0, date };
+//       }
 
-      return { ...dataOfThisHour, date };
-    });
+//       return { ...dataOfThisHour, date };
+//     });
 
-    return dataWithSeries;
-  }
+//     return dataWithSeries;
+//   }
 
-  if (interval === "7d") {
-    const start = subDays(new Date(), 7);
-    const series = createDaySeries(start);
+//   if (interval === "7d") {
+//     const start = subDays(new Date(), 7);
+//     const series = createDaySeries(start);
 
-    const dataWithSeries: IAnalyticsObj[] = series.map((s) => {
-      const dataOfThisDay = data.find((d) => {
-        const date = new Date(d.date);
-        return isEqual(s, date);
-      });
+//     const dataWithSeries: IAnalyticsObj[] = series.map((s) => {
+//       const dataOfThisDay = data.find((d) => {
+//         const date = new Date(d.date);
+//         return isEqual(s, date);
+//       });
 
-      if (dataOfThisDay) {
-        return { ...dataOfThisDay, date: format(s, "eee") };
-      }
+//       if (dataOfThisDay) {
+//         return { ...dataOfThisDay, date: format(s, "eee") };
+//       }
 
-      return { count: 0, date: format(s, "eee") };
-    });
+//       return { count: 0, date: format(s, "eee") };
+//     });
 
-    return dataWithSeries;
-  }
+//     return dataWithSeries;
+//   }
 
-  if (interval === "30d") {
-    const start = data[0].date
-      ? new Date(data[0].date)
-      : subDays(new Date(), 30);
+//   if (interval === "30d") {
+//     const start = data[0].date
+//       ? new Date(data[0].date)
+//       : subDays(new Date(), 30);
 
-    const series = createWeekSeries(start);
-    const dataWithSeries: IAnalyticsObj[] = series.map((s) => {
-      const formatedDate = format(s, "P");
+//     const series = createWeekSeries(start);
+//     const dataWithSeries: IAnalyticsObj[] = series.map((s) => {
+//       const formatedDate = format(s, "P");
 
-      const dataOfThisDay = data.find((d) => {
-        const date = new Date(d.date);
-        return isEqual(s, date);
-      });
+//       const dataOfThisDay = data.find((d) => {
+//         const date = new Date(d.date);
+//         return isEqual(s, date);
+//       });
 
-      if (!dataOfThisDay) {
-        return { count: 0, date: formatedDate };
-      }
+//       if (!dataOfThisDay) {
+//         return { count: 0, date: formatedDate };
+//       }
 
-      return { ...dataOfThisDay, date: formatedDate };
-    });
+//       return { ...dataOfThisDay, date: formatedDate };
+//     });
 
-    return dataWithSeries;
-  }
+//     return dataWithSeries;
+//   }
 
-  return [{ count: 0, date: new Date().toISOString() }];
-};
+//   return [{ count: 0, date: new Date().toISOString() }];
+// };
 
-export const getHourSeriesBasedOnInterval = (
-  interval: AnalyticsInterval,
-  data: IAnalyticsObj[],
-) => {
-  const current = new Date();
-  // const dataStarting = data[0]?.date ? new Date(data[0].date) : false;
+// export const getHourSeriesBasedOnInterval = (
+//   interval: AnalyticsInterval,
+//   data: IAnalyticsObj[],
+// ) => {
+//   const current = new Date();
+//   // const dataStarting = data[0]?.date ? new Date(data[0].date) : false;
 
-  const last24 = subHours(current, 24);
-  let series = createHourTimeSeries(last24);
+//   const last24 = subHours(current, 24);
+//   let series = createHourTimeSeries(last24);
 
-  if (interval === "12h") {
-    series = createHourTimeSeries(subHours(current, 12));
-  }
+//   if (interval === "12h") {
+//     series = createHourTimeSeries(subHours(current, 12));
+//   }
 
-  if (interval === "6h" || interval === "3h") {
-    series = createHourTimeSeries(subHours(current, 6));
-  }
+//   if (interval === "6h" || interval === "3h") {
+//     series = createHourTimeSeries(subHours(current, 6));
+//   }
 
-  return series;
-};
+//   return series;
+// };
 
-export const createHourTimeSeries = (start: Date) => {
-  const end = new Date();
-  return eachHourOfInterval({ start, end });
-};
+// export const createHourTimeSeries = (start: Date) => {
+//   const end = new Date();
+//   return eachHourOfInterval({ start, end });
+// };
 
-export const createDaySeries = (start: Date) => {
-  const end = new Date();
-  return eachDayOfInterval({ start: start, end });
-};
+// export const createDaySeries = (start: Date) => {
+//   const end = new Date();
+//   return eachDayOfInterval({ start: start, end });
+// };
 
-export const createWeekSeries = (start: Date) => {
-  const end = new Date();
-  return eachWeekOfInterval({ start, end });
-};
+// export const createWeekSeries = (start: Date) => {
+//   const end = new Date();
+//   return eachWeekOfInterval({ start, end });
+// };
 
-export const createMonthSeries = (start: Date) => {
-  const end = new Date();
-  return eachMonthOfInterval({ start, end });
-};
+// export const createMonthSeries = (start: Date) => {
+//   const end = new Date();
+//   return eachMonthOfInterval({ start, end });
+// };

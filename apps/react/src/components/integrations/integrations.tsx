@@ -156,16 +156,15 @@ export const integrationCardsData: IntegrationCard[] = [
   {
     id: "email-integration",
     name: "Email ",
-    type: "email",
+    type: "email-to-respondent",
     description: "Send email to respondents ",
     connected: false,
     index: 4,
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="size-6"
+        className="size-6 fill-primary"
         viewBox="0 0 24 24"
-        fill="#fff"
       >
         <g clip-path="url(#clip0_655_9207)">
           <path

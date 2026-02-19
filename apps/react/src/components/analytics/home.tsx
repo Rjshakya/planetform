@@ -1,17 +1,11 @@
-import { useEffect, useState } from "react";
-import {
-  Navigate,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { useAnalytics, type AnalyticsInterval } from "@/hooks/use-analytics";
-import { CommonMenu } from "../common/common-menu";
-import { AnalyticsComp } from "./analytics-comp";
-import { BodySkeleton } from "../common/body-skeleton";
-import { Skeleton } from "../ui/skeleton";
 import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { type AnalyticsInterval, useAnalytics } from "@/hooks/use-analytics";
+import { CommonMenu } from "../common/common-menu";
+import { AnalyticsSkeleton } from "../common/skeletons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { AnalyticsComp } from "./analytics-comp";
 
 export const AnalyticsHome = () => {
   const { formId } = useParams();
@@ -24,13 +18,7 @@ export const AnalyticsHome = () => {
   const { analytics, analyticsErr, isLoading } = useAnalytics(formId, interval);
 
   if (isLoading) {
-    return (
-      <div className="max-w-3xl mx-auto pt-12 px-4 pb-8 ">
-        <Skeleton className="w-60 mb-1 h-10" />
-        <Skeleton className="w-150 mb-8 h-10" />
-        <BodySkeleton />
-      </div>
-    );
+    return <AnalyticsSkeleton />;
   }
 
   return (

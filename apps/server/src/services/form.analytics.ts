@@ -6,6 +6,8 @@ import { response as responsesTable } from "../db/schema/response";
 import { commonCatch } from "../utils/error";
 import { getDateTruncField } from "../utils/time";
 import type { intervalSchema, resolutionsSchema } from "../utils/validation";
+import { Result } from "better-result";
+import { DatabaseError } from "../errors";
 
 export type Interval = z.infer<typeof intervalSchema>;
 export type Resolutions = z.infer<typeof resolutionsSchema>;
@@ -51,8 +53,6 @@ export const getSubmissionService = async (formId: string) => {
       })
       .from(responsesTable)
       .where(eq(responsesTable.form, formId));
-
-	
 
     return submissions.count;
   } catch (e) {
@@ -187,4 +187,177 @@ export const getUniqueSubmissionByTimeService = async (
   } catch (e) {
     commonCatch(e);
   }
+};
+
+export const getVisitorsByCountryService = async ({
+  formId,
+}: {
+  formId: string;
+}) => {
+  const execute = await Result.tryPromise({
+    try: async () => {
+      const db = await getDb();
+      const res = await db
+        .select({
+          count: count(respondentTable.country),
+          country: respondentTable.country,
+        })
+        .from(respondentTable)
+        .where(eq(respondentTable.form, formId))
+        .groupBy(respondentTable.country)
+        .limit(80);
+
+      return res;
+    },
+    catch: (e) =>
+      new DatabaseError({ cause: e, operation: "getVisitorsByCountryService" }),
+  });
+
+  const res = execute.match({
+    ok: (v) => v,
+    err: (e) => {
+      throw e;
+    },
+  });
+
+  return res;
+};
+
+export const getVisitorsByCityService = async ({
+  formId,
+}: {
+  formId: string;
+}) => {
+  const execute = await Result.tryPromise({
+    try: async () => {
+      const db = await getDb();
+      const res = await db
+        .select({
+          count: count(respondentTable.city),
+          city: respondentTable.city,
+        })
+        .from(respondentTable)
+        .where(eq(respondentTable.form, formId))
+        .groupBy(respondentTable.city)
+        .limit(80);
+
+      return res;
+    },
+    catch: (e) =>
+      new DatabaseError({ cause: e, operation: "getVisitorsByCityService" }),
+  });
+
+  const res = execute.match({
+    ok: (v) => v,
+    err: (e) => {
+      throw e;
+    },
+  });
+
+  return res;
+};
+
+export const getVisitorsByCoordsService = async ({
+  formId,
+}: {
+  formId: string;
+}) => {
+  const execute = await Result.tryPromise({
+    try: async () => {
+      const db = await getDb();
+      const res = await db
+        .select({
+          count: count(respondentTable.id),
+          lat: respondentTable.latitude,
+          long: respondentTable.longitude,
+        })
+        .from(respondentTable)
+        .where(eq(respondentTable.form, formId))
+        .groupBy(respondentTable.latitude, respondentTable.longitude)
+        .limit(80);
+
+      return res;
+    },
+    catch: (e) =>
+      new DatabaseError({ cause: e, operation: "getVisitorsByCoordsService" }),
+  });
+
+  const res = execute.match({
+    ok: (v) => v,
+    err: (e) => {
+      throw e;
+    },
+  });
+
+  return res;
+};
+
+export const getVisitorsByIpService = async ({
+  formId,
+}: {
+  formId: string;
+}) => {
+  const execute = await Result.tryPromise({
+    try: async () => {
+      const db = await getDb();
+      const res = await db
+        .select({
+          count: count(respondentTable.ip),
+          ip: respondentTable.ip,
+        })
+        .from(respondentTable)
+        .where(eq(respondentTable.form, formId))
+        .groupBy(respondentTable.ip)
+        .limit(80);
+
+      return res;
+    },
+    catch: (e) =>
+      new DatabaseError({ cause: e, operation: "getVisitorsByIpService" }),
+  });
+
+  const res = execute.match({
+    ok: (v) => v,
+    err: (e) => {
+      throw e;
+    },
+  });
+
+  return res;
+};
+
+export const getVisitorsByGeoService = async ({
+  formId,
+}: {
+  formId: string;
+}) => {
+  const execute = await Result.tryPromise({
+    try: async () => {
+      const promises = await Promise.all([
+        await getVisitorsByCountryService({ formId }),
+        await getVisitorsByCityService({ formId }),
+        await getVisitorsByCoordsService({ formId }),
+        await getVisitorsByIpService({ formId }),
+      ]);
+
+      return {
+        country: promises[0],
+        city: promises[1],
+        coords: promises[2],
+        ip: promises[3],
+      };
+    },
+
+    catch: (e) =>
+      new DatabaseError({ cause: e, operation: "getVisitorsByGeoService" }),
+  });
+
+  const res = execute.match({
+    ok: (v) => v,
+    err: (e) => {
+      throw e;
+    },
+  });
+
+  return res;
 };

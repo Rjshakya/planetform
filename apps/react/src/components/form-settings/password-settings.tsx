@@ -47,9 +47,8 @@ export const FormPasswordSettings = ({
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="size-4"
+                    className="size-4 fill-foreground"
                     viewBox="0 0 24 24"
-                    fill="#fff"
                   >
                     <g clip-path="url(#clip0_4418_4942)">
                       <path

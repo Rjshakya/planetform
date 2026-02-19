@@ -1,14 +1,16 @@
-import { Loader, Trash, TriangleAlert } from "lucide-react";
+import { Trash, TriangleAlert } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { mutate } from "swr";
 import { deleteForm } from "@/hooks/use-form";
+import { resetFormSettings, useFormSettings } from "@/hooks/use-form-settings";
 import { keyOfuseWorkspace } from "@/hooks/use-workspace";
 import { clientUrl } from "@/lib/hc";
 import { toastPromiseOptions } from "@/lib/toast";
 import { CommonMenu } from "../common/common-menu";
+import { FormSettingsSkeleton } from "../common/skeletons";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,12 +31,10 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { CloseSettings } from "./close-settings";
-import { resetFormSettings, useFormSettings } from "@/hooks/use-form-settings";
-import { FormPasswordSettings } from "./password-settings";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { CloseSettings } from "./close-settings";
+import { FormPasswordSettings } from "./password-settings";
 
 export const FormSettingHome = () => {
   const { formId } = useParams();
@@ -71,11 +71,7 @@ export const FormSettingHome = () => {
     );
 
   if (useFormSettingsLoading) {
-    return (
-      <div className="w-full">
-        <Loader className="animate-spin" />
-      </div>
-    );
+    return <FormSettingsSkeleton />;
   }
 
   return (
@@ -151,27 +147,29 @@ export const FormSettingHome = () => {
                           Reset
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="size-4"
+                            className="size-4 fill-none "
                             viewBox="0 0 24 24"
-                            fill="none"
                           >
                             <path
                               d="M14.8901 5.08039C14.0201 4.82039 13.0601 4.65039 12.0001 4.65039C7.21008 4.65039 3.33008 8.53039 3.33008 13.3204C3.33008 18.1204 7.21008 22.0004 12.0001 22.0004C16.7901 22.0004 20.6701 18.1204 20.6701 13.3304C20.6701 11.5504 20.1301 9.89039 19.2101 8.51039"
-                              stroke="#fff"
+                              className=" stroke-foreground"
+                              // stroke="#fff"
                               strokeWidth="1.5"
                               strokeLinecap="round"
                               strokeLinejoin="round"
                             />
                             <path
                               d="M16.13 5.32L13.24 2"
-                              stroke="#fff"
+                              className=" stroke-foreground"
+                              // stroke="#fff"
                               strokeWidth="1.5"
                               strokeLinecap="round"
                               strokeLinejoin="round"
                             />
                             <path
                               d="M16.13 5.32031L12.76 7.78031"
-                              stroke="#fff"
+                              className=" stroke-foreground"
+                              // stroke="#fff"
                               strokeWidth="1.5"
                               strokeLinecap="round"
                               strokeLinejoin="round"

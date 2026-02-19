@@ -124,8 +124,8 @@ export const GmailIntegration = ({
                         handleDisconnect,
                         toastPromiseOptions({
                           error: "failed to disintegrate gmail",
-                          loading: "disintegrating...",
-                          success: "disintegrated",
+                          loading: "Disintegrating...",
+                          success: "Disintegrated",
                         }),
                       )
                   : handleLink

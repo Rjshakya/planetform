@@ -1,17 +1,15 @@
-import { Logo } from "@/components/common/Logo";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/common/Logo";
+import { cn } from "@/lib/utils";
+import { MarketingContainer } from "./marketing-layout";
 
 export const Footer = () => {
   return (
-    <footer className="w-full border-t bg-background">
-      <div className="px-4 sm:px-6 lg:px-8 pt-12 max-w-4xl mx-auto">
-        <div className="h-12 w-full" />
-
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8 ">
+    <footer className="w-full border-t bg-background py-16 sm:py-24">
+      <MarketingContainer>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
           <div className="md:col-span-2 space-y-4">
-            <Logo className="  justify-start" />
+            <Logo className="justify-start" />
             <p className="text-xs text-muted-foreground max-w-xs text-balance">
               Build beautiful, modern forms with an intuitive block-based
               editor. Simple to build, powerful to analyze.
@@ -104,8 +102,8 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="flex flex-row items-start sm:items-center justify-between gap-4 pb-4">
-          <div className="flex items-center gap-4 ">
+        <div className="flex flex-row items-start sm:items-center justify-between gap-4 pb-8">
+          <div className="flex items-center gap-4">
             <Link
               to="/"
               className="hover:text-foreground transition-colors text-xs"
@@ -122,12 +120,12 @@ export const Footer = () => {
           </Link>
         </div>
 
-        <div className="select-none mt-4 h-full w-full flex items-end justify-center px-6 md:px-0">
+        <div className="select-none h-full w-full flex items-end justify-center">
           <div className="flex gap-4 items-center">
             <div>
               <svg
                 role="logo"
-                className={cn(`sm:size-24 size-9 fill-foreground`)}
+                className={cn("sm:size-24 size-9 fill-foreground")}
                 viewBox="0 0 200 200"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -161,7 +159,7 @@ export const Footer = () => {
             </p>
           </div>
         </div>
-      </div>
+      </MarketingContainer>
     </footer>
   );
 };

@@ -71,7 +71,20 @@ export const EmailIntegration = ({
       <CardContent>
         <CardAction className="flex justify-start w-full">
           {integration.connected ? (
-            <Button onClick={handleDisconnect} variant="secondary" className="">
+            <Button
+              onClick={() =>
+                toast.promise(
+                  handleDisconnect,
+                  toastPromiseOptions({
+                    error: "failed to disintegrate email",
+                    loading: "Disintegrating...",
+                    success: "Disintegrated",
+                  }),
+                )
+              }
+              variant="secondary"
+              className=""
+            >
               Disconnect
             </Button>
           ) : (

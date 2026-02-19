@@ -1,18 +1,16 @@
+import { Copy } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useMemo } from "react";
 import {
   Navigate,
   useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
+import { toast } from "sonner";
 import { useIntegrations } from "@/hooks/use-integrations";
 import { CommonMenu } from "../common/common-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { GmailIntegration } from "./gmail/gmail-integration";
-import { GoogleSheetIntegration } from "./google-sheets/google-sheet-integration";
-import { NotionIntegration } from "./notion/notion-integration";
-import { SlackIntegration } from "./slack/slack-integration";
-import { WebhookIntegration } from "./webhook/webhook-integration";
-import { useMemo } from "react";
+import { IntegrationsSkeleton } from "../common/skeletons";
 import {
   Card,
   CardContent,
@@ -26,11 +24,14 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "../ui/input-group";
-import { Copy } from "lucide-react";
-import { toast } from "sonner";
-import { integrationCardsData } from "./integrations";
-import { AnimatePresence, motion } from "motion/react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { EmailIntegration } from "./email/email-integration";
+import { GmailIntegration } from "./gmail/gmail-integration";
+import { GoogleSheetIntegration } from "./google-sheets/google-sheet-integration";
+import { integrationCardsData } from "./integrations";
+import { NotionIntegration } from "./notion/notion-integration";
+import { SlackIntegration } from "./slack/slack-integration";
+import { WebhookIntegration } from "./webhook/webhook-integration";
 
 export const IntegrationsHome = () => {
   const { formId } = useParams();
@@ -53,18 +54,7 @@ export const IntegrationsHome = () => {
   }, [integrations]);
 
   if (isLoading) {
-    return (
-      <div className="max-w-3xl mx-auto pt-12 px-4 pb-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted mb-6 rounded" />
-          <div className="grid sm:grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-40 bg-muted rounded" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <IntegrationsSkeleton />;
   }
 
   if (!formId) {
@@ -201,7 +191,7 @@ export const IntegrationsHome = () => {
                         integration={{ ...integration, index: i }}
                       />
                     );
-                  case "email":
+                  case "email-to-respondent":
                     return (
                       <EmailIntegration
                         integration={{

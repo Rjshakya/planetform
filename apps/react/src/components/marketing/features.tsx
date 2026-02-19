@@ -1,7 +1,12 @@
+import { BarChart3, Blocks, Palette, Plug } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Blocks, BarChart3, Palette, Plug } from "lucide-react";
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import {
+  MarketingContainer,
+  MarketingHeader,
+  MarketingSection,
+} from "./marketing-layout";
 
 const features = [
   {
@@ -32,28 +37,26 @@ const features = [
 
 export const Features = () => {
   return (
-    <section id="features" className="w-full bg-foreground ">
-      <div className=" px-2 max-w-4xl mx-auto ">
-        <div className="h-50 w-full" />
-        <div className=" text-background space-y-8 ">
-          <Badge variant={"secondary"} className="font-mono rounded-xs">Product highlights</Badge>
-          <h1 className="landing-heading text-balance">
-            Everything you need in one form builder
-          </h1>
-          <p className="landing-sub-heading text-pretty">
-            Planetform gives your team a single canvas to design, launch, and
-            analyze form experiences—without wrestling code or rigid templates.
-          </p>
-        </div>
-        <div className="h-36 w-full" />
+    <MarketingSection id="features" background="foreground">
+      <MarketingContainer>
+        <MarketingHeader
+          badge={
+            <Badge variant="secondary" className="font-mono rounded-xs">
+              Product highlights
+            </Badge>
+          }
+          title="Everything you need in one form builder"
+          description="Planetform gives your team a single canvas to design, launch, and analyze form experiences—without wrestling code or rigid templates."
+          className="text-background [&_.landing-sub-heading]:text-background/80"
+        />
 
-        <div className="grid md:grid-cols-2 gap-1 ">
+        <div className="grid md:grid-cols-2 gap-4">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <Card key={feature.title}>
                 <CardHeader>
-                  <Button size={"icon-sm"} className={"mb-4"}>
+                  <Button size="icon-sm" className="mb-4">
                     <Icon className="size-4" />
                   </Button>
                   <CardTitle>{feature.title}</CardTitle>
@@ -63,8 +66,7 @@ export const Features = () => {
             );
           })}
         </div>
-        <div className="h-50 w-full" />
-      </div>
-    </section>
+      </MarketingContainer>
+    </MarketingSection>
   );
 };

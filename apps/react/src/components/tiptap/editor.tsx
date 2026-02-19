@@ -30,10 +30,12 @@ export function FormEditor({
   content,
   formClassName,
   lastStepIndex,
+  wrapperClassName,
 }: {
   className?: string;
   content?: JSONContent | string;
   formClassName?: string;
+  wrapperClassName?: string;
   lastStepIndex: number;
 }) {
   const { getHookForm, handleSubmit } = useFormStore((s) => s);
@@ -123,14 +125,14 @@ export function FormEditor({
       id="editorParent"
       className={cn(
         `${isEditablePage ? "min-h-dvh" : " flex flex-col items-center justify-center "}`,
-        className,
         `p-5`,
+        wrapperClassName,
       )}
       // style={{
       //   backgroundColor: formBackgroundColor || undefined,
       // }}
     >
-      <div className={`max-w-2xl mx-auto w-full relative`}>
+      <div className={cn(`max-w-2xl mx-auto w-full relative`, className)}>
         <EditorContext.Provider value={{ editor }}>
           {/* Top bar of editor */}
           <TopBar editor={editor} isEditable={isEditable} />

@@ -1,4 +1,4 @@
-import { useResponses } from "@/hooks/use-responses";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import {
   Navigate,
@@ -6,12 +6,11 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { SubmissionsComp, type Header } from "./data-table";
+import { useResponses } from "@/hooks/use-responses";
 import { CommonMenu } from "../common/common-menu";
-import { BodySkeleton } from "../common/body-skeleton";
-import { Skeleton } from "../ui/skeleton";
-import { AnimatePresence, motion } from "motion/react";
+import { SubmissionsSkeleton } from "../common/skeletons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { type Header, SubmissionsComp } from "./data-table";
 
 export const SubmissionHome = () => {
   const { formId } = useParams();
@@ -31,13 +30,7 @@ export const SubmissionHome = () => {
   });
 
   if (responseLoading) {
-    return (
-      <div className="max-w-3xl mx-auto pt-12 px-4 pb-8 ">
-        <Skeleton className="w-60 mb-1 h-10" />
-        <Skeleton className="w-150 mb-1 h-10" />
-        <BodySkeleton />
-      </div>
-    );
+    return <SubmissionsSkeleton />;
   }
 
   if (responsesErr) {
@@ -101,7 +94,7 @@ export const SubmissionHome = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ duration:0.3,  ease: "easeInOut" }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="mt-4"
               >
                 <SubmissionsComp

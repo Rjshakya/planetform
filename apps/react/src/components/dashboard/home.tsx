@@ -1,12 +1,15 @@
-import { useUser } from "@/hooks/use-user";
-import { Card, CardContent, CardDescription, CardHeader } from "../ui/card";
-import { useDashboardAnalytics } from "@/hooks/use-analytics";
-import { createWorkspace, useUserWorkspace } from "@/hooks/use-workspace";
-import { Item, ItemContent, ItemGroup, ItemTitle } from "../ui/item";
-import { Button } from "../ui/button";
 import { PlusIcon } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BodySkeleton } from "../common/body-skeleton";
+import { toast } from "sonner";
+import { useDashboardAnalytics } from "@/hooks/use-analytics";
+import { useUser } from "@/hooks/use-user";
+import { createWorkspace, useUserWorkspace } from "@/hooks/use-workspace";
+import { toastPromiseOptions } from "@/lib/toast";
+import { ErrorScreen } from "../common/error";
+import { DashboardSkeleton } from "../common/skeletons";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardHeader } from "../ui/card";
 import {
   Dialog,
   DialogContent,
@@ -16,13 +19,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
-import { toastPromiseOptions } from "@/lib/toast";
+import { Item, ItemContent, ItemGroup, ItemTitle } from "../ui/item";
+import { Label } from "../ui/label";
 import { EmptyWorkspaces } from "./empty-workspace";
-import { ErrorScreen } from "../common/error";
 
 export const DashboardHome = () => {
   const { user } = useUser();
@@ -75,7 +75,7 @@ export const DashboardHome = () => {
   }, [workspaces, navigate, user]);
 
   if (!analytics || !workspaces) {
-    return <BodySkeleton />;
+    return <DashboardSkeleton />;
   }
 
   if (error || workspaceError) {

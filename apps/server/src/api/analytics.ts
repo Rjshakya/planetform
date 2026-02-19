@@ -7,10 +7,11 @@ import {
   getSubmissionByTimeService,
   getUniqueSubmissionByTimeService,
   getUniqueVisitorByTimeService,
+  getVisitorsByGeoService,
   getVisitorsByTimeService,
-  Interval,
 } from "../services/form.analytics";
 import { intervalSchema } from "../utils/validation";
+import { ApiResponse } from "../utils/api";
 
 const analytics = new Hono<{
   Variables: {
@@ -71,6 +72,20 @@ const analytics = new Hono<{
         { visitors, uniqueVisitors, submissions, uniqueSubmissions },
         200,
       );
+    },
+  )
+  .get(
+    "/form/geo",
+    zValidator(
+      "query",
+      z.object({
+        formId: z.string().nonoptional(),
+      }),
+    ),
+    async (c) => {
+      const { formId } = c.req.valid("query");
+      const data = await getVisitorsByGeoService({ formId });
+      return c.json(ApiResponse({ data, message: "success" }));
     },
   );
 
