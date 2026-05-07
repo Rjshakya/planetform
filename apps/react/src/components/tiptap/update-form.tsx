@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { toastPromiseOptions } from "@/lib/toast";
 import { mutate } from "swr";
 import {
-  filterFormFieldsFromContent,
   getCustomization,
   handleMultiPageFormFields,
 } from "@/lib/publish-form-helpers";
@@ -63,9 +62,9 @@ export const UpdateForm = () => {
       <DialogTrigger render={<Button>Save</Button>} />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Publish form</DialogTitle>
+          <DialogTitle>Update form</DialogTitle>
           <DialogDescription>
-            make your form live , and start getting submissions
+            update your form live , and start getting submissions
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-3">

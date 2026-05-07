@@ -28,7 +28,7 @@ export const SlackIntegration = ({
   integration: IntegrationCard;
 }) => {
   const { formId } = useParams<{ formId: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const formName = searchParams.get("name");
   const workspace = searchParams.get("workspace");
   const openDialog = searchParams.get("connect");
@@ -61,8 +61,9 @@ export const SlackIntegration = ({
       await createSlackIntegration(params);
       await mutate(keyOfUseIntegrations(formId));
       setOpen(false);
+      setSearchParams(`?name=${formName}&workspace=${workspace}`);
     },
-    [formId],
+    [formId, setSearchParams, formName, workspace],
   );
 
   const handleDisconnect = useCallback(async () => {

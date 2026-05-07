@@ -1,8 +1,4 @@
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useFormStore } from "@/stores/useformStore";
 import { NodeViewContent } from "@tiptap/react";
@@ -29,7 +25,7 @@ const ShortInput = (props: NodeViewProps) => {
             <FieldLabel
               htmlFor={label}
               aria-label={label}
-              className="text-base"
+              className="form-input-label"
               id={id}
             >
               <div className="flex items-center gap-2">

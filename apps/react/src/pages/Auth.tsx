@@ -2,7 +2,7 @@ import { Loader } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { authClient } from "../lib/auth-client";
 import { Logo } from "../components/common/Logo";
-import SignIn from "./_components/SignIn";
+import SignIn from "../components/auth/SignIn";
 
 export default function AuthPage() {
   const { data, isPending } = authClient.useSession();

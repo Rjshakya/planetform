@@ -33,11 +33,15 @@ export interface EmailConfig {
 interface EmailConfigDialogProps {
   formId: string;
   onConnect: (config: EmailConfig) => void;
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
 }
 
 export const EmailConfigDialog = ({
   onConnect,
   formId,
+  onOpenChange,
+  open,
 }: EmailConfigDialogProps) => {
   const [_config, setConfig] = useState<EmailConfig>({
     body: "",
@@ -48,7 +52,7 @@ export const EmailConfigDialog = ({
   const { formFields, formFieldsLoading } = useFormFields(formId);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger render={<Button variant={"secondary"}>Connect</Button>} />
       <DialogContent>
         <DialogHeader>

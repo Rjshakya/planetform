@@ -23,7 +23,6 @@ import { ThankyouMessage } from "./thanku-message";
 import { usePreviewStore } from "@/stores/usePreviewStore";
 import { useFormSteps } from "@/stores/useFormStepper";
 import { useFormEditor } from "@/hooks/use-form-editor";
-import { ArrowLeft } from "lucide-react";
 
 export function FormEditor({
   className,
@@ -124,15 +123,12 @@ export function FormEditor({
     <div
       id="editorParent"
       className={cn(
-        `${isEditablePage ? "min-h-dvh" : " flex flex-col items-center justify-center "}`,
+        `${isEditablePage ? "min-h-dvh" : "flex flex-col items-center justify-center"}`,
         `p-5`,
         wrapperClassName,
       )}
-      // style={{
-      //   backgroundColor: formBackgroundColor || undefined,
-      // }}
     >
-      <div className={cn(`max-w-2xl mx-auto w-full relative`, className)}>
+      <div className={cn(`max-w-3xl mx-auto w-full relative`, className)}>
         <EditorContext.Provider value={{ editor }}>
           {/* Top bar of editor */}
           <TopBar editor={editor} isEditable={isEditable} />
@@ -153,6 +149,7 @@ export function FormEditor({
                 "--primary": actionBtnColor,
                 "--tw-ring-color": formTextColor,
                 "--ring": formTextColor,
+                "--form-label-text": formFontSize,
               } as React.CSSProperties & Record<string, string>
             }
           >
@@ -160,7 +157,7 @@ export function FormEditor({
 
             <EditorContent
               editor={editor}
-              className=" w-full min-w-full cursor-text sm:px-8 sm:pt-8 px-4  "
+              className="w-full min-w-full cursor-text sm:px-8 sm:pt-8 px-4"
             />
 
             {/* Submit Button */}
@@ -187,11 +184,9 @@ export const PrevBtn = ({
   }
 
   return (
-    <div className="w-full">
-      <Button onClick={handlePrev} size={"icon-sm"} variant={"secondary"}>
-        <ArrowLeft />
-      </Button>
-    </div>
+    <Button onClick={handlePrev} variant={"default"}>
+      Back
+    </Button>
   );
 };
 
@@ -244,7 +239,6 @@ export const TopBar = ({
         >
           {isEditable ? "Preview" : "Edit"}
         </Button>
-
         {location.pathname === "/editor" ? <PublishForm /> : <UpdateForm />}
       </div>
     </div>
@@ -256,6 +250,7 @@ export const SubmitButton = () => {
   const { currentStep, totalSteps } = useFormSteps((s) => s);
   const { isSubmitted } = useFormStore((s) => s);
   const navigate = useNavigate();
+  const { formId } = useParams();
 
   const {
     actionBtnColor,
@@ -296,7 +291,7 @@ export const SubmitButton = () => {
 
   if (isEditor) {
     return (
-      <div className="w-full sm:px-8 pb-4 px-4">
+      <div className="w-full sm:px-8 px-4">
         <Button
           style={
             {
@@ -318,9 +313,10 @@ export const SubmitButton = () => {
   return (
     <>
       {
-        <div className="w-full sm:px-8 pb-4 px-4">
+        <div className="w-full sm:px-8 pb-4 px-4 flex gap-2 items-center">
+          <PrevBtn formId={formId} isPreview={false} />
           <Button
-            // size={actionBtnSize ?? "lg"}
+            className={""}
             style={
               {
                 "--primary": actionBtnColor || "",

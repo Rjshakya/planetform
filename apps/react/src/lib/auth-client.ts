@@ -19,7 +19,6 @@ export const signIn = async () => {
   await authClient.signIn.social({
     provider: "google",
     callbackURL: `${clientUrl}/dashboard`,
-    requestSignUp: true,
   });
 };
 
