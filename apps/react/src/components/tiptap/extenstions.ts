@@ -24,6 +24,7 @@ import { multipleChoiceNode } from "./form-nodes/multiple-choice/node";
 import { multiPageNode } from "./form-nodes/page-node/node";
 import { shortInputNode } from "./form-nodes/short-input/node";
 import { suggestion } from "./slash-suggestions";
+import { ImageExtension } from "./extenstions/image";
 
 export const extensions = [
   StarterKit.configure({
@@ -58,12 +59,13 @@ export const extensions = [
   Highlight.configure({
     multicolor: true,
   }),
-  Image.configure({
-    resize: {
-      enabled: true,
-      alwaysPreserveAspectRatio: true,
-    },
-  }),
+  // Image.configure({
+  //   resize: {
+  //     enabled: true,
+  //     alwaysPreserveAspectRatio: true,
+  //   },
+  // }),
+  ImageExtension,
   ImagePlaceholder,
   Typography,
   // Slash command menu (/)

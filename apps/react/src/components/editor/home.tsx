@@ -3,9 +3,11 @@ import { FormEditor } from "../tiptap/editor";
 import { useEffect } from "react";
 import { useFormStore } from "@/stores/useformStore";
 import { useEditorContentStore } from "@/stores/useEditorContent";
+import { useCustomizationStore } from "@/stores/useCustomizationStore";
 
 export const EditorHome = () => {
   const form = useForm();
+  const { formBackgroundColor } = useCustomizationStore((s) => s);
 
   useEffect(() => {
     if (useFormStore.getState().form) return;
@@ -13,7 +15,10 @@ export const EditorHome = () => {
   }, [form]);
 
   return (
-    <div className="grid gap-2">
+    <div
+      style={{ backgroundColor: formBackgroundColor || undefined }}
+      className=""
+    >
       <FormEditor
         lastStepIndex={0}
         content={

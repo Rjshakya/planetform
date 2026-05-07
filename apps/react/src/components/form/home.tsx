@@ -13,7 +13,6 @@ import { useFormPasswordAuth } from "@/hooks/use-form-password-auth";
 import { useFormRender } from "@/hooks/use-form-render";
 import { useCustomizationStore } from "@/stores/useCustomizationStore";
 import { useFormSteps } from "@/stores/useFormStepper";
-import { PrevBtn } from "../tiptap/editor";
 import { FormRender } from "./render";
 
 // Wrapper component that validates token before showing form
@@ -61,10 +60,37 @@ const PasswordProtectedForm = ({
   return <>{children}</>;
 };
 
+// Buttery smooth spring configuration
+const springTransition = {
+  type: "spring" as const,
+  stiffness: 300,
+  damping: 30,
+  mass: 0.8,
+};
+
+// Slide variants for buttery smooth transitions
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0,
+    scale: 0.95,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -300 : 300,
+    opacity: 0,
+    scale: 0.95,
+  }),
+};
+
 export const FormHome = () => {
   const { formId } = useParams();
   const { form, useFormError, useFormLoading } = useForm(formId!);
-  const { currentStep } = useFormSteps((s) => s);
+  const { currentStep, direction } = useFormSteps((s) => s);
   const pages = useFormRender(form);
   const { pathname } = useLocation();
   const isPreview = pathname.includes("/preview");
@@ -103,28 +129,30 @@ export const FormHome = () => {
   const formContent = (
     <main
       style={{ backgroundColor: formBackgroundColor || undefined }}
-      className="no-scrollbar min-h-dvh flex flex-col items-center justify-center"
+      className="no-scrollbar min-h-dvh flex items-center justify-center overflow-hidden"
     >
-      <motion.div layout className="w-full mb-4 max-w-3xl mx-auto">
-        <PrevBtn formId={formId} isPreview={isPreview} />
-      </motion.div>
-      <AnimatePresence mode="popLayout">
-        {pages.length > 0 &&
-          pages.map((p, i) =>
-            currentStep === i ? (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="w-full"
-              >
-                <FormRender content={p} lastStepIndex={pages.length - 1} />
-              </motion.div>
-            ) : null,
-          )}
-      </AnimatePresence>
+      <div className="relative w-full max-w-3xl mx-auto">
+        <AnimatePresence mode="wait" custom={direction}>
+          {pages.length > 0 &&
+            pages.map(
+              (p, i) =>
+                currentStep === i && (
+                  <motion.div
+                    key={i}
+                    custom={direction}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={springTransition}
+                    className="w-full"
+                  >
+                    <FormRender content={p} lastStepIndex={pages.length - 1} />
+                  </motion.div>
+                ),
+            )}
+        </AnimatePresence>
+      </div>
     </main>
   );
 

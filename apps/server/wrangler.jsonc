@@ -59,7 +59,7 @@
       "class_name": "EmailIntegrationWorkflow",
     },
 
-     {
+    {
       "name": "customer-onboarding-workflow",
       "binding": "CUSTOMER_ONBOARDING_WORKFLOW",
       "class_name": "CustomerOnboardingWorkflow",
@@ -83,13 +83,14 @@
       "name": "slack-integration-workflow",
       "binding": "SLACK_INTEGRATION_WORKFLOW",
       "class_name": "SlackIntegrationWorkflow",
-    }
+    },
   ],
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
       "id": "55054dd9bb9245729060d462d3daaf66",
-      "localConnectionString": "postgresql://postgres:postgres@localhost/planeformDB",
+      // "localConnectionString": "postgresql://postgres:postgres@localhost/planeformDB",
+      "localConnectionString": "postgresql://neondb_owner:npg_kc3IMS1XxjnR@ep-autumn-mode-a1a8enla-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
     },
   ],
   "ratelimits": [

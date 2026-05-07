@@ -37,7 +37,7 @@ export const DateInputView = (props: NodeViewProps) => {
             <FieldLabel
               htmlFor={label}
               aria-label={label}
-              className=" text-base "
+              className=" form-input-label "
               id={id}
             >
               <div className="flex items-center gap-2">

@@ -5,6 +5,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useFormPasswordAuth } from "@/hooks/use-form-password-auth";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "../ui/card";
 
 export const VerifyPasswordPage = () => {
   const { formId } = useParams();
@@ -31,41 +37,43 @@ export const VerifyPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-dvh w-full flex items-center justify-center bg-background">
-      <div className="w-full max-w-md p-8 space-y-6 bg-card rounded-lg border shadow-sm">
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <Lock className="w-6 h-6 text-primary" />
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Password Protected Form
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            This form is protected. Please enter the password to continue.
-          </p>
-        </div>
+    <div className="min-h-dvh w-full flex items-center justify-center bg-background px-2 sm:px-0">
+      <div className="bg-destructive dark:bg-red-700 p-1 rounded-md border ring-2 ring-destructive/20">
+        <p className=" font-semibold mb-1 p-1 text-sm text-white">
+          Password Protected Form
+        </p>
+        <Card className="bg-background ">
+          <CardHeader className="text-center space-y-2">
+            {/* <CardTitle className="text-left">Password Protected Form</CardTitle> */}
+            <CardDescription className="text-left">
+              This form is protected. Please enter the password to continue.
+            </CardDescription>
+          </CardHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isVerifying}
-            className="h-11"
-          />
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-1">
+              <Input
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isVerifying}
+                className=""
+              />
 
-          <Button type="submit" className="w-full h-11" disabled={isVerifying}>
-            {isVerifying ? (
-              <>
-                <Loader className="w-4 h-4 mr-2 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              "Access Form"
-            )}
-          </Button>
-        </form>
+              <Button type="submit" className="w-full" disabled={isVerifying}>
+                {isVerifying ? (
+                  <>
+                    <Loader className="w-4 h-4 mr-2 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  "Access Form"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

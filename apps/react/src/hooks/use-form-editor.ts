@@ -16,7 +16,7 @@ export const useFormEditor = (
     extensions: extensions,
     editorProps: {
       attributes: {
-        class: "max-w-full focus:outline-none",
+        class: "w-full focus:outline-none",
       },
     },
     onUpdate(props) {

@@ -8,4 +8,3 @@ export const loadFont = (fontFamily: string) => {
     document.head.appendChild(link);
   }
 };
- 

@@ -12,6 +12,7 @@ export const EditFormHome = () => {
   const { getHookForm } = useFormStore((s) => s);
   const hookForm = useHookForm();
   const [formState, setFormState] = useState<any>();
+  const { formBackgroundColor } = useCustomizationStore((s) => s);
 
   useEffect(() => {
     if (!getHookForm()) {
@@ -33,5 +34,12 @@ export const EditFormHome = () => {
     return <p>loading</p>;
   }
 
-  return formState && <FormRender lastStepIndex={0} content={formState} />;
+  return (
+    formState && (
+      <div style={{ backgroundColor: formBackgroundColor || undefined }}>
+        {" "}
+        <FormRender lastStepIndex={0} content={formState} />{" "}
+      </div>
+    )
+  );
 };

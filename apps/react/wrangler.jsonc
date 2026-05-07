@@ -5,12 +5,23 @@
   "assets": {
     "not_found_handling": "single-page-application"
   },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1
+    },
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": false
+    },
+  },
   "routes": [
     {
       "custom_domain": true,
       "pattern": "planetform.xyz"
-    }
-  ]
-
-
+    },
+  ],
 }

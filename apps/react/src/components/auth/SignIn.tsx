@@ -23,7 +23,7 @@ const SignIn = ({ className }: { className?: string }) => {
             variant={"secondary"}
             size={"icon"}
             className=" shrink-0 w-full h-11"
-            onClick={async () => await signIn()}
+            onClick={signIn}
           >
             <span>
               <svg

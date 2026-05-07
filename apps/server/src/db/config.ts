@@ -1,7 +1,6 @@
 import { env } from "cloudflare:workers";
-import { upstashCache } from "drizzle-orm/cache/upstash";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { Client } from "pg";
 import * as auth from "./schema/auth";
 import * as form from "./schema/form";
 import * as formField from "./schema/form.fields";
@@ -13,17 +12,14 @@ import * as subscription from "./schema/subscription";
 import * as workspace from "./schema/workspace";
 
 export const getDb = async () => {
-	const { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN, NODE_ENV } = env;
-
-	const pool = new Pool({
+	const client = new Client({
 		connectionString: env.HYPERDRIVE.connectionString,
-		max: 100,
-		min: 10,
-		idleTimeoutMillis: 10000,
 	});
 
+	await client.connect();
+
 	return drizzle({
-		client: pool,
+		client,
 		schema: {
 			...auth,
 			...workspace,
@@ -35,14 +31,6 @@ export const getDb = async () => {
 			...integration,
 			...subscription,
 		},
-		cache:
-			NODE_ENV === "production"
-				? upstashCache({
-						token: UPSTASH_REDIS_REST_TOKEN,
-						url: UPSTASH_REDIS_REST_URL,
-						global: true,
-					})
-				: undefined,
 	});
 };
 

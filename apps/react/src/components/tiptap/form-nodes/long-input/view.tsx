@@ -30,7 +30,7 @@ export const LongInputView = (props: NodeViewProps) => {
           rules={{ validate: validationFn({ isRequired, type: "longInput" }) }}
           render={({ field, fieldState }) => (
             <Field className="" data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={label} className="text-base" id={id}>
+              <FieldLabel htmlFor={label} className="form-input-label" id={id}>
                 <div className="flex items-center gap-2">
                   <NodeViewContent
                     onKeyDown={(e) => e?.key === "Enter" && e?.preventDefault()}

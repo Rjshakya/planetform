@@ -55,7 +55,7 @@ export const WebhookConfigDialog = ({
               }}
             />
             <p className="text-xs text-muted-foreground">
-              Form submissions will be POSTed to this URL as JSON
+              Form submissions will be posted to this URL as JSON
             </p>
           </div>
         </div>

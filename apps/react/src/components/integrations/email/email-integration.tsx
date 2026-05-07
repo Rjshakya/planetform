@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   createEmailToRespondentIntegrations,
   deleteIntegration,
@@ -26,6 +26,8 @@ export const EmailIntegration = ({
   integration: IntegrationCard;
 }) => {
   const { formId } = useParams<{ formId: string }>();
+  const [openDialog, setOpenDialog] = useState(false);
+
   const handleConnect = useCallback(
     async (config: EmailConfig) => {
       if (!formId) return;
@@ -39,6 +41,7 @@ export const EmailIntegration = ({
             formId,
           });
           mutate(keyOfUseIntegrations(formId));
+          setOpenDialog(false);
         },
         toastPromiseOptions({
           error: "Failed to create email integration",
@@ -89,6 +92,8 @@ export const EmailIntegration = ({
             </Button>
           ) : (
             <EmailConfigDialog
+              open={openDialog}
+              onOpenChange={setOpenDialog}
               formId={formId || ""}
               onConnect={handleConnect}
             />
