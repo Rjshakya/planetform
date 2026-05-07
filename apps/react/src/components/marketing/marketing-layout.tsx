@@ -22,7 +22,7 @@ export const MarketingSection = ({
     <section
       id={id}
       className={cn(
-        "w-full py-16 sm:py-24 md:py-64",
+        "w-full py-54 md:py-64",
         background === "foreground" && "bg-foreground",
         background === "muted" && "bg-muted",
         border && "border",

@@ -25,9 +25,9 @@ export const filterFormFieldsFromContent = (
   jsonContent: JSONContent,
   form: string,
 ) => {
-  const inputNodes = jsonContent.content?.filter((n) =>
-    n.type?.includes("Input"),
-  );
+  const inputNodes = jsonContent.content?.filter((n) => {
+    return n.type?.includes("Input");
+  });
 
   const formFields: IFormField[] = inputNodes!.map((f, i) => {
     const labelFromContent = f.content
@@ -48,7 +48,7 @@ export const filterFormFieldsFromContent = (
       subType: f?.attrs?.type,
       order: i,
       isRequired: f?.attrs?.isRequired,
-      choices: f?.attrs?.options,
+      // choices: f?.attrs?.options,
     };
   });
 
@@ -65,6 +65,7 @@ export const handleMultiPageFormFields = (doc: JSONContent, form: string) => {
     { type: "doc", attrs: {}, content: firstPage },
     form,
   );
+
   allFormFields.push(...firstPageFields);
 
   const nextPagesFields = docContent.filter((d) => d.type === "page");
@@ -73,6 +74,15 @@ export const handleMultiPageFormFields = (doc: JSONContent, form: string) => {
     const formFields = filterFormFieldsFromContent(content, form);
     allFormFields.push(...formFields);
   });
+
+  // const fieldsWithCorrectOrder = allFormFields.map((f, i) => {
+
+  //   if (f.type?.includes("Input")) {
+  //     return { ...f, order: i };
+  //   }
+
+  //   return f
+  // });
 
   return allFormFields;
 };

@@ -403,7 +403,7 @@ export const FileUploadInputView = (props: NodeViewProps) => {
             <FieldLabel
               htmlFor={name}
               aria-label={name}
-              className="text-base grid gap-3"
+              className="form-input-label grid gap-3"
               id={id}
             >
               {/* {label.} */}

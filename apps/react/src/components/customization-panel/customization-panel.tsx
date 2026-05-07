@@ -26,6 +26,7 @@ import {
 } from "../ui/select";
 
 import { useRef } from "react";
+import { useTheme } from "../common/theme-provider";
 
 const FONT_SIZES = [
   { value: "12px", label: "12px" },
@@ -97,7 +98,6 @@ export const CustomizationPanel = () => {
     setformFontFamily,
     formFontSize,
     setFormFontSize,
-    actionBtnSize,
     setActionBtnSize,
     actionBtnColor,
     setActionBtnColor,
@@ -121,6 +121,8 @@ export const CustomizationPanel = () => {
     setButtonWidth,
   } = useCustomizationStore();
 
+  const { setTheme } = useTheme();
+
   return (
     <Sheet>
       <SheetTrigger
@@ -141,15 +143,15 @@ export const CustomizationPanel = () => {
         </SheetHeader>
 
         <Tabs defaultValue="colors" className="mt-4">
-          <TabsList className="w-full grid grid-cols-4">
+          <TabsList className="w-full grid grid-cols-4 min-h-10">
             <TabsTrigger value="colors" className="">
+             
               <span>
                 <svg
                   role="image"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-5"
+                  className="size-5 fill-foreground"
                   viewBox="0 0 24 24"
-                  fill="#fff"
                 >
                   <g clip-path="url(#clip0_4418_4679)">
                     <path
@@ -177,15 +179,15 @@ export const CustomizationPanel = () => {
                   </defs>
                 </svg>
               </span>
+               <p>Color</p>
             </TabsTrigger>
             <TabsTrigger value="typography" className="">
               <span>
                 <svg
                   role="image"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-5"
+                  className="size-5 fill-foreground"
                   viewBox="0 0 24 24"
-                  fill="#fff"
                 >
                   <g clipPath="url(#clip0_4418_4261)">
                     <path
@@ -207,15 +209,15 @@ export const CustomizationPanel = () => {
                   </defs>
                 </svg>
               </span>
+              <p>Text</p>
             </TabsTrigger>
             <TabsTrigger value="buttons" className="">
               <span>
                 <svg
                   role="image"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-5"
+                  className="size-5 fill-foreground"
                   viewBox="0 0 24 24"
-                  fill="#fff"
                 >
                   <g clipPath="url(#clip0_4418_4910)">
                     <path
@@ -237,15 +239,15 @@ export const CustomizationPanel = () => {
                   </defs>
                 </svg>
               </span>
+              <p>Button</p>
             </TabsTrigger>
             <TabsTrigger value="form" className="">
               <span>
                 <svg
                   role="image"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="size-5"
+                  className="size-5 fill-foreground"
                   viewBox="0 0 24 24"
-                  fill="#fff"
                 >
                   <g clip-path="url(#clip0_4418_4835)">
                     <path
@@ -267,6 +269,7 @@ export const CustomizationPanel = () => {
                   </defs>
                 </svg>
               </span>
+              <p>Form</p>
             </TabsTrigger>
           </TabsList>
 
@@ -287,11 +290,6 @@ export const CustomizationPanel = () => {
               onChange={setInputBackgroundColor}
             />
             <ColorPicker
-              label="Input Border"
-              value={inputBorderColor}
-              onChange={setInputBorderColor}
-            />
-            <ColorPicker
               label="Button Background"
               value={actionBtnColor}
               onChange={setActionBtnColor}
@@ -300,11 +298,6 @@ export const CustomizationPanel = () => {
               label="Button Text"
               value={actionBtnTextColor}
               onChange={setActionBtnTextColor}
-            />
-            <ColorPicker
-              label="Button Border"
-              value={actionBtnBorderColor}
-              onChange={setActionBtnBorderColor}
             />
           </TabsContent>
 
@@ -375,11 +368,7 @@ export const CustomizationPanel = () => {
               value={actionBtnTextColor}
               onChange={setActionBtnTextColor}
             />
-            <ColorPicker
-              label="Button Border"
-              value={actionBtnBorderColor}
-              onChange={setActionBtnBorderColor}
-            />
+          
           </TabsContent>
 
           <TabsContent value="form" className="mt-4 space-y-4">
@@ -389,9 +378,10 @@ export const CustomizationPanel = () => {
                 <span className="text-xs text-muted-foreground">Light</span>
                 <Switch
                   checked={formColorScheme === "dark"}
-                  onCheckedChange={(c) =>
-                    setFormColorScheme(c ? "dark" : "light")
-                  }
+                  onCheckedChange={(c) => {
+                    setFormColorScheme(c ? "dark" : "light");
+                    setTheme(c ? "dark" : "light");
+                  }}
                 />
                 <span className="text-xs text-muted-foreground">Dark</span>
               </div>
@@ -405,10 +395,10 @@ export const CustomizationPanel = () => {
               />
             </div>
 
-            <div className="pt-4 border-t">
+            <div className="pt-6 flex  justify-end items-end">
               <Button
-                variant="outline"
-                className="w-full"
+                variant="destructive"
+                className=""
                 onClick={() => {
                   setFormBackgroundColor(null);
                   setFormTextColor(null);

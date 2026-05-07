@@ -1,4 +1,3 @@
-"use client";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
@@ -29,7 +28,7 @@ export const Hero = () => {
           backgroundSize: "54px 54px",
         }}
       />
-      <MarketingContainer className="relative z-10 bg-background border-2 py-12">
+      <MarketingContainer className="relative z-10 bg-background border py-12">
         <h1 className="landing-heading mb-6 text-balance">
           Make forms your users actually love to fill .
         </h1>
@@ -41,8 +40,32 @@ export const Hero = () => {
         </p>
 
         <Link to={"/auth"}>
-          <Button variant="default" size="lg">
-            Create your form for free
+          <Button variant="default" className={"px-0 pl-2 pr-1 group "} size="lg">
+            <p>Create your form for free</p>
+            <span className="bg-muted-foreground grid place-content-center rounded-sm p-0.5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className=" size-5 fill-none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M14.4302 5.92969L20.5002 11.9997L14.4302 18.0697"
+                  className=" stroke-primary-foreground"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M3.5 12H20.33"
+                  className=" stroke-primary-foreground"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
           </Button>
         </Link>
       </MarketingContainer>

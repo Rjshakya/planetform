@@ -62,7 +62,7 @@ export const MultipleChoiceViewV2 = (props: NodeViewProps) => {
             <FieldLabel
               htmlFor={label}
               aria-label={label}
-              className="text-base flex items-center gap-2  "
+              className="form-input-label flex items-center gap-2  "
               id={id}
             >
               <NodeViewContent />
@@ -150,7 +150,8 @@ export const MultipleChoiceViewV2 = (props: NodeViewProps) => {
                       >
                         <RadioGroupItem
                           className={
-                            "sr-only after:absolute after:inset-0 size-0"
+                            // "sr-only after:absolute after:inset-0 size-0"
+                            ""
                           }
                           value={o.label}
                           id={o.id}
@@ -158,7 +159,7 @@ export const MultipleChoiceViewV2 = (props: NodeViewProps) => {
                         <p className={cn("mcp-single-choice-radio")}>{i + 1}</p>
                         {isEditable ? (
                           <input
-                            className="flex-1 appearance-none  focus-visible:ring-0 focus:outline-none"
+                            className="flex-1 appearance-none focus-visible:ring-0 focus:outline-none"
                             value={o.label}
                             onChange={(e) =>
                               updateOptionLabel(i, e.currentTarget.value)

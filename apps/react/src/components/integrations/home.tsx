@@ -118,8 +118,13 @@ export const IntegrationsHome = () => {
                     integrations.length > 0 &&
                     integrations.map((intgre) => {
                       const metaData = JSON.parse(intgre.metaData || "{}");
-                      const url =
+                      let url: string =
                         metaData && metaData?.url ? metaData.url : intgre.type;
+
+                      if (intgre.type === "notion") {
+                        url = url.replaceAll("-", "");
+                      }
+
                       return (
                         <InputGroup key={intgre.id}>
                           <InputGroupInput value={url} />

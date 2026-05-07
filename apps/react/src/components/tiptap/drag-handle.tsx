@@ -3,6 +3,7 @@ import DragHandle from "@tiptap/extension-drag-handle-react";
 import { GripVertical, TrashIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import { handleFileDelete } from "@/lib/file";
 
 export const DragHandleComp = ({ editor }: { editor: Editor }) => {
   const [nodePosition, setNodePosition] = useState<number | null>(null);
@@ -23,6 +24,10 @@ export const DragHandleComp = ({ editor }: { editor: Editor }) => {
           .deleteRange({ from: nodePosition, to: nodePosition + nodeSize })
           .run();
 
+        if (node.type.name === "image") {
+          const url = node.attrs?.src;
+          handleFileDelete(url).catch(console.log);
+        }
         // Reset state after deletion
         setNodePosition(null);
         setNodeType(null);
