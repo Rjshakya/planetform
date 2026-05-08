@@ -57,7 +57,7 @@ export const useFormStore = create<IformStore>((set, get) => ({
     const isPreview = path.includes("/preview");
 
     if (isPreview) {
-      console.log(values);
+      set({ isSubmitted: true });
       return true;
     }
 

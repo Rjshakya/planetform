@@ -6,6 +6,7 @@ import {
   EditorContext,
   type JSONContent,
 } from "@tiptap/react";
+import { type EditorView } from "@tiptap/pm/view";
 import { useFormStore } from "@/stores/useformStore";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
@@ -14,8 +15,7 @@ import { PublishForm } from "./publish-form";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { UpdateForm } from "./update-form";
 import { CustomizationPanel } from "../customization-panel/customization-panel";
-import { useCallback, useState } from "react";
-import { toastPromiseOptions } from "@/lib/toast";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { mutate } from "swr";
 import { getUseResponsesKey } from "@/hooks/use-responses";
 import { DragHandleComp } from "./drag-handle";
@@ -23,6 +23,9 @@ import { ThankyouMessage } from "./thanku-message";
 import { usePreviewStore } from "@/stores/usePreviewStore";
 import { useFormSteps } from "@/stores/useFormStepper";
 import { useFormEditor } from "@/hooks/use-form-editor";
+import { loadFont } from "@/lib/google-fonts";
+import { SlashCommandMenu } from "./slash-command-palette";
+import { FieldMentionMenu } from "./field-mention-palette";
 
 export function FormEditor({
   className,
@@ -39,7 +42,7 @@ export function FormEditor({
 }) {
   const { getHookForm, handleSubmit } = useFormStore((s) => s);
   const { formId } = useParams();
-  const { currentStep, handleNext, totalSteps } = useFormSteps((s) => s);
+  const { currentStep, handleNext } = useFormSteps((s) => s);
   const { pathname } = useLocation();
 
   const {
@@ -57,64 +60,87 @@ export function FormEditor({
     ...(formFontSize && { fontSize: formFontSize }),
   };
 
-  const editor = useFormEditor(content || "", isEditable);
+  const [slashOpen, setSlashOpen] = useState(false);
+  const slashRef = useRef<
+    ((view: EditorView, event: KeyboardEvent) => boolean) | null
+  >(null);
+
+  const [mentionOpen, setMentionOpen] = useState(false);
+  const mentionRef = useRef<
+    ((view: EditorView, event: KeyboardEvent) => boolean) | null
+  >(null);
+
+  const editor = useFormEditor(content || "", isEditable, slashRef, mentionRef);
   const [isEditablePage] = useState(pathname.includes("/edit"));
   const form = getHookForm();
 
-  const handleFormSubmit = useCallback(
-    async (params: { values: Record<string, string | string[]> }) => {
-      if (!form || !formId || pathname.includes("/edit") || !editor) {
-        throw new Error("can't submit form while creating");
-      }
+  const handleCloseCommandMenu = () => {
+    setSlashOpen(false);
+    editor?.commands.focus();
+  };
 
-      const { values } = params;
+  const handleCloseMentionMenu = () => {
+    setMentionOpen(false);
+    editor?.commands.focus();
+  };
 
-      if (currentStep === lastStepIndex) {
-        await handleSubmit({ values, formId: formId ?? "", path: pathname });
-        editor.chain().clearContent().setContent(ThankyouMessage).run();
-        form.reset();
+  const handleFormSubmit = async (
+    values: Record<string, string | string[]>,
+  ) => {
+    if (!form || pathname.includes("/edit") || !editor) {
+      toast.error("can't submit form while creating");
+      return;
+    }
 
-        mutate(
-          getUseResponsesKey({
-            formId: formId ?? "",
-            pageIndex: 0,
-            pageSize: 20,
-          }),
-        );
-        return;
-      }
+    if (currentStep === lastStepIndex) {
+      await handleSubmit({ values, formId: formId ?? "", path: pathname });
+      editor.chain().clearContent().setContent(ThankyouMessage).run();
+      form.reset();
 
-      return handleNext();
-    },
-    [
-      editor,
-      formId,
-      pathname,
-      handleSubmit,
-      form,
-      currentStep,
-      lastStepIndex,
-      handleNext,
-    ],
-  );
-
-  const submitWithToast = useCallback(
-    (values: Record<string, string | string[]>) => {
-      return toast.promise(
-        async () => await handleFormSubmit({ values }),
-        toastPromiseOptions({
-          success:
-            currentStep === totalSteps ? "Form submitted" : "Step completed",
-          loading: "submitting...",
-          error:
-            currentStep === totalSteps
-              ? "Failed to Submit Form"
-              : "Step failed",
+      mutate(
+        getUseResponsesKey({
+          formId: formId ?? "",
+          pageIndex: 0,
+          pageSize: 20,
         }),
       );
-    },
-    [handleFormSubmit, currentStep, totalSteps],
-  );
+      toast.success("Form submitted successfully");
+      return;
+    }
+
+    return handleNext();
+  };
+
+  // Wire the slash handler so it always sees latest editor / state
+  useEffect(() => {
+    slashRef.current = (_view, event) => {
+      if (!editor || !editor.isEditable) return false;
+
+      const { selection } = editor.state;
+      const parentNode = selection.$from.node(selection.$from.depth);
+      if (parentNode.type.name === "codeBlock") return false;
+
+      event.preventDefault();
+      setSlashOpen(true);
+      return true;
+    };
+  }, [editor]);
+
+  // Wire the mention handler so it always sees latest editor / state
+  useEffect(() => {
+    mentionRef.current = (_view, event) => {
+      if (!editor || !editor.isEditable) return false;
+
+      event.preventDefault();
+      setMentionOpen(true);
+      return true;
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!formFontFamily) return;
+    loadFont(formFontFamily);
+  }, []);
 
   if (!editor) return null;
   if (!form) return null;
@@ -128,15 +154,15 @@ export function FormEditor({
         wrapperClassName,
       )}
     >
-      <div className={cn(`max-w-3xl mx-auto w-full relative`, className)}>
+      <div className={cn(`max-w-2xl mx-auto w-full relative`, className)}>
         <EditorContext.Provider value={{ editor }}>
           {/* Top bar of editor */}
-          <TopBar editor={editor} isEditable={isEditable} />
+          <TopBar editor={editor} />
 
           {/* main form */}
           <form
             id={formId || "vite-react-form"}
-            onSubmit={form.handleSubmit(submitWithToast)}
+            onSubmit={form.handleSubmit(handleFormSubmit)}
             className={cn(
               `main-form relative w-full overflow-hidden overflow-y-scroll `,
               formClassName,
@@ -164,80 +190,86 @@ export function FormEditor({
             <SubmitButton />
           </form>
         </EditorContext.Provider>
+
+        <SlashCommandMenu
+          editor={editor}
+          open={slashOpen}
+          onClose={handleCloseCommandMenu}
+          onOpenChange={setSlashOpen}
+        />
+
+        <FieldMentionMenu
+          editor={editor}
+          open={mentionOpen}
+          onClose={handleCloseMentionMenu}
+          onOpenChange={setMentionOpen}
+        />
       </div>
     </div>
   );
 }
 
-export const PrevBtn = ({
-  formId,
-  isPreview,
-}: {
-  formId: string | undefined;
-  isPreview: boolean;
-}) => {
+export const PrevBtn = () => {
   const { isSubmitted } = useFormStore((s) => s);
   const { handlePrev, currentStep } = useFormSteps((s) => s);
+  const {
+    actionBtnColor,
+    actionBtnTextColor,
+    actionBtnBorderColor,
+    buttonHeight,
+    buttonWidth,
+  } = useCustomizationStore((s) => s);
 
-  if (currentStep === 0 || isSubmitted || !formId) {
+  if (currentStep === 0 || isSubmitted) {
     return null;
   }
 
   return (
-    <Button onClick={handlePrev} variant={"default"}>
+    <Button
+      style={
+        {
+          "--primary": actionBtnColor || "",
+          color: actionBtnTextColor || "",
+          "--tw-ring-color": actionBtnBorderColor,
+          width: `${buttonWidth}px`,
+          height: `${buttonHeight}px`,
+        } as React.CSSProperties & Record<string, string>
+      }
+      onClick={handlePrev}
+      variant={"default"}
+    >
       Back
     </Button>
   );
 };
 
-export const TopBar = ({
-  isEditable,
-  editor,
-}: {
-  isEditable: boolean;
-  editor: Editor;
-}) => {
+export const TopBar = ({ editor }: { editor: Editor }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setContent } = usePreviewStore((s) => s);
+
   const togglePreview = useCallback(() => {
-    useCustomizationStore.setState({ isEditable: !isEditable });
     const jsonContent = editor.getJSON();
-    setContent(jsonContent);
-    console.log(jsonContent);
+
+    useCustomizationStore.setState({ isEditable: false });
+    usePreviewStore.setState({ content: jsonContent });
+
     navigate("/preview");
-  }, [editor, isEditable, navigate, setContent]);
+  }, [editor, navigate]);
 
   if (!location.pathname.includes("/edit")) return null;
 
   return (
-    <div className="sticky top-2 z-50 backdrop-blur-lg py-4 px-2 flex items-center justify-between gap-2 mb-3 select-none">
+    <div className="sticky top-0 z-50 backdrop-blur-lg py-4 px-2 flex items-center justify-between gap-2 mb-3 select-none">
       <div>
-        {isEditable ? (
-          <span className=" flex gap-3 items-center">
-            <p>Editor Mode</p>
-            <span className="size-3 bg-green-600  " />
-          </span>
-        ) : (
-          <span className=" flex gap-3 items-center">
-            <p>Preview Mode</p>
-            <span className="size-3 bg-orange-600 animate-caret-blink " />
-          </span>
-        )}
+        <span className=" flex gap-3 items-center">
+          <p>Editor Mode</p>
+          <span className="size-3 bg-green-600  " />
+        </span>
       </div>
       <div className="flex items-center gap-1">
         <CustomizationPanel />
-        <Button
-          variant={"secondary"}
-          onClick={togglePreview}
-          // onClick={() => {
-          //   useCustomizationStore.setState({ isEditable: !isEditable });
-          //   const jsonContent = editor.getJSON();
-          //   setContent(jsonContent);
-          //   navigate("/preview");
-          // }}
-        >
-          {isEditable ? "Preview" : "Edit"}
+        <Button variant={"secondary"} onClick={togglePreview}>
+          Preview
         </Button>
         {location.pathname === "/editor" ? <PublishForm /> : <UpdateForm />}
       </div>
@@ -250,7 +282,6 @@ export const SubmitButton = () => {
   const { currentStep, totalSteps } = useFormSteps((s) => s);
   const { isSubmitted } = useFormStore((s) => s);
   const navigate = useNavigate();
-  const { formId } = useParams();
 
   const {
     actionBtnColor,
@@ -314,7 +345,7 @@ export const SubmitButton = () => {
     <>
       {
         <div className="w-full sm:px-8 pb-4 px-4 flex gap-2 items-center">
-          <PrevBtn formId={formId} isPreview={false} />
+          <PrevBtn />
           <Button
             className={""}
             style={
@@ -322,6 +353,8 @@ export const SubmitButton = () => {
                 "--primary": actionBtnColor || "",
                 color: actionBtnTextColor || "",
                 "--tw-ring-color": actionBtnBorderColor,
+                width: `${buttonWidth}px`,
+                height: `${buttonHeight}px`,
               } as React.CSSProperties & Record<string, string>
             }
             type={"submit"}

@@ -33,6 +33,7 @@ export interface IeditorStore {
   setButtonWidth: (width: string | null) => void;
   buttonHeight: string | null;
   setButtonHeight: (height: string | null) => void;
+  reset: (theme?: string) => void;
 }
 
 export interface Icustomisation {
@@ -78,4 +79,20 @@ export const useCustomizationStore = create<IeditorStore>((set, get) => ({
   setFormColorScheme: (scheme) => set({ formColorScheme: scheme }),
   customThankyouMessage: "Thankyou your responses are submitted",
   setCustomThankyouMessage: (msg) => set({ customThankyouMessage: msg }),
+  reset: (theme) =>
+    set({
+      formBackgroundColor: null,
+      formFontFamily: null,
+      formFontSize: null,
+      actionBtnSize: null,
+      actionBtnColor: null,
+      formTextColor: null,
+      actionBtnTextColor: null,
+      inputBackgroundColor: null,
+      inputBorderColor: null,
+      actionBtnBorderColor: null,
+      formColorScheme: theme === "light" ? "light" : "dark",
+      buttonWidth: null,
+      buttonHeight: null,
+    }),
 }));

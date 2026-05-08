@@ -8,7 +8,11 @@ import { useFormStore } from "@/stores/useformStore";
 
 export const EditFormHome = () => {
   const { formId } = useParams();
-  const { form, useFormError, useFormLoading } = useForm(formId!);
+  const {
+    form,
+    useFormError: FormError,
+    useFormLoading: FormLoading,
+  } = useForm(formId!);
   const { getHookForm } = useFormStore((s) => s);
   const hookForm = useHookForm();
   const [formState, setFormState] = useState<any>();
@@ -26,11 +30,11 @@ export const EditFormHome = () => {
     useCustomizationStore.setState({ ...customization, isEditable: true });
   }, [form, hookForm, getHookForm]);
 
-  if (useFormError) {
+  if (FormError) {
     return <p className="text-destructive">error</p>;
   }
 
-  if (useFormLoading) {
+  if (FormLoading) {
     return <p>loading</p>;
   }
 
