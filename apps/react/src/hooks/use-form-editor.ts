@@ -1,5 +1,6 @@
 import { extensions } from "@/components/tiptap/extenstions";
 import { useEditorContentStore } from "@/stores/useEditorContent";
+import type { EditorView } from "@tiptap/pm/view";
 import { useEditor, type Content } from "@tiptap/react";
 import { useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
@@ -7,19 +8,50 @@ import { useParams } from "react-router-dom";
 export const useFormEditor = (
   content: Content | string,
   isEditable: boolean,
+  slashRef?: React.RefObject<
+    ((view: EditorView, event: KeyboardEvent) => boolean) | null
+  >,
+  mentionRef?: React.RefObject<
+    ((view: EditorView, event: KeyboardEvent) => boolean) | null
+  >,
 ) => {
   const { formId } = useParams();
-  const timeOutRef = useRef<any>(null);
+  const timeOutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editor = useEditor({
     immediatelyRender: false,
     content,
-    extensions: extensions,
+    extensions,
     editorProps: {
       attributes: {
         class: "w-full focus:outline-none",
       },
+      handleKeyDown(view, event) {
+        if (
+          event.key === "/" &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          slashRef?.current
+        ) {
+          return slashRef.current(view, event);
+        }
+        if (
+          event.key === "@" &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          mentionRef?.current
+        ) {
+          return mentionRef.current(view, event);
+        }
+        return false;
+      },
     },
     onUpdate(props) {
+      // when we have a form id, we don't want to persist the editor state
+      // having a form id it means form is live
+
+      // only when form in editor we want to persist its state
+      // so that even if user refreshes the page, the form will be in same state
+
       if (formId) return;
       const { editor } = props;
       if (timeOutRef.current) {

@@ -7,12 +7,17 @@ import { useCustomizationStore } from "@/stores/useCustomizationStore";
 
 export const EditorHome = () => {
   const form = useForm();
-  const { formBackgroundColor } = useCustomizationStore((s) => s);
+  const { formBackgroundColor, reset } = useCustomizationStore((s) => s);
+  const { content } = useEditorContentStore();
 
   useEffect(() => {
-    if (useFormStore.getState().form) return;
     useFormStore.setState({ form });
-  }, [form]);
+    useCustomizationStore.setState({
+      isEditable: true,
+    });
+
+    reset();
+  }, []);
 
   return (
     <div
@@ -22,7 +27,7 @@ export const EditorHome = () => {
       <FormEditor
         lastStepIndex={0}
         content={
-          useEditorContentStore.getState().content ||
+          content ||
           `
           <h2>Welcome to the Planetform !</h2>
           <p></p>
