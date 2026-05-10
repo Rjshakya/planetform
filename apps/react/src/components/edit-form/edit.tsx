@@ -1,5 +1,5 @@
 import { useForm } from "@/hooks/use-form";
-import { useCustomizationStore, hydrateCustomization } from "@/stores/useCustomizationStore";
+import { useCustomizationStore } from "@/stores/useCustomizationStore";
 import { useEditorStore } from "@/stores/useEditorStore";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -29,7 +29,7 @@ export const EditFormHome = () => {
     (() => setFormState(form?.form_schema))();
 
     const customization = form?.customisation || {};
-    useCustomizationStore.setState(hydrateCustomization(customization));
+    useCustomizationStore.setState({ ...customization });
     useEditorStore.setState({ isEditable: true });
   }, [form, hookForm, getHookForm]);
 

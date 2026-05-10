@@ -6,7 +6,7 @@ import { loadFont } from "@/lib/google-fonts";
 import { handleMultiPage } from "@/lib/multi-page";
 import {
   useCustomizationStore,
-  hydrateCustomization,
+  
 } from "@/stores/useCustomizationStore";
 import { useEditorStore } from "@/stores/useEditorStore";
 import { useFormSteps } from "@/stores/useFormStepper";
@@ -43,7 +43,6 @@ export const useFormRender = (formData: Form) => {
 
     const getPages = handleMultiPage(formData.form_schema);
     const customization = formData?.customisation || {};
-    useCustomizationStore.setState(hydrateCustomization(customization));
     useEditorStore.setState({ isEditable: false });
     setTheme((customization.formColorScheme as Theme) || "dark");
     useFormStore.setState({
@@ -62,9 +61,7 @@ export const useFormRender = (formData: Form) => {
     }
 
     const { customisation } = formData;
-
     useCustomizationStore.setState({ ...customisation });
-
     if (customisation?.typography?.formFontFamily) {
       loadFont(customisation?.typography?.formFontFamily);
     }
