@@ -144,7 +144,7 @@ export function FormEditor({
         "selection:bg-primary selection:text-primary-foreground",
       )}
     >
-      <div className={cn(`max-w-2xl mx-auto w-full relative`, className)}>
+      <div className={cn(`max-w-3xl mx-auto w-full relative`, className)}>
         <EditorContext.Provider value={{ editor }}>
           {/* Top bar of editor */}
           <TopBar editor={editor} />
@@ -258,6 +258,7 @@ export const SubmitButton = () => {
   const { currentStep, totalSteps } = useFormSteps((s) => s);
   const { isSubmitted } = useFormStore((s) => s);
   const navigate = useNavigate();
+  const { formId } = useParams();
 
   const isEditor = pathname.includes("/edit");
   const isLanding = pathname === "/";

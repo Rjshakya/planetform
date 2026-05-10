@@ -75,6 +75,15 @@ export const handleMultiPageFormFields = (doc: JSONContent, form: string) => {
     allFormFields.push(...formFields);
   });
 
+  // const fieldsWithCorrectOrder = allFormFields.map((f, i) => {
+
+  //   if (f.type?.includes("Input")) {
+  //     return { ...f, order: i };
+  //   }
+
+  //   return f
+  // });
+
   return allFormFields;
 };
 

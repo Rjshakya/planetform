@@ -50,6 +50,11 @@ export const WorkspaceHome = () => {
     toast.success("copied");
   }, []);
 
+  const handleCopy = useCallback(async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    toast.success("copied");
+  }, []);
+
   const handleDeleteForm = useCallback(
     async (formId: string) => {
       await deleteForm(formId);
