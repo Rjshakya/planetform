@@ -1,5 +1,5 @@
 import { type NodeViewProps, NodeViewWrapper } from "@tiptap/react";
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { useWatch } from "react-hook-form";
 import { cn } from "@/lib/utils";
 

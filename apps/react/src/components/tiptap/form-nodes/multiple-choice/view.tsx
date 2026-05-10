@@ -5,13 +5,13 @@ import {
 } from "@tiptap/react";
 import { type InsertMultipleChoiceParams } from "./node";
 
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { Controller } from "react-hook-form";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useCustomizationStore } from "@/stores/useCustomizationStore";
+import { useEditorStore } from "@/stores/useEditorStore";
 import { v7 } from "uuid";
 import { useCallback } from "react";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ export const MultipleChoiceViewV2 = (props: NodeViewProps) => {
 
   const editor = props.editor;
   const form = useFormStore.getState().getHookForm();
-  const { isEditable } = useCustomizationStore((s) => s);
+  const { isEditable } = useEditorStore((s) => s);
 
   const updateOptionLabel = useCallback(
     (optionIndex: number, newLabel: string) => {
@@ -135,7 +135,11 @@ export const MultipleChoiceViewV2 = (props: NodeViewProps) => {
                   })}
                 </div>
               ) : (
-                <RadioGroup value={field?.value} onValueChange={field.onChange}>
+                <RadioGroup
+                  className={"grid gap-1"}
+                  value={field?.value}
+                  onValueChange={field.onChange}
+                >
                   {options?.map((o, i) => {
                     if (!o.id || !o.id.length) return null;
                     const checked = field?.value === o.label;
@@ -143,20 +147,17 @@ export const MultipleChoiceViewV2 = (props: NodeViewProps) => {
                       <div
                         key={i}
                         className={cn(
-                          `flex items-center justify-end gap-3 p-1.5`,
+                          `flex items-center justify-end gap-3 p-2`,
                           `${checked && "border border-primary"}`,
                           "mcq-multiple-choice-option form-input-style ",
                         )}
                       >
                         <RadioGroupItem
-                          className={
-                            // "sr-only after:absolute after:inset-0 size-0"
-                            ""
-                          }
+                          className={"border-primary/40"}
                           value={o.label}
                           id={o.id}
                         />
-                        <p className={cn("mcp-single-choice-radio")}>{i + 1}</p>
+                        {/* <p className={cn("mcp-single-choice-radio")}>{i + 1}</p> */}
                         {isEditable ? (
                           <input
                             className="flex-1 appearance-none focus-visible:ring-0 focus:outline-none"

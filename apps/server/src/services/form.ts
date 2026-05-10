@@ -12,6 +12,7 @@ import { DatabaseError, ParseError, UnhandledException } from "../errors";
 import { getRedis } from "../utils/redis";
 import { getSubmissionService } from "./form.analytics";
 import z from "zod";
+import { JSONValue } from "hono/utils/types";
 
 export const createFormService = async ({
   formValues,
@@ -207,7 +208,7 @@ interface IgetFormService {
   createdAt: Date;
   updatedAt: Date;
   customerId: string;
-  customisation: IFormCustomization;
+  customisation: JSONValue;
   closed: boolean | null;
   closedMessage: string | null;
   isPasswordProtected: boolean;

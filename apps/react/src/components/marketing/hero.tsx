@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 export const Hero = () => {
@@ -40,7 +40,11 @@ export const Hero = () => {
         </p>
 
         <Link to={"/auth"}>
-          <Button variant="default" className={"px-0 pl-2 pr-1 group "} size="lg">
+          <Button
+            variant="default"
+            className={"px-0 pl-2 pr-1 group "}
+            size="lg"
+          >
             <p>Create your form for free</p>
             <span className="bg-muted-foreground grid place-content-center rounded-sm p-0.5">
               <svg

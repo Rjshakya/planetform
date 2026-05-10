@@ -4,9 +4,13 @@ import { type Theme, useTheme } from "@/components/common/theme-provider";
 import { createRespondent } from "@/lib/form-submit";
 import { loadFont } from "@/lib/google-fonts";
 import { handleMultiPage } from "@/lib/multi-page";
-import { useCustomizationStore } from "@/stores/useCustomizationStore";
+import {
+  useCustomizationStore,
+  hydrateCustomization,
+} from "@/stores/useCustomizationStore";
+import { useEditorStore } from "@/stores/useEditorStore";
 import { useFormSteps } from "@/stores/useFormStepper";
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import type { Form } from "./use-form";
 
 export const useFormRender = (formData: Form) => {
@@ -39,7 +43,8 @@ export const useFormRender = (formData: Form) => {
 
     const getPages = handleMultiPage(formData.form_schema);
     const customization = formData?.customisation || {};
-    useCustomizationStore.setState({ ...customization, isEditable: false });
+    useCustomizationStore.setState(hydrateCustomization(customization));
+    useEditorStore.setState({ isEditable: false });
     setTheme((customization.formColorScheme as Theme) || "dark");
     useFormStore.setState({
       creator: formData?.creator,
@@ -52,10 +57,18 @@ export const useFormRender = (formData: Form) => {
 
   // Load Google Font when formFontFamily is available
   useEffect(() => {
-    if (formData?.customisation?.formFontFamily) {
-      loadFont(formData.customisation.formFontFamily);
+    if (!formData?.customisation) {
+      return;
     }
-  }, [formData?.customisation?.formFontFamily]);
+
+    const { customisation } = formData;
+
+    useCustomizationStore.setState({ ...customisation });
+
+    if (customisation?.typography?.formFontFamily) {
+      loadFont(customisation?.typography?.formFontFamily);
+    }
+  }, [formData]);
 
   if (!formData || !pages) {
     return null;

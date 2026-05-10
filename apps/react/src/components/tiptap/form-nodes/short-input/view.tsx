@@ -1,6 +1,6 @@
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { NodeViewContent } from "@tiptap/react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { validationFn } from "@/lib/FormFieldValidations";

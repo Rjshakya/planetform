@@ -39,6 +39,24 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Default Form Styles - Light Mode */
+  --default-form-background: #ffffff;
+  --default-form-text: #171717;
+  --default-form-button-bg: #171717;
+  --default-form-button-text: #ffffff;
+  --default-form-button-border: transparent;
+  --default-form-checkbox: #171717;
+  --default-form-input-bg: #f5f5f5;
+  --default-form-input-border: #e5e5e5;
+  --default-form-input-focus: #171717;
+  --default-form-input-box-bg: transparent;
+  --default-form-input-box-padding: 0px;
+  --default-form-font-family: "Geist Sans", sans-serif;
+  --default-form-font-size: 16px;
+  --default-form-width: 100%;
+  --default-form-button-padding: 10px 20px;
+  --default-form-radius: 8px;
 }
 
 .dark {
@@ -73,6 +91,24 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Default Form Styles - Dark Mode */
+  --default-form-background: #0a0a0a;
+  --default-form-text: #fafafa;
+  --default-form-button-bg: #fafafa;
+  --default-form-button-text: #171717;
+  --default-form-button-border: transparent;
+  --default-form-checkbox: #fafafa;
+  --default-form-input-bg: #262626;
+  --default-form-input-border: #404040;
+  --default-form-input-focus: #565656;
+  --default-form-input-box-bg: transparent;
+  --default-form-input-box-padding: 0px;
+  --default-form-font-family: "Geist Sans", sans-serif;
+  --default-form-font-size: 16px;
+  --default-form-width: 100%;
+  --default-form-button-padding: 8px 16px;
+  --default-form-radius: 8px;
 }
 
 @theme inline {
@@ -134,7 +170,7 @@
   }
 
   .mcp-single-choice-radio {
-    @apply rounded-xs size-4 text-xs p-1 ring ring-inherit bg-background grid place-content-center;
+    @apply rounded-xs size-4 text-xs p-1 ring ring-inherit grid place-content-center;
   }
 
   .file-upload-drag-area {
@@ -164,4 +200,86 @@
   .landing-sub-heading {
     @apply max-w-sm text-left text-sm;
   }
+}
+
+.main-form {
+  /* Container */
+  background-color: var(--form-background, var(--default-form-background));
+  color: var(--form-text, var(--default-form-text));
+  font-family: var(--form-font-family, var(--default-form-font-family));
+  font-size: var(--form-font-size, var(--default-form-font-size));
+  max-width: var(--form-width, var(--default-form-width));
+}
+
+/* ── Input Boxes (NodeViewWrapper containers) ── */
+.main-form [class*="node-"][class$="Input"],
+.main-form [class*="node-Email"],
+.main-form [class*="node-Date"],
+.main-form [class*="node-File"],
+.main-form .mcq-input {
+  background-color: var(--form-input-box-bg, var(--default-form-input-box-bg));
+  padding: var(--form-input-box-padding, var(--default-form-input-box-padding));
+  border-radius: var(--form-radius, var(--default-form-radius));
+}
+
+/* ── Native Input & Textarea ── */
+.main-form input[data-slot="input"],
+.main-form textarea[data-slot="textarea"] {
+  background-color: var(--form-input-bg, var(--default-form-input-bg));
+  border-color: var(--form-input-border, var(--default-form-input-border));
+  border-radius: var(--form-radius, var(--default-form-radius));
+}
+
+.main-form input[data-slot="input"]:focus-visible,
+.main-form textarea[data-slot="textarea"]:focus-visible {
+  border-color: var(--form-input-focus, var(--default-form-input-focus));
+}
+
+/* ── Date Input Popover Trigger ── */
+.main-form [data-slot="popover-trigger"] > button,
+.date-input-trigger {
+  background-color: var(--form-input-bg, var(--default-form-input-bg));
+  border-color: var(--form-input-border, var(--default-form-input-border));
+  border-radius: var(--form-radius, var(--default-form-radius));
+}
+
+.main-form [data-slot="popover-trigger"] > button:focus-visible {
+  border-color: var(--form-input-focus, var(--default-form-input-focus));
+}
+
+/* ── MCQ Options ── */
+.main-form .mcq-multiple-choice-option {
+  background-color: var(--form-input-bg, var(--default-form-input-bg));
+  /* padding: var(--form-input-box-padding, 0.5rem); */
+  border-radius: var(--form-radius, var(--default-form-radius));
+  border-color: var(--form-input-border, var(--default-form-input-border));
+}
+
+/* Selected option highlight */
+.main-form .mcq-multiple-choice-option:has([data-state="checked"]) {
+  border-color: var(--form-checkbox, var(--default-form-checkbox));
+}
+
+/* ── Checkbox ── */
+.main-form [data-state="checked"] {
+  background-color: var(--form-checkbox, var(--default-form-checkbox));
+  border-color: var(--form-checkbox, var(--default-form-checkbox));
+}
+
+/* ── File Upload Drag Area ── */
+.main-form .file-upload-drag-area {
+  background-color: var(--form-input-bg, var(--default-form-input-bg));
+  border-radius: var(--form-radius, var(--default-form-radius));
+}
+
+/* ── Submit / Form Buttons ── */
+.main-form button[type="submit"],
+.main-form .form-submit-btn {
+  background-color: var(--form-button-bg, var(--default-form-button-bg));
+  color: var(--form-button-text, var(--default-form-button-text));
+  border-color: var(--form-button-border, var(--default-form-button-border));
+  width: var(--form-button-width, auto);
+  height: var(--form-button-height, auto);
+  padding: var(--form-button-padding, var(--default-form-button-padding));
+  border-radius: var(--form-radius, var(--default-form-radius));
 }

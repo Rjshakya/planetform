@@ -14,6 +14,7 @@ import { useFormRender } from "@/hooks/use-form-render";
 import { useCustomizationStore } from "@/stores/useCustomizationStore";
 import { useFormSteps } from "@/stores/useFormStepper";
 import { FormRender } from "./render";
+import { convertToStyles } from "@/lib/customization-styles";
 
 // Wrapper component that validates token before showing form
 const PasswordProtectedForm = ({
@@ -94,7 +95,9 @@ export const FormHome = () => {
   const pages = useFormRender(form);
   const { pathname } = useLocation();
   const isPreview = pathname.includes("/preview");
-  const { formBackgroundColor } = useCustomizationStore((s) => s);
+
+  const customization = useCustomizationStore((s) => s);
+  const formStyle = convertToStyles(customization);
 
   // Loading and error states
   if (useFormError) {
@@ -128,7 +131,7 @@ export const FormHome = () => {
   // Form content to render
   const formContent = (
     <main
-      style={{ backgroundColor: formBackgroundColor || undefined }}
+      style={{ backgroundColor: formStyle["--form-background"] }}
       className="no-scrollbar min-h-dvh flex items-center justify-center overflow-hidden"
     >
       <div className="relative w-full max-w-3xl mx-auto">

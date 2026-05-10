@@ -1,4 +1,4 @@
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { NodeViewContent } from "@tiptap/react";
 import { NodeViewWrapper, type NodeViewProps } from "@tiptap/react";
 import { type InsertEmailInputParams } from "./node";

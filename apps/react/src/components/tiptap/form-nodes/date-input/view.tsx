@@ -1,4 +1,4 @@
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,7 @@ export const DateInputView = (props: NodeViewProps) => {
                     variant={"outline"}
                     type="button"
                     className={cn(
+                      "date-input-trigger",
                       "pl-3 min-h-10 text-left font-normal  ",
                       !field.value && "text-muted-foreground",
                       "form-input-style ",
