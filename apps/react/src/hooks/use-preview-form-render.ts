@@ -1,6 +1,6 @@
 import { handleMultiPage } from "@/lib/multi-page";
 import { useFormSteps } from "@/stores/useFormStepper";
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { usePreviewStore } from "@/stores/usePreviewStore";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";

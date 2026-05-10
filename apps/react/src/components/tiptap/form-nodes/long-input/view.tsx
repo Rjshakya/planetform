@@ -3,7 +3,7 @@ import { type InsertLongInputParams } from "./node";
 import { NodeViewWrapper } from "@tiptap/react";
 
 import { Textarea } from "@/components/ui/textarea";
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { NodeViewContent } from "@tiptap/react";
 import { validationFn } from "@/lib/FormFieldValidations";
 // import {

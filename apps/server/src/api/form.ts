@@ -41,7 +41,7 @@ const form = new Hono<{
       "json",
       z.object({
         formValues: formObject,
-        formCustomisation: formCustomizationSchema,
+        formCustomisation: z.object().loose(),
       }),
     ),
     async (c) => {

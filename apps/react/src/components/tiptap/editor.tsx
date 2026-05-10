@@ -7,10 +7,11 @@ import {
   type JSONContent,
 } from "@tiptap/react";
 import { type EditorView } from "@tiptap/pm/view";
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useCustomizationStore } from "@/stores/useCustomizationStore";
+import { useEditorStore } from "@/stores/useEditorStore";
 import { PublishForm } from "./publish-form";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { UpdateForm } from "./update-form";
@@ -26,6 +27,7 @@ import { useFormEditor } from "@/hooks/use-form-editor";
 import { loadFont } from "@/lib/google-fonts";
 import { SlashCommandMenu } from "./slash-command-palette";
 import { FieldMentionMenu } from "./field-mention-palette";
+import { convertToStyles } from "@/lib/customization-styles";
 
 export function FormEditor({
   className,
@@ -45,30 +47,15 @@ export function FormEditor({
   const { currentStep, handleNext } = useFormSteps((s) => s);
   const { pathname } = useLocation();
 
-  const {
-    formTextColor,
-    formFontFamily,
-    formFontSize,
-    isEditable,
-    actionBtnColor,
-    inputBackgroundColor,
-  } = useCustomizationStore((s) => s);
-
-  const formStyle = {
-    ...(formTextColor && { color: formTextColor }),
-    ...(formFontFamily && { fontFamily: `'${formFontFamily}', sans-serif` }),
-    ...(formFontSize && { fontSize: formFontSize }),
-  };
+  const { isEditable } = useEditorStore((s) => s);
+  const customizationState = useCustomizationStore((s) => s);
+  const formStyle = convertToStyles(customizationState);
 
   const [slashOpen, setSlashOpen] = useState(false);
-  const slashRef = useRef<
-    ((view: EditorView, event: KeyboardEvent) => boolean) | null
-  >(null);
+  const slashRef = useRef<((view: EditorView) => boolean) | null>(null);
 
   const [mentionOpen, setMentionOpen] = useState(false);
-  const mentionRef = useRef<
-    ((view: EditorView, event: KeyboardEvent) => boolean) | null
-  >(null);
+  const mentionRef = useRef<((view: EditorView) => boolean) | null>(null);
 
   const editor = useFormEditor(content || "", isEditable, slashRef, mentionRef);
   const [isEditablePage] = useState(pathname.includes("/edit"));
@@ -113,14 +100,13 @@ export function FormEditor({
 
   // Wire the slash handler so it always sees latest editor / state
   useEffect(() => {
-    slashRef.current = (_view, event) => {
+    slashRef.current = () => {
       if (!editor || !editor.isEditable) return false;
 
       const { selection } = editor.state;
       const parentNode = selection.$from.node(selection.$from.depth);
       if (parentNode.type.name === "codeBlock") return false;
 
-      event.preventDefault();
       setSlashOpen(true);
       return true;
     };
@@ -128,18 +114,21 @@ export function FormEditor({
 
   // Wire the mention handler so it always sees latest editor / state
   useEffect(() => {
-    mentionRef.current = (_view, event) => {
+    mentionRef.current = () => {
       if (!editor || !editor.isEditable) return false;
 
-      event.preventDefault();
+      const { selection } = editor.state;
+      const parentNode = selection.$from.node(selection.$from.depth);
+      if (parentNode.type.name === "codeBlock") return false;
+
       setMentionOpen(true);
       return true;
     };
   }, [editor]);
 
   useEffect(() => {
-    if (!formFontFamily) return;
-    loadFont(formFontFamily);
+    if (!customizationState.typography.formFontFamily) return;
+    loadFont(customizationState.typography.formFontFamily);
   }, []);
 
   if (!editor) return null;
@@ -152,6 +141,7 @@ export function FormEditor({
         `${isEditablePage ? "min-h-dvh" : "flex flex-col items-center justify-center"}`,
         `p-5`,
         wrapperClassName,
+        "selection:bg-primary selection:text-primary-foreground",
       )}
     >
       <div className={cn(`max-w-2xl mx-auto w-full relative`, className)}>
@@ -164,18 +154,13 @@ export function FormEditor({
             id={formId || "vite-react-form"}
             onSubmit={form.handleSubmit(handleFormSubmit)}
             className={cn(
-              `main-form relative w-full overflow-hidden overflow-y-scroll `,
+              `main-form relative w-full overflow-hidden overflow-y-scroll`,
               formClassName,
             )}
             style={
               {
-                ...formStyle,
                 scrollbarWidth: "none",
-                "--input": inputBackgroundColor,
-                "--primary": actionBtnColor,
-                "--tw-ring-color": formTextColor,
-                "--ring": formTextColor,
-                "--form-label-text": formFontSize,
+                ...formStyle,
               } as React.CSSProperties & Record<string, string>
             }
           >
@@ -212,13 +197,6 @@ export function FormEditor({
 export const PrevBtn = () => {
   const { isSubmitted } = useFormStore((s) => s);
   const { handlePrev, currentStep } = useFormSteps((s) => s);
-  const {
-    actionBtnColor,
-    actionBtnTextColor,
-    actionBtnBorderColor,
-    buttonHeight,
-    buttonWidth,
-  } = useCustomizationStore((s) => s);
 
   if (currentStep === 0 || isSubmitted) {
     return null;
@@ -226,17 +204,14 @@ export const PrevBtn = () => {
 
   return (
     <Button
-      style={
-        {
-          "--primary": actionBtnColor || "",
-          color: actionBtnTextColor || "",
-          "--tw-ring-color": actionBtnBorderColor,
-          width: `${buttonWidth}px`,
-          height: `${buttonHeight}px`,
-        } as React.CSSProperties & Record<string, string>
-      }
+      className={"form-submit-btn"}
       onClick={handlePrev}
-      variant={"default"}
+      variant="default"
+      style={{
+        width: "var(--form-button-width, auto)",
+        height: "var(--form-button-height, auto)",
+        padding: "var(--form-button-padding, 0.5rem 1rem)",
+      }}
     >
       Back
     </Button>
@@ -250,7 +225,7 @@ export const TopBar = ({ editor }: { editor: Editor }) => {
   const togglePreview = useCallback(() => {
     const jsonContent = editor.getJSON();
 
-    useCustomizationStore.setState({ isEditable: false });
+    useEditorStore.setState({ isEditable: false });
     usePreviewStore.setState({ content: jsonContent });
 
     navigate("/preview");
@@ -261,14 +236,15 @@ export const TopBar = ({ editor }: { editor: Editor }) => {
   return (
     <div className="sticky top-0 z-50 backdrop-blur-lg py-4 px-2 flex items-center justify-between gap-2 mb-3 select-none">
       <div>
-        <span className=" flex gap-3 items-center">
+        <span className="flex gap-3 items-center">
           <p>Editor Mode</p>
-          <span className="size-3 bg-green-600  " />
+          <span className="size-3 bg-green-600" />
         </span>
       </div>
       <div className="flex items-center gap-1">
         <CustomizationPanel />
-        <Button variant={"secondary"} onClick={togglePreview}>
+
+        <Button variant="secondary" onClick={togglePreview}>
           Preview
         </Button>
         {location.pathname === "/editor" ? <PublishForm /> : <UpdateForm />}
@@ -283,16 +259,14 @@ export const SubmitButton = () => {
   const { isSubmitted } = useFormStore((s) => s);
   const navigate = useNavigate();
 
-  const {
-    actionBtnColor,
-    actionBtnTextColor,
-    actionBtnBorderColor,
-    buttonHeight,
-    buttonWidth,
-  } = useCustomizationStore((s) => s);
-
   const isEditor = pathname.includes("/edit");
   const isLanding = pathname === "/";
+
+  const btnStyle = {
+    width: "var(--form-button-width, auto)" as const,
+    height: "var(--form-button-height, auto)" as const,
+    padding: "var(--form-button-padding, 0.5rem 1rem)" as const,
+  };
 
   if (isSubmitted) {
     return null;
@@ -302,17 +276,10 @@ export const SubmitButton = () => {
     return (
       <div className="w-full sm:px-8 pb-4 px-4">
         <Button
-          style={
-            {
-              "--primary": actionBtnColor || "",
-              color: actionBtnTextColor || "",
-              "--tw-ring-color": actionBtnBorderColor,
-              width: `${buttonWidth}px`,
-              height: `${buttonHeight}px`,
-            } as React.CSSProperties & Record<string, string>
-          }
-          type={"button"}
+          className="form-submit-btn"
+          type="button"
           onClick={() => navigate("/dashboard")}
+          style={btnStyle}
         >
           Submit
         </Button>
@@ -323,18 +290,7 @@ export const SubmitButton = () => {
   if (isEditor) {
     return (
       <div className="w-full sm:px-8 px-4">
-        <Button
-          style={
-            {
-              "--primary": actionBtnColor || "",
-              color: actionBtnTextColor || "",
-              "--tw-ring-color": actionBtnBorderColor,
-              width: `${buttonWidth}px`,
-              height: `${buttonHeight}px`,
-            } as React.CSSProperties & Record<string, string>
-          }
-          type={"submit"}
-        >
+        <Button className="form-submit-btn" type="submit" style={btnStyle}>
           Submit
         </Button>
       </div>
@@ -342,27 +298,11 @@ export const SubmitButton = () => {
   }
 
   return (
-    <>
-      {
-        <div className="w-full sm:px-8 pb-4 px-4 flex gap-2 items-center">
-          <PrevBtn />
-          <Button
-            className={""}
-            style={
-              {
-                "--primary": actionBtnColor || "",
-                color: actionBtnTextColor || "",
-                "--tw-ring-color": actionBtnBorderColor,
-                width: `${buttonWidth}px`,
-                height: `${buttonHeight}px`,
-              } as React.CSSProperties & Record<string, string>
-            }
-            type={"submit"}
-          >
-            {currentStep === totalSteps ? "Submit" : "Next"}
-          </Button>
-        </div>
-      }
-    </>
+    <div className="w-full sm:px-8 pb-4 px-4 flex gap-2 items-center">
+      <PrevBtn />
+      <Button className="form-submit-btn" type="submit" style={btnStyle}>
+        {currentStep === totalSteps ? "Submit" : "Next"}
+      </Button>
+    </div>
   );
 };

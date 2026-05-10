@@ -1,6 +1,7 @@
 import { type JSONContent } from "@tiptap/react";
 import { client } from "@/lib/hc";
 import { useCustomizationStore } from "@/stores/useCustomizationStore";
+import type { ICustomizationStoreState } from "@/stores/customization.types";
 
 interface IFormField {
   form: string;
@@ -48,7 +49,6 @@ export const filterFormFieldsFromContent = (
       subType: f?.attrs?.type,
       order: i,
       isRequired: f?.attrs?.isRequired,
-      // choices: f?.attrs?.options,
     };
   });
 
@@ -75,15 +75,6 @@ export const handleMultiPageFormFields = (doc: JSONContent, form: string) => {
     allFormFields.push(...formFields);
   });
 
-  // const fieldsWithCorrectOrder = allFormFields.map((f, i) => {
-
-  //   if (f.type?.includes("Input")) {
-  //     return { ...f, order: i };
-  //   }
-
-  //   return f
-  // });
-
   return allFormFields;
 };
 
@@ -101,34 +92,22 @@ export const postFormFields = async (
   }
 };
 
-export const getCustomization = () => {
+export const getCustomization = (): ICustomizationStoreState => {
   const {
-    formBackgroundColor,
+    theme,
+    darkTheme,
+    layout,
+    typography,
     formColorScheme,
-    formFontFamily,
-    formFontSize,
-    formTextColor,
-    actionBtnBorderColor,
-    actionBtnColor,
-    actionBtnSize,
-    actionBtnTextColor,
-    inputBackgroundColor,
-    inputBorderColor,
     customThankyouMessage,
   } = useCustomizationStore.getState();
 
   return {
-    formBackgroundColor,
+    theme,
+    darkTheme,
+    layout,
+    typography,
     formColorScheme,
-    formFontFamily,
-    formFontSize,
-    formTextColor,
-    actionBtnBorderColor,
-    actionBtnColor,
-    actionBtnSize,
-    actionBtnTextColor,
-    inputBackgroundColor,
-    inputBorderColor,
     customThankyouMessage,
   };
 };

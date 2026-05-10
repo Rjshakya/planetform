@@ -1,5 +1,61 @@
 import useSWR, { mutate } from "swr";
 import { client } from "@/lib/hc";
+import type { ICustomizationStoreState } from "@/stores/customization.types";
+
+export type FormCustomisation = {
+  theme: {
+    formBackgroundColor?: string | null;
+    formTextColor?: string | null;
+    buttonColor?: string | null;
+    buttonTextColor?: string | null;
+    checkboxColor?: string | null;
+    inputBackgroundColor?: string | null;
+    inputFocusColor?: string | null;
+    inputBoxBackgroundColor?: string | null;
+    inputBorderColor?: string | null;
+    buttonBorderColor?: string | null;
+  };
+  darkTheme: {
+    formBackgroundColor?: string | null;
+    formTextColor?: string | null;
+    buttonColor?: string | null;
+    buttonTextColor?: string | null;
+    checkboxColor?: string | null;
+    inputBackgroundColor?: string | null;
+    inputFocusColor?: string | null;
+    inputBoxBackgroundColor?: string | null;
+    inputBorderColor?: string | null;
+    buttonBorderColor?: string | null;
+  };
+  typography: {
+    formFontFamily?: string | null;
+    formFontSize?: string | null;
+  };
+  layout: {
+    formWidth?: string | null;
+    inputBoxPadding?: string | null;
+    buttonPadding?: string | null;
+    radius?: string | null;
+    buttonWidth?: string | null;
+    buttonHeight?: string | null;
+  };
+  formColorScheme?: string | null;
+  customThankyouMessage?: string | null;
+
+  // Backward-compat flat keys (old persisted data)
+  actionBtnColor?: string | null;
+  actionBtnTextColor?: string | null;
+  actionBtnBorderColor?: string | null;
+  actionBtnSize?: string | null;
+  formBackgroundColor?: string | null;
+  formTextColor?: string | null;
+  formFontFamily?: string | null;
+  formFontSize?: string | null;
+  inputBackgroundColor?: string | null;
+  inputBorderColor?: string | null;
+  buttonWidth?: string | null;
+  buttonHeight?: string | null;
+};
 
 export type Form =
   | {
@@ -10,20 +66,7 @@ export type Form =
       createdAt: string;
       updatedAt: string;
       customerId: string;
-      customisation: {
-        formBackgroundColor: string | null;
-        formFontFamily: string | null;
-        formFontSize: string | null;
-        actionBtnSize: string | null;
-        actionBtnColor: string | null;
-        formTextColor: string | null;
-        actionBtnTextColor: string | null;
-        inputBackgroundColor: string | null;
-        inputBorderColor: string | null;
-        actionBtnBorderColor: string | null;
-        formColorScheme: string | null;
-        customThankyouMessage: string | null;
-      };
+      customisation: ICustomizationStoreState;
       closed: boolean | null;
       closedMessage: string | null;
       closingTime: string | null;

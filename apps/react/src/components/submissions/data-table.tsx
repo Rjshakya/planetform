@@ -302,8 +302,8 @@ export const SubmissionDataTable = ({
                           aria-hidden="true"
                         />
                         Delete
-                        <div className="pt-1.5 bg-destructive text-foreground grid place-content-center py-1 size-4 rounded border text-[0.625rem] font-medium">
-                          {table.getSelectedRowModel().rows.length}
+                        <div className=" bg-destructive size-4 flex items-center justify-center rounded-xs">
+                          <p>{table.getSelectedRowModel().rows.length}</p>
                         </div>
                       </Button>
                     }

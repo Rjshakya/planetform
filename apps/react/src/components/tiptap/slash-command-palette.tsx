@@ -66,7 +66,7 @@ export const SlashCommandMenu = React.memo(
                 <CommandGroup
                   key={group.group}
                   heading={
-                    <div className="px-2 py-1.5 font-medium text-muted-foreground text-xs">
+                    <div className="py-2 font-medium text-muted-foreground text-xs">
                       {group.group}
                     </div>
                   }
@@ -76,17 +76,14 @@ export const SlashCommandMenu = React.memo(
                       key={`${group.group}-${item.title}`}
                       value={`${group.group}-${item.title}`}
                       onSelect={() => handleSelect(item.command)}
-                      className="gap-3 rounded-md px-2 py-2"
+                      className="gap-3 rounded-md p-2"
                     >
-                      <div className="flex h-9 w-9 items-center justify-center rounded-md border bg-background">
-                        <item.icon className="size-3" />
+                      <div className="flex size-4 items-center justify-center ">
+                        <item.icon />
                       </div>
                       <div className="flex flex-1 flex-col">
-                        <span className="text-sm font-medium capitalize">
+                        <span className="text-xs font-medium capitalize">
                           {item.title}
-                        </span>
-                        <span className="text-xs text-muted-foreground capitalize">
-                          {item.description}
                         </span>
                       </div>
                     </CommandItem>

@@ -2,7 +2,7 @@ import { type NodeViewProps } from "@tiptap/core";
 import { type InsertFileUploadParams } from "./node";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 
-import { useFormStore } from "@/stores/useformStore";
+import { useFormStore } from "@/stores/useFormStore";
 // import FileUploadComp from "@/components/comp-547";
 import { Button } from "@/components/ui/button";
 import {

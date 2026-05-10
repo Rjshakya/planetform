@@ -8,12 +8,8 @@ import { useParams } from "react-router-dom";
 export const useFormEditor = (
   content: Content | string,
   isEditable: boolean,
-  slashRef?: React.RefObject<
-    ((view: EditorView, event: KeyboardEvent) => boolean) | null
-  >,
-  mentionRef?: React.RefObject<
-    ((view: EditorView, event: KeyboardEvent) => boolean) | null
-  >,
+  slashRef?: React.RefObject<((view: EditorView) => boolean) | null>,
+  mentionRef?: React.RefObject<((view: EditorView) => boolean) | null>,
 ) => {
   const { formId } = useParams();
   const timeOutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -32,7 +28,11 @@ export const useFormEditor = (
           !event.metaKey &&
           slashRef?.current
         ) {
-          return slashRef.current(view, event);
+          const handled = slashRef.current(view);
+          if (handled) {
+            event.preventDefault();
+            return true;
+          }
         }
         if (
           event.key === "@" &&
@@ -40,7 +40,22 @@ export const useFormEditor = (
           !event.metaKey &&
           mentionRef?.current
         ) {
-          return mentionRef.current(view, event);
+          const handled = mentionRef.current(view);
+          if (handled) {
+            event.preventDefault();
+            return true;
+          }
+        }
+        return false;
+      },
+      handleTextInput(view, _from, _to, text) {
+        if (text === "/" && slashRef?.current) {
+          const handled = slashRef.current(view);
+          if (handled) return true;
+        }
+        if (text === "@" && mentionRef?.current) {
+          const handled = mentionRef.current(view);
+          if (handled) return true;
         }
         return false;
       },

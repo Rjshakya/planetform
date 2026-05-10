@@ -118,11 +118,7 @@
   box-shadow: none;
 }
 
-.ProseMirror .selection,
-.ProseMirror *::selection {
-  background-color: var(--editor-highlight-purple);
-  /* color: var(--editor-text-default); */
-}
+
 
 .ProseMirror > .react-renderer {
   /* margin: var(--editor-spacing-12) 0; */

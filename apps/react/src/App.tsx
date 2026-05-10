@@ -7,6 +7,8 @@ import { ThemeProvider, useTheme } from "./components/common/theme-provider";
 import { DashboardHome } from "./components/dashboard/home";
 import { EditFormHome } from "./components/edit-form/edit";
 import { EditorHome } from "./components/editor/home";
+import { EmbedHome } from "./components/embed/home";
+import { FormManageLayout } from "./components/form-manage-layout";
 import { FormHome } from "./components/form/home";
 import { VerifyPasswordPage } from "./components/form/verify-password";
 import { FormSettingHome } from "./components/form-settings/home";
@@ -68,20 +70,29 @@ const router = createBrowserRouter([
         element: <EditFormHome />,
       },
       {
-        path: "/submissions/:formId",
-        element: <SubmissionHome />,
-      },
-      {
-        path: "/analytics/:formId",
-        element: <AnalyticsHome />,
-      },
-      {
-        path: "/integrations/:formId",
-        element: <IntegrationsHome />,
-      },
-      {
-        path: "/settings/:formId",
-        element: <FormSettingHome />,
+        element: <FormManageLayout />,
+        children: [
+          {
+            path: "/submissions/:formId",
+            element: <SubmissionHome />,
+          },
+          {
+            path: "/analytics/:formId",
+            element: <AnalyticsHome />,
+          },
+          {
+            path: "/integrations/:formId",
+            element: <IntegrationsHome />,
+          },
+          {
+            path: "/embed/:formId",
+            element: <EmbedHome />,
+          },
+          {
+            path: "/settings/:formId",
+            element: <FormSettingHome />,
+          },
+        ],
       },
       {
         path: "/preview",

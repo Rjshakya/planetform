@@ -3,6 +3,7 @@ import { FormRender } from "./render";
 import { useFormSteps } from "@/stores/useFormStepper";
 import { useCustomizationStore } from "@/stores/useCustomizationStore";
 import { AnimatePresence, motion } from "motion/react";
+import { convertToStyles } from "@/lib/customization-styles";
 
 // Buttery smooth spring configuration
 const springTransition = {
@@ -33,8 +34,10 @@ const slideVariants = {
 
 export const PreviewHome = () => {
   const pages = usePreviewFormRender();
-  const { formBackgroundColor } = useCustomizationStore();
+  const customizationState = useCustomizationStore();
   const { currentStep, direction } = useFormSteps((s) => s);
+
+  const formStyle = convertToStyles(customizationState);
 
   if (!pages) {
     return <div>failed to load form , sorry.</div>;
@@ -42,7 +45,7 @@ export const PreviewHome = () => {
 
   return (
     <main
-      style={{ backgroundColor: formBackgroundColor || undefined }}
+      style={formStyle as React.CSSProperties}
       className="no-scrollbar min-h-dvh flex items-center justify-center overflow-hidden"
     >
       <div className="relative w-full max-w-2xl mx-auto">

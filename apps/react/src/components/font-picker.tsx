@@ -165,6 +165,7 @@ export const VirtualizedCommandBox = ({
           >
             {virtualOptions.map((virtualOption) => {
               const font = filteredOptions[virtualOption.index].family;
+              loadFont(font);
               return (
                 <CommandItem
                   key={font}
@@ -192,7 +193,7 @@ export const VirtualizedCommandBox = ({
                   onSelect={() => {
                     onSelectOption?.(font);
                     loadFont(font);
-                    // setFocusedIndex(-1);
+                    setFocusedIndex(-1);
                   }}
                 >
                   <Check

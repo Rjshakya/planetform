@@ -1,98 +1,164 @@
-import { Editor } from "@tiptap/core";
 import { create } from "zustand";
+import type {
+  ICustomizationStore,
+  IFormTheme,
+  IFormTypography,
+  IFormLayout,
+} from "./customization.types";
 
-export interface IeditorStore {
-  editor: Editor | null;
-  isEditable: boolean;
-  getEditor: () => Editor | null;
-  formBackgroundColor: string | null;
-  setFormBackgroundColor: (color: string | null) => void;
-  formFontFamily: string | null;
-  setformFontFamily: (family: string | null) => void;
-  formFontSize: string | null;
-  setFormFontSize: (fontSize: string | null) => void;
-  actionBtnSize: string | null;
-  setActionBtnSize: (size: string | null) => void;
-  actionBtnColor: string | null;
-  setActionBtnColor: (color: string | null) => void;
-  formTextColor: string | null;
-  setFormTextColor: (color: string | null) => void;
-  actionBtnTextColor: string | null;
-  setActionBtnTextColor: (color: string | null) => void;
-  inputBackgroundColor: string | null;
-  setInputBackgroundColor: (color: string | null) => void;
-  inputBorderColor: string | null;
-  setInputBorderColor: (color: string | null) => void;
-  actionBtnBorderColor: string | null;
-  setActionBtnBorderColor: (color: string | null) => void;
-  formColorScheme: string | null;
-  setFormColorScheme: (scheme: string) => void;
-  customThankyouMessage: string | null;
-  setCustomThankyouMessage: (msg: string) => void;
-  buttonWidth: string | null;
-  setButtonWidth: (width: string | null) => void;
-  buttonHeight: string | null;
-  setButtonHeight: (height: string | null) => void;
-  reset: (theme?: string) => void;
-}
+// Default values matching CSS default variables
+const defaultLightTheme: IFormTheme = {
+  formBackgroundColor: "#ffffff",
+  formTextColor: "#171717",
+  buttonColor: "#171717",
+  buttonTextColor: "#ffffff",
+  buttonBorderColor: "transparent",
+  checkboxColor: "#171717",
+  inputBackgroundColor: "#f5f5f5",
+  inputBorderColor: "#e5e5e5",
+  inputFocusColor: "#171717",
+  inputBoxBackgroundColor: "transparent",
+};
 
-export interface Icustomisation {
-  formBackgroundColor: string | null;
-  formFontFamily: string | null;
-  formFontSize: string | null;
-  actionBtnSize: "icon" | "default" | "sm" | "lg" | null | undefined;
-}
+const defaultDarkTheme: IFormTheme = {
+  formBackgroundColor: "#0a0a0a",
+  formTextColor: "#fafafa",
+  buttonColor: "#fafafa",
+  buttonTextColor: "#171717",
+  buttonBorderColor: "transparent",
+  checkboxColor: "#fafafa",
+  inputBackgroundColor: "#262626",
+  inputBorderColor: "#404040",
+  inputFocusColor: "#fafafa",
+  inputBoxBackgroundColor: "transparent",
+};
 
-export const useCustomizationStore = create<IeditorStore>((set, get) => ({
-  editorContent: null,
-  openSideBar: false,
-  editor: null,
-  isEditable: true,
-  getEditor: () => get().editor,
-  editedContent: null,
-  formBackgroundColor: null,
-  setFormBackgroundColor: (color: string | null) =>
-    set({ formBackgroundColor: color }),
-  formFontFamily: null,
-  formFontSize: null,
-  actionBtnSize: null,
-  actionBtnColor: null,
-  formTextColor: null,
-  actionBtnTextColor: null,
-  inputBackgroundColor: null,
-  inputBorderColor: null,
-  actionBtnBorderColor: null,
-  formColorScheme: "dark",
-  buttonWidth: null,
-  buttonHeight: null,
-  setButtonWidth: (width) => set({ buttonWidth: width }),
-  setButtonHeight: (height) => set({ buttonHeight: height }),
-  setformFontFamily: (family) => set({ formFontFamily: family }),
-  setFormFontSize: (size) => set({ formFontSize: size }),
-  setActionBtnSize: (size) => set({ actionBtnSize: size }),
-  setActionBtnColor: (color) => set({ actionBtnColor: color }),
-  setFormTextColor: (color) => set({ formTextColor: color }),
-  setActionBtnTextColor: (color) => set({ actionBtnTextColor: color }),
-  setInputBackgroundColor: (color) => set({ inputBackgroundColor: color }),
-  setInputBorderColor: (color) => set({ inputBorderColor: color }),
-  setActionBtnBorderColor: (color) => set({ actionBtnBorderColor: color }),
-  setFormColorScheme: (scheme) => set({ formColorScheme: scheme }),
-  customThankyouMessage: "Thankyou your responses are submitted",
-  setCustomThankyouMessage: (msg) => set({ customThankyouMessage: msg }),
-  reset: (theme) =>
-    set({
-      formBackgroundColor: null,
-      formFontFamily: null,
-      formFontSize: null,
-      actionBtnSize: null,
-      actionBtnColor: null,
-      formTextColor: null,
-      actionBtnTextColor: null,
-      inputBackgroundColor: null,
-      inputBorderColor: null,
-      actionBtnBorderColor: null,
-      formColorScheme: theme === "light" ? "light" : "dark",
-      buttonWidth: null,
-      buttonHeight: null,
-    }),
-}));
+const defaultTypography: IFormTypography = {
+  formFontFamily: "Geist",
+  formFontSize: "16px",
+};
+
+const defaultLayout: IFormLayout = {
+  formWidth: "100%",
+  inputBoxPadding: "0px",
+  buttonPadding: "8px 16px",
+  radius: "8px",
+};
+
+/**
+ * Maps old persisted flat keys to new nested store structure.
+ */
+export const hydrateCustomization = (
+  raw: Record<string, unknown>,
+): Partial<ICustomizationStore> => {
+  const out: Partial<ICustomizationStore> = {};
+
+  // If already nested, return as-is
+  if (raw.theme || raw.darkTheme || raw.typography || raw.layout) {
+    return raw as Partial<ICustomizationStore>;
+  }
+
+  // Convert old flat keys to nested
+  out.theme = {
+    formBackgroundColor:
+      (raw.formBackgroundColor as string | null | undefined) ??
+      (raw.formBackgroundColor as string | null | undefined) ??
+      null,
+    formTextColor: (raw.formTextColor as string | null | undefined) ?? null,
+    buttonColor:
+      (raw.buttonColor as string | null | undefined) ??
+      (raw.actionBtnColor as string | null | undefined) ??
+      null,
+    buttonTextColor:
+      (raw.buttonTextColor as string | null | undefined) ??
+      (raw.actionBtnTextColor as string | null | undefined) ??
+      null,
+    buttonBorderColor:
+      (raw.buttonBorderColor as string | null | undefined) ??
+      (raw.actionBtnBorderColor as string | null | undefined) ??
+      null,
+    checkboxColor: (raw.checkboxColor as string | null | undefined) ?? null,
+    inputBackgroundColor:
+      (raw.inputBackgroundColor as string | null | undefined) ?? null,
+    inputFocusColor: (raw.inputFocusColor as string | null | undefined) ?? null,
+    inputBoxBackgroundColor:
+      (raw.inputBoxBackgroundColor as string | null | undefined) ?? null,
+    inputBorderColor:
+      (raw.inputBorderColor as string | null | undefined) ?? null,
+  };
+
+  out.darkTheme = {};
+
+  out.typography = {
+    formFontFamily: (raw.formFontFamily as string | null | undefined) ?? null,
+    formFontSize: (raw.formFontSize as string | null | undefined) ?? null,
+  };
+
+  out.layout = {
+    formWidth: (raw.formWidth as string | null | undefined) ?? null,
+    inputBoxPadding: (raw.inputBoxPadding as string | null | undefined) ?? null,
+    buttonPadding: (raw.buttonPadding as string | null | undefined) ?? null,
+    radius: (raw.radius as string | null | undefined) ?? null,
+    buttonWidth: (raw.buttonWidth as string | null | undefined) ?? null,
+    buttonHeight: (raw.buttonHeight as string | null | undefined) ?? null,
+  };
+
+  if (raw.formColorScheme) {
+    out.formColorScheme = raw.formColorScheme as "light" | "dark";
+  }
+  if (raw.customThankyouMessage) {
+    out.customThankyouMessage = raw.customThankyouMessage as string;
+  }
+
+  return out;
+};
+
+export const useCustomizationStore = create<ICustomizationStore>(
+  (set, get) => ({
+    // Theme
+    theme: { ...defaultLightTheme },
+    darkTheme: { ...defaultDarkTheme },
+
+    // Typography
+    typography: { ...defaultTypography },
+
+    // Layout
+    layout: { ...defaultLayout },
+
+    // Misc
+    formColorScheme: "dark",
+    customThankyouMessage: "Thankyou your responses are submitted",
+
+    setTheme: (theme) => {
+      if (get().formColorScheme === "dark") {
+        return set((state) => ({
+          ...state,
+          darkTheme: { ...state.darkTheme, ...theme },
+        }));
+      }
+      return set((state) => ({
+        ...state,
+        theme: { ...state.theme, ...theme },
+      }));
+    },
+    setTypography: (typography) =>
+      set((state) => ({
+        ...state,
+        typography: { ...state.typography, ...typography },
+      })),
+    setLayout: (layout) =>
+      set((state) => ({ ...state, layout: { ...state.layout, ...layout } })),
+    setFormColorScheme: (scheme) => set({ formColorScheme: scheme }),
+    setCustomThankyouMessage: (msg) => set({ customThankyouMessage: msg }),
+
+    reset: () =>
+      set({
+        theme: { ...defaultLightTheme },
+        darkTheme: { ...defaultDarkTheme },
+        layout: { ...defaultLayout },
+        typography: { ...defaultTypography },
+        formColorScheme: "dark",
+        customThankyouMessage: "Thankyou your responses are submitted",
+      }),
+  }),
+);
