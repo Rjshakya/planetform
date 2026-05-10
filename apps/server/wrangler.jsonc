@@ -89,8 +89,7 @@
     {
       "binding": "HYPERDRIVE",
       "id": "55054dd9bb9245729060d462d3daaf66",
-      // "localConnectionString": "postgresql://postgres:postgres@localhost/planeformDB",
-      "localConnectionString": "postgresql://neondb_owner:npg_kc3IMS1XxjnR@ep-autumn-mode-a1a8enla-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+      "localConnectionString": "postgresql://postgres:postgres@localhost/planeformDB",
     },
   ],
   "ratelimits": [
