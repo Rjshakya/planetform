@@ -1,16 +1,13 @@
 import "dotenv/config";
 
-import { Config, defineConfig } from "drizzle-kit";
-
-// "postgresql://postgres:postgres@localhost/planeformDB"
-const dbUrl = process.env.DATABASE_URL;
-// process.env.DATABASE_URL
+import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-	out: "./drizzle",
-	schema: "./src/db/schema/*",
-	dialect: "postgresql",
-	dbCredentials: {
-		url: "postgresql://postgres:postgres@localhost/planeformDB",
-	},
+  out: "./drizzle",
+  schema: "./src/db/schema/*",
+  dialect: "postgresql",
+  dbCredentials: {
+    // url: "postgresql://postgres:postgres@localhost/planeformDB",
+    url: process.env.DATABASE_URL,
+  },
 });
