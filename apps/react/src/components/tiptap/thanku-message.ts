@@ -1,9 +1,9 @@
-export const ThankyouMessage = ` 
+export const ThankyouMessage = (customMessage?: string) => ` 
 <h2>
       Thankyou
-      <p>your response is successfully submitted</p>
+      <p>{${customMessage ? customMessage : "your response is successfully submitted"}</p>
       <p>
-        You can create your own form using
+        This form is created using  
         <a href="https://planetform.xyz">planetform.xyz</a>
       </p>
     </h2>`;

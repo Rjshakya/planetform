@@ -15,30 +15,20 @@ export const EditorShowCase = () => {
   }, [getHookForm, hookForm]);
 
   return (
-    <MarketingSection border>
-      <MarketingContainer className="mb-12">
-        <h2 className="landing-heading mb-6 text-balance">
-          Creating forms is as easy as writing docs
-        </h2>
-        <p className="landing-sub-heading text-balance">
-          With our notion like editor, everything you need is available at{" "}
-          <span className="bg-orange-500 text-white p-1">` /slash `</span>
+    <MarketingSection>
+      <MarketingContainer className="mb-12 grid gap-8 text-center">
+        <h1 className="landing-heading mb-6 text-pretty ">
+          Simplest form builder. No learning curve. Just start typing
+        </h1>
+        <p className="landing-sub-heading  text-center sm:mx-auto mx-2 w mt-8  ">
+          no drag and drop shit. If you’ve used Notion, you already know how
+          this works. Just type `/` to get All your commands
         </p>
-      </MarketingContainer>
 
-      <div className="w-full grid sm:px-8 px-4 max-w-4xl mx-auto ">
-        <FormEditor
-          wrapperClassName="ring-4 ring-ring/15 dark:ring-ring/25 max-w-4xl mx-auto w-full px-1 pb-1 pt-6 rounded-md border bg-card"
-          className="  max-w-4xl bg-background border  border-border/70 rounded-sm h-[60dvh] overflow-y-scroll text-foreground no-scrollbar scrollbar-track-accent scrollbar-thumb-muted-foreground"
-          lastStepIndex={0}
-          content={`
-                  <p>Write or type '/' to create your first form.</p>
-                  <p></p>
-                  
-                  <p></p>
-                  `}
-        />
-      </div>
+        <div className=" relative hero-img md:p-24 pb-0 pt-12 px-8 bg-input md:h-150  sm:h-100 h-58 overflow-hidden rounded-2xl md:mt-28 mt-12">
+          <img src="/image.png" className="rounded-md scale-120" />
+        </div>
+      </MarketingContainer>
     </MarketingSection>
   );
 };

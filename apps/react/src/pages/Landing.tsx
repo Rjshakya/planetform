@@ -19,7 +19,7 @@ export default function Landing() {
           <CTA />
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

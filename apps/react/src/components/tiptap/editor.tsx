@@ -81,7 +81,7 @@ export function FormEditor({
 
     if (currentStep === lastStepIndex) {
       await handleSubmit({ values, formId: formId ?? "", path: pathname });
-      editor.chain().clearContent().setContent(ThankyouMessage).run();
+      editor.chain().clearContent().setContent(ThankyouMessage()).run();
       form.reset();
 
       mutate(

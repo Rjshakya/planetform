@@ -3,11 +3,10 @@ import {
   type WorkflowEvent,
   type WorkflowStep,
 } from "cloudflare:workers";
-import { Result } from "better-result";
 import type { response as responsesTable } from "../db/schema/response";
 import { NotionIntegrationService } from "../services/notion/notion";
 import { getUserCredentials } from "../utils/auth";
-import { breakIntegration } from "../utils/breakIntegration";
+// import { breakIntegration } from "../utils/breakIntegration";
 import { getNotionPropertiesFromSubmission } from "./helpers";
 
 export interface INotionIntegrationWorkflowParams {
@@ -40,21 +39,20 @@ export class NotionIntegrationWorkflow extends WorkflowEntrypoint {
 
     const credentials = await step.do("get-user-credentials", async () => {
       const credentialsResult = await getUserCredentials(userId, "notion");
-      if (Result.isOk(credentialsResult)) {
-        return credentialsResult.value;
-      } else {
-        throw new Error("failed to get credentials");
-      }
-    });
-
-    await step.do("set-notion-db-header", async () => {
-      const notion = new NotionIntegrationService({
-        token: credentials.accessToken,
+      return credentialsResult.match({
+        ok: (credentials) => credentials,
+        err: (error) => {
+          console.error({
+            message: "Failed to get user credentials",
+            error,
+            userId,
+            integrationId,
+          });
+          throw new Error(
+            `Failed to get user credentials for notion integration`,
+          );
+        },
       });
-
-      const dbResult = await notion.search({});
-      const db = dbResult.unwrap();
-      console.log(db);
     });
 
     await step.do("set-value-to-notion-database", async () => {

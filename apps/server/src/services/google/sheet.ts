@@ -2,7 +2,6 @@ import { Result } from "better-result";
 import { OAuth2Client } from "google-auth-library";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { GoogleSheetIntegrationError } from "../../errors";
-import { refreshGoogleAccessToken } from "../../utils/refresh-token";
 
 export interface IGoogleSheetServiceParams {
   accessToken: string;
