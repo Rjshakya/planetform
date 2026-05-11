@@ -43,12 +43,20 @@ export class GmailIntegrationWorkflow extends WorkflowEntrypoint {
     }
 
     const userCredentials = await step.do("get-user-credentials", async () => {
-      const credentialsResult = await getUserCredentials(userId, "google");
-      if (Result.isOk(credentialsResult)) {
-        return credentialsResult.value;
-      } else {
-        throw new Error("failed to get users's credentials");
-      }
+      const result = await getUserCredentials(userId, "google");
+
+      const credentials = Result.match(result, {
+        ok: (a) => a,
+        err: (e) => {
+          console.error(
+            "failed to get user's credentials for gmail integration",
+            { userId, error: e },
+          );
+          throw new Error("failed to get users's credentials");
+        },
+      });
+
+      return credentials;
     });
 
     await step.do("send-gmail", async () => {

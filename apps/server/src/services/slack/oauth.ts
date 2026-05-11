@@ -66,7 +66,6 @@ export class SlackOauthService implements slackOauth {
     const code = url.searchParams.get("code");
     if (!code) return new Response("Missing code param", { status: 400 });
     const callbackURL = url.searchParams.get("callback_url");
-
     const redirectUri = this.redirectUri;
 
     if (callbackURL) {

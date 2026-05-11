@@ -48,7 +48,7 @@ export class EmailIntegrationWorkflow extends WorkflowEntrypoint {
         const { submission } = await getSubmissionRecord({
           formId,
           values,
-          keyIsLabel: false,
+          useFieldLabelAsKey: false,
         });
 
         return submission;

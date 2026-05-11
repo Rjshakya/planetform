@@ -1,7 +1,7 @@
 import {
-	WorkflowEntrypoint,
-	type WorkflowEvent,
-	type WorkflowStep,
+  WorkflowEntrypoint,
+  type WorkflowEvent,
+  type WorkflowStep,
 } from "cloudflare:workers";
 import { Result } from "better-result";
 import type { response as responsesTable } from "../db/schema/response";
@@ -10,60 +10,82 @@ import { getUserCredentials } from "../utils/auth";
 import { getSheetHeader, getSubmissionRecord } from "./helpers";
 
 export interface IgoogleSheetIntegrationWorkflowParams {
-	userId: string;
-	formId: string;
-	values: (typeof responsesTable.$inferInsert)[];
-	spreadSheetId: string;
-	integrationId: string;
+  userId: string;
+  formId: string;
+  values: (typeof responsesTable.$inferInsert)[];
+  spreadSheetId: string;
+  integrationId: string;
 }
 
 export class GoogleSheetIntegrationWorkflow extends WorkflowEntrypoint<IgoogleSheetIntegrationWorkflowParams> {
-	async run(
-		event: Readonly<WorkflowEvent<IgoogleSheetIntegrationWorkflowParams>>,
-		step: WorkflowStep,
-	) {
-		const { formId, userId, values, spreadSheetId, integrationId } =
-			event.payload;
+  async run(
+    event: Readonly<WorkflowEvent<IgoogleSheetIntegrationWorkflowParams>>,
+    step: WorkflowStep,
+  ) {
+    const { formId, userId, values, spreadSheetId, integrationId } =
+      event.payload;
 
-		if (!formId || !userId || !values || !spreadSheetId || !integrationId) {
-			console.error(
-				"payload is missing , returning from google sheet workflow",
-			);
-			return;
-		}
+    if (!formId || !userId || !values || !spreadSheetId || !integrationId) {
+      console.error(
+        "payload is missing , returning from google sheet workflow",
+      );
+      return;
+    }
 
-		const userCredentials = await step.do("get-user-credentiasls", async () => {
-			const credentialsResult = await getUserCredentials(userId, "google");
+    const userCredentials = await step.do("get-user-credentiasls", async () => {
+      const credentialsResult = await getUserCredentials(userId, "google");
 
-			if (Result.isOk(credentialsResult)) {
-				return credentialsResult.value;
-			} else {
-				throw new Error("failed to get user credentials");
-			}
-		});
+      if (Result.isOk(credentialsResult)) {
+        return credentialsResult.value;
+      } else {
+        throw new Error("failed to get user credentials");
+      }
+    });
 
-		await step.do("set-sheet-header", async () => {
-			const headers = await getSheetHeader(formId);
-			const sheetService = new GoogleSheetService({
-				userID: userId,
-				accessToken: userCredentials.accessToken,
-				refreshToken: userCredentials.refreshToken!,
-			});
-			await sheetService.setHeader(spreadSheetId, headers.headers);
-		});
+    await step.do("set-sheet-header", async () => {
+      try {
+        const headers = await getSheetHeader(formId);
+        const sheetService = new GoogleSheetService({
+          userID: userId,
+          accessToken: userCredentials.accessToken,
+          refreshToken: userCredentials.refreshToken!,
+        });
+        await sheetService.setHeader(spreadSheetId, headers.headers);
+      } catch (error) {
+        console.error("failed to set sheet header", {
+          error,
+          formId,
+          userId,
+          spreadSheetId,
+          integrationId,
+        });
+        throw new Error("failed to set sheet header");
+      }
+    });
 
-		await step.do("set-sheet-row", async () => {
-			const submission = await getSubmissionRecord({
-				formId,
-				values,
-				keyIsLabel: true,
-			});
-			const sheetService = new GoogleSheetService({
-				userID: userId,
-				accessToken: userCredentials.accessToken,
-				refreshToken: userCredentials.refreshToken!,
-			});
-			await sheetService.addRow(spreadSheetId, submission.submission);
-		});
-	}
+    await step.do("set-sheet-row", async () => {
+      try {
+        const submission = await getSubmissionRecord({
+          formId,
+          values,
+          useFieldLabelAsKey: true,
+        });
+        const sheetService = new GoogleSheetService({
+          userID: userId,
+          accessToken: userCredentials.accessToken,
+          refreshToken: userCredentials.refreshToken!,
+        });
+        await sheetService.addRow(spreadSheetId, submission.submission);
+      } catch (error) {
+        console.error("failed to add row to google sheet", {
+          error,
+          formId,
+          userId,
+          spreadSheetId,
+          integrationId,
+        });
+        throw new Error("failed to add row to google sheet");
+      }
+    });
+  }
 }

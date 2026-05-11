@@ -106,14 +106,20 @@ export const CreateNotionIntegrationServiceSchema = z.object({
   title: z.string(),
 });
 
-export const createNotionIntegrationService = async (
+export const createNotionIntegrationService = (
   params: CreateNotionIntegrationServiceParams,
 ) => {
   return Result.tryPromise({
     try: async () => {
       const { formFields, formId, userId, title } = params;
       const tokenResult = await getUserCredentials(userId, "notion");
-      const tokens = tokenResult.unwrap();
+      const tokens = tokenResult.match({
+        ok: (t) => t,
+        err: (e) => {
+          console.error(e);
+          throw new Error("failed to get user credentials");
+        },
+      });
 
       const notion = new NotionIntegrationService({
         token: tokens.accessToken,
@@ -121,23 +127,26 @@ export const createNotionIntegrationService = async (
 
       const properties = getNotionInitialDataSource(formFields);
 
-      const createNotionDb = (
-        await notion.createDatabase({
-          parent: { type: "workspace", workspace: true },
-          title: [{ type: "text", text: { content: title } }],
-          initial_data_source: { properties },
-        })
-      ).unwrap();
+      const createNotionDb = await notion.createDatabase({
+        parent: { type: "workspace", workspace: true },
+        title: [{ type: "text", text: { content: title } }],
+        initial_data_source: { properties },
+      });
 
-      if (!createNotionDb.id) {
-        throw new Error("failed to create notion db");
-      }
+      const { id } = createNotionDb.match({
+        ok: (db) => db,
+        err: (e) => {
+          console.error(e);
+          throw new Error("failed to create notion database");
+        },
+      });
 
       const db = await getDb();
       const metaData = {
-        url: `https://www.notion.so/${createNotionDb.id}`,
-        id: createNotionDb.id,
+        url: `https://www.notion.so/${id}`,
+        id: id,
       };
+
       const [integrate] = await db
         .insert(integrationTable)
         .values({

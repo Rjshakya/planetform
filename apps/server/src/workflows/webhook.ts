@@ -27,7 +27,7 @@ export class WebHookIntegrationWorkflow extends WorkflowEntrypoint {
 			return await getSubmissionRecord({
 				formId,
 				values,
-				keyIsLabel: false,
+				useFieldLabelAsKey: false,
 			});
 		});
 

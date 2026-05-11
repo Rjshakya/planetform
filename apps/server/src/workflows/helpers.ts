@@ -7,27 +7,27 @@ import type { PageProperties } from "../services/notion/notion";
 export const getSubmissionRecord = async (params: {
   formId: string;
   values: (typeof response.$inferInsert)[];
-  keyIsLabel: boolean;
+  useFieldLabelAsKey: boolean;
 }) => {
-  const { formId, keyIsLabel, values } = params;
+  const { formId, useFieldLabelAsKey, values } = params;
   const formFields = await getFormFields(formId);
 
   const submission = {} as Record<string, string>;
   for (const val of values) {
     const field = formFields?.find((f) => f.id === val?.form_field);
     if (!field) continue;
-    let key = field.id.trim();
-    if (keyIsLabel) {
-      key = `${field?.label}`.trim() || "";
+    let key = field.id;
+    if (useFieldLabelAsKey) {
+      key = field.label;
     }
-    submission[key] = val.value as string;
+    submission[key.trim()] = val.value as string;
   }
   return { submission, formId };
 };
 
 export const getSheetHeader = async (formId: string) => {
   const formFields = await getFormFields(formId);
-  const headers = formFields.map((f) => `${f.index}_${f.label?.trim()}`);
+  const headers = formFields.map((f) => f.label?.trim());
   return { headers };
 };
 
@@ -54,11 +54,11 @@ export const getNotionInitialDataSource = (
 ) => {
   const fieldsRecord = formFields.reduce(
     (a, c) => {
-      const key = `${c.order}_${c.label}`.trim();
+      const key = c.label.trim();
       a[key] = { rich_text: {} };
       return a;
     },
-    {} as Record<string, any>,
+    {} as Record<string, unknown>,
   );
 
   return {
@@ -84,7 +84,7 @@ export const getNotionPropertiesFromSubmission = async (params: {
     const field = formFields.find((f) => f.id === (value.form_field as string));
     if (!field) continue;
 
-    const key = `${field.index}_${field.label}`.trim();
+    const key = field.label.trim();
     const fieldValue = value.value;
     properties![key] = {
       rich_text: [{ text: { content: fieldValue || "" } }],
@@ -100,9 +100,9 @@ export const handleMailBody = async (params: {
 }) => {
   const { body, submissions } = params;
 
-  //  this regex will check for value in these template variable {{}}
-  // if our submission record has value for the value we find in template variable
-  // we put that otherwise we put "no value"
+  // this regex will check for value in these template variable {{}}
+  // if our submission record has formField-Id that is mentioned in these template-literals {{}} ,
+  // we put that values in our mail body otherwise "no value"
 
   const templateVariableRegex = /\{\{\s*(.*?)\s*\}\}/g;
   const bodyWithValueForTemplateVariable = body.replace(
