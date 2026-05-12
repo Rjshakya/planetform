@@ -8,6 +8,7 @@
 
 :root {
   --cta-color: #f97316;
+  --landing-asset-bg: oklch(0.922 0 0);
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -115,6 +116,7 @@
 }
 
 @theme inline {
+  --color-landing-asset-bg: var(--landing-asset-bg);
   --color-cta: var(--cta-color);
   --font-sans: "Geist Sans", sans-serif;
   --font-mono: "Geist Mono Variable", monospace;

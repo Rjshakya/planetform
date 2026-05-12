@@ -50,7 +50,7 @@ export const Features = () => {
             return (
               <Card key={feature.title} className="py-2 rounded-none">
                 <CardHeader className="px-2">
-                  <div className="card-image bg-input p-4 rounded-none ">
+                  <div className="card-image  bg-input dark:bg-card p-4 rounded-none ">
                     <img src={feature.img} className="size-full " />
                   </div>
 

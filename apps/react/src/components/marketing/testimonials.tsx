@@ -35,14 +35,8 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <MarketingSection id="testimonials" background="muted">
+    <MarketingSection id="testimonials" >
       <MarketingContainer className="mb-12 grid gap-8 text-center">
-        {/* <MarketingHeader
-          badge={<Badge className="font-mono rounded-xs">Testimonials</Badge>}
-          title="Loved by teams building better forms"
-          description="See what teams are saying about Planetform and how it's helping them create better form experiences."
-          align="center"
-        /> */}
 
         <h1 className="landing-heading mb-6 text-pretty ">
           Loved by teams building better forms

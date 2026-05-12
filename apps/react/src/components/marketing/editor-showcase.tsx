@@ -24,7 +24,7 @@ export const EditorShowCase = () => {
           this works. Just type `/` to get All your commands
         </p>
 
-        <div className=" relative hero-img md:p-24 pb-0 pt-12 px-8 bg-input md:h-150  sm:h-100 h-58 overflow-hidden rounded-2xl md:mt-28 mt-12">
+        <div className="bg-landing-asset-bg ring-2 ring-ring/60 dark:ring-ring/20  drop-shadow-md  relative hero-img md:p-24 pb-0 pt-12 px-8 md:h-150  sm:h-100 h-58 overflow-hidden rounded-2xl md:mt-28 mt-12">
           <img src="/image.png" className="rounded-md scale-120" />
         </div>
       </MarketingContainer>

@@ -4,7 +4,7 @@ import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 export const CTA = () => {
   return (
-    <MarketingSection id="cta">
+    <MarketingSection id="cta" className=" ">
       <MarketingContainer className="mb-12 grid gap-8 text-center">
         <h1 className="landing-heading mb-6 text-pretty ">
           Ready to build forms effortlessly?
@@ -18,7 +18,7 @@ export const CTA = () => {
           <Link to={"/auth"} className="">
             <Button
               variant="default"
-              className={"py-5 md:py-5 pr-1 group bg-black rounded-sm gap-4 "}
+              className={"py-5 md:py-5 pr-1 group   rounded-sm gap-4 "}
               size="lg"
             >
               <p>Start for free</p>

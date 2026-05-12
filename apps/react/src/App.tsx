@@ -118,7 +118,7 @@ const router = createBrowserRouter([
 export function App() {
   return (
     <SWRConfig>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <TooltipProvider>
           <RouterProvider router={router} />
           <Toaster theme={useTheme().theme} richColors position="top-right" />
