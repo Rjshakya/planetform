@@ -1,38 +1,51 @@
-import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  MarketingContainer,
-  MarketingHeader,
-  MarketingSection,
-} from "./marketing-layout";
+import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 export const CTA = () => {
   return (
-    <MarketingSection border>
-      <MarketingContainer>
-        <MarketingHeader
-          className=""
-          title={
-            <>
-              <span className="bg-primary text-primary-foreground inline-block mb-1 px-2 py-1">
-                Ready to build
-              </span>
-              <br />
-              <span className="bg-primary text-primary-foreground inline-block px-2 py-1">
-                forms effortlessly?
-              </span>
-            </>
-          }
-          description="Join thousands of teams using Planetform to create beautiful, modern forms with powerful analytics and seamless integrations."
-          align="left"
-        />
+    <MarketingSection id="cta">
+      <MarketingContainer className="mb-12 grid gap-8 text-center">
+        <h1 className="landing-heading mb-6 text-pretty ">
+          Ready to build forms effortlessly?
+        </h1>
+        <p className="landing-sub-heading  text-center sm:mx-auto mx-2  mt-8  ">
+          Join thousands of teams using Planetform to create beautiful, modern
+          forms with powerful analytics and seamless integrations.
+        </p>
 
-        <div className="flex items-center justify-start gap-4">
-          <Link to={"/auth"}>
-            <Button variant="secondary" size="lg">
-              Start for free
-              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+        <div className="cta w-full flex justify-center mt-12">
+          <Link to={"/auth"} className="">
+            <Button
+              variant="default"
+              className={"py-5 md:py-5 pr-1 group bg-black rounded-sm gap-4 "}
+              size="lg"
+            >
+              <p>Start for free</p>
+              <span className="bg-cta grid place-content-center rounded-xs p-1.5">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className=" size-5 fill-none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M14.4302 5.92969L20.5002 11.9997L14.4302 18.0697"
+                    className=" stroke-primary-foreground"
+                    strokeWidth="1.5"
+                    strokeMiterlimit="10"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M3.5 12H20.33"
+                    className=" stroke-primary-foreground"
+                    strokeWidth="1.5"
+                    strokeMiterlimit="10"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
             </Button>
           </Link>
         </div>

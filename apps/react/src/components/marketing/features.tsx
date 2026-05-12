@@ -1,5 +1,4 @@
 import { BarChart3, Blocks, Palette, Plug } from "lucide-react";
-import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
@@ -18,7 +17,7 @@ const features = [
     icon: BarChart3,
   },
   {
-    img: "/commands-2.webp",
+    img: "/customizations.webp",
     title: "Customize everything",
     description: "Fine-tune colors, spacing, typography, layouts, and more.",
     icon: Palette,
@@ -49,13 +48,13 @@ export const Features = () => {
         <div className="grid md:grid-cols-2 gap-4 mt-24">
           {features.map((feature) => {
             return (
-              <Card key={feature.title} className="py-2">
+              <Card key={feature.title} className="py-2 rounded-none">
                 <CardHeader className="px-2">
-                  <div className="card-image p-1 bg-input">
-                    <img src={feature.img} className="size-full" />
+                  <div className="card-image bg-input p-4 rounded-none ">
+                    <img src={feature.img} className="size-full " />
                   </div>
 
-                  <div className="grid gap-2 mt-4 p-4">
+                  <div className="grid gap-2 mt-4 p-4 ">
                     <CardTitle className="text-2xl font-sans font-normal tracking-[-5%] ">
                       {feature.title}
                     </CardTitle>

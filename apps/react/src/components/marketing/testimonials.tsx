@@ -1,11 +1,6 @@
 import { Star } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
-import {
-  MarketingContainer,
-  MarketingHeader,
-  MarketingSection,
-} from "./marketing-layout";
+import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 const testimonials = [
   {
@@ -40,31 +35,34 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <MarketingSection id="testimonials">
-      <MarketingContainer>
-        <MarketingHeader
+    <MarketingSection id="testimonials" background="muted">
+      <MarketingContainer className="mb-12 grid gap-8 text-center">
+        {/* <MarketingHeader
           badge={<Badge className="font-mono rounded-xs">Testimonials</Badge>}
           title="Loved by teams building better forms"
           description="See what teams are saying about Planetform and how it's helping them create better form experiences."
-        />
+          align="center"
+        /> */}
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <h1 className="landing-heading mb-6 text-pretty ">
+          Loved by teams building better forms
+        </h1>
+        <p className="landing-sub-heading  text-center sm:mx-auto mx-2 w mt-8  ">
+          See what teams are saying about Planetform and how it's helping them
+          create better form experiences.
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-4 md:mt-28 mt-12">
           {testimonials.map((testimonial, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="flex gap-1">
-                  {Array.from({ length: testimonial.rating }).map((_, idx) => (
-                    <Star
-                      key={idx}
-                      className="size-4 fill-primary text-primary"
-                    />
-                  ))}
+            <Card key={i} className="py-2 rounded-none">
+              <CardContent className="px-4 flex-1">
+                <div className="grid gap-2 p-4">
+                  <p className="landing-sub-heading  text-center sm:mx-auto mx-2 w mt-8 ">
+                    "{testimonial.content}"
+                  </p>
                 </div>
-              </CardHeader>
-              <CardContent className="text-muted-foreground">
-                {testimonial.content}
               </CardContent>
-              <CardFooter className="grid">
+              <CardFooter className="grid px-6 pb-6">
                 <div className="font-semibold">{testimonial.name}</div>
                 <div className="text-xs text-muted-foreground">
                   {testimonial.role}

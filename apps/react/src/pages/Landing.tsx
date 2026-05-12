@@ -9,17 +9,23 @@ import { EditorShowCase } from "@/components/marketing/editor-showcase";
 export default function Landing() {
   return (
     <>
-      <main className="w-full px-3">
-        <div className=" mx-auto grid pt-4 border-x relative">
-          <Nav />
-          <Hero />
-          <EditorShowCase/>
-          <Features />
-          <Testimonials />
-          <CTA />
+      <main className="w-full">
+        {/* Content wrapper - sticky above footer */}
+        <div className="relative z-10 bg-background">
+          <div className="mx-0">
+            <div className="mx-auto grid pt-4  relative bg-background">
+              <Nav />
+              <Hero />
+              <EditorShowCase />
+              <Features />
+              <Testimonials />
+              <CTA />
+            </div>
+          </div>
         </div>
+        {/* Footer - reveals as content scrolls past */}
+        <Footer />
       </main>
-      {/* <Footer /> */}
     </>
   );
 }

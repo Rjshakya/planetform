@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useFormStore } from "@/stores/useFormStore";
-import { FormEditor } from "../tiptap/editor";
 import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 export const EditorShowCase = () => {
