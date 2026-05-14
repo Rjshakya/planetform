@@ -157,7 +157,6 @@ export const MultipleChoiceViewV2 = (props: NodeViewProps) => {
                           value={o.label}
                           id={o.id}
                         />
-                        {/* <p className={cn("mcp-single-choice-radio")}>{i + 1}</p> */}
                         {isEditable ? (
                           <input
                             className="flex-1 appearance-none focus-visible:ring-0 focus:outline-none"

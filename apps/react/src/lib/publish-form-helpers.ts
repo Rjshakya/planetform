@@ -34,7 +34,7 @@ export const filterFormFieldsFromContent = (
     const labelFromContent = f.content
       ?.map((c) => {
         if (c.type === "text") {
-          return c.text || "";
+          return c.text ?? "";
         }
         return "";
       })
