@@ -1,34 +1,26 @@
 import { useState } from "react";
-import { type AnalyticsInterval, getFormAnalytics } from "@/hooks/use-analytics";
+import { useParams } from "react-router";
+import { type AnalyticsInterval, useAnalytics } from "@/hooks/use-analytics";
 import { AnalyticsSkeleton } from "@/components/common/skeletons";
 import { AnalyticsComp } from "./analytics-comp";
 
-export const AnalyticsHome = ({
-  formId,
-  initialAnalytics,
-}: {
-  formId: string;
-  initialAnalytics: any;
-}) => {
+export const AnalyticsHome = () => {
+  const { formId } = useParams();
   const [interval, setInterval] = useState<AnalyticsInterval>("24h");
-  const [analytics, setAnalytics] = useState(initialAnalytics);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleIntervalChange = async (newInterval: AnalyticsInterval) => {
-    setInterval(newInterval);
-    setIsLoading(true);
-    const data = await getFormAnalytics(formId, newInterval);
-    setAnalytics(data);
-    setIsLoading(false);
-  };
+  const { analytics, analyticsErr, isLoading } = useAnalytics(formId, interval);
+
+  if (isLoading) {
+    return <AnalyticsSkeleton />;
+  }
 
   return (
     <AnalyticsComp
-      data={analytics}
-      error={null}
+      data={analytics!}
+      error={analyticsErr}
       isLoading={isLoading}
       interval={interval}
-      setInterval={handleIntervalChange}
+      setInterval={setInterval}
     />
   );
 };

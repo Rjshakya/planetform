@@ -1,7 +1,8 @@
 import { Copy } from "lucide-react";
 import { useMemo } from "react";
-import { Navigate } from "react-router";
+import { Navigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { useIntegrations } from "@/hooks/use-integrations";
 import { IntegrationsSkeleton } from "@/components/common/skeletons";
 import {
   Card,
@@ -24,13 +25,10 @@ import { NotionIntegration } from "./notion/notion-integration";
 import { SlackIntegration } from "./slack/slack-integration";
 import { WebhookIntegration } from "./webhook/webhook-integration";
 
-export const IntegrationsHome = ({
-  formId,
-  integrations,
-}: {
-  formId: string;
-  integrations: any[];
-}) => {
+export const IntegrationsHome = () => {
+  const { formId } = useParams();
+  const { integrations, isLoading } = useIntegrations(formId || "");
+
   const integrationUICards = useMemo(() => {
     return integrationCardsData.map((card, i) => {
       const activeData = integrations?.find((int) => int.type === card.type);
@@ -43,8 +41,12 @@ export const IntegrationsHome = ({
     });
   }, [integrations]);
 
+  if (isLoading) {
+    return <IntegrationsSkeleton />;
+  }
+
   if (!formId) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to={"/dashboard"} />;
   }
 
   return (
@@ -73,7 +75,9 @@ export const IntegrationsHome = ({
                     <InputGroupButton
                       onClick={async () => {
                         if (!window.navigator) return;
+
                         await window.navigator.clipboard.writeText(url);
+
                         toast.success("copied");
                       }}
                     >

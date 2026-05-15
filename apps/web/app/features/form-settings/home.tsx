@@ -2,10 +2,13 @@ import { Trash, TriangleAlert } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
+import { mutate } from "swr";
 import { deleteForm } from "@/hooks/use-form";
-import { resetFormSettings } from "@/hooks/use-form-settings";
+import { resetFormSettings, useFormSettings } from "@/hooks/use-form-settings";
+import { keyOfuseWorkspace } from "@/hooks/use-workspace";
 import { clientUrl } from "@/lib/hc";
 import { toastPromiseOptions } from "@/lib/toast";
+import { FormSettingsSkeleton } from "@/components/common/skeletons";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,17 +33,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { CloseSettings } from "./close-settings";
 import { FormPasswordSettings } from "./password-settings";
 
-export const FormSettingHome = ({
-  formId,
-  formSettings,
-}: {
-  formId: string;
-  formSettings: any;
-}) => {
+export const FormSettingHome = () => {
+  const { formId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const workspace = searchParams.get("workspace");
   const [open, onOpenChange] = useState(false);
+  const { formSettings, useFormSettingsLoading } = useFormSettings(formId);
 
   const handleDeleteForm = useCallback(async () => {
     if (!formId || !workspace) return;
@@ -53,6 +52,7 @@ export const FormSettingHome = ({
       }),
     );
     onOpenChange(false);
+    mutate(keyOfuseWorkspace(workspace));
     navigate(`${clientUrl}/dashboard/${workspace}`);
   }, [formId, navigate, workspace]);
 
@@ -65,6 +65,10 @@ export const FormSettingHome = ({
         success: "form setting are reset",
       }),
     );
+
+  if (useFormSettingsLoading) {
+    return <FormSettingsSkeleton />;
+  }
 
   return (
     <div className="grid gap-4">
