@@ -11,8 +11,8 @@ export async function loader({ params }: Route.LoaderArgs) {
   if (!res.ok) {
     throw new Response("Form not found", { status: 404 });
   }
-  const data = await res.json();
-  return { form: data.form as Form };
+  const data = (await res.json()) as { form: Form };
+  return { form: data?.form };
 }
 
 export const meta: Route.MetaFunction = ({ data }) => [

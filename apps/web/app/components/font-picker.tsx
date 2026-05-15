@@ -50,7 +50,7 @@ const fetcher = (key: string) =>
   fetch(
     `https://www.googleapis.com/webfonts/v1/webfonts?sort=popularity&key=${key}`,
   )
-    .then((r) => r.json())
+    .then((r) => r.json() as Promise<GoogleFontsResponse>)
     .then((d: GoogleFontsResponse) => d.items)
     .catch((err) => console.error("Error fetching fonts:", err));
 
