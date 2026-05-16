@@ -117,3 +117,35 @@ export const getFormSettings = async (formId: string) => {
 
   return data.settings;
 };
+
+export const createNewForm = async (
+  workspaceId: string,
+  userId: string,
+  formName = "Untitled Form",
+) => {
+  const res = await client.api.form.$post({
+    json: {
+      formValues: {
+        creator: userId,
+        form_schema: JSON.stringify({
+          type: "doc",
+          content: [
+            {
+              type: "heading",
+              attrs: { level: 2 },
+              content: [{ type: "text", text: formName }],
+            },
+            { type: "paragraph" },
+          ],
+        }),
+        name: formName,
+        workspace: workspaceId,
+      },
+      formCustomisation: {},
+    },
+  });
+
+  if (!res.ok) throw new Error("Failed to create form");
+  const data = await res.json();
+  return data.form as { shortId: string };
+};

@@ -12,26 +12,26 @@ import * as subscription from "./schema/subscription";
 import * as workspace from "./schema/workspace";
 
 export const getDb = async () => {
-	const client = new Client({
-		connectionString: env.HYPERDRIVE.connectionString,
-	});
+  const client = new Client({
+    connectionString: env.HYPERDRIVE.connectionString,
+  });
 
-	await client.connect();
+  await client.connect();
 
-	return drizzle({
-		client,
-		schema: {
-			...auth,
-			...workspace,
-			...form,
-			...formField,
-			...formSetting,
-			...respondent,
-			...response,
-			...integration,
-			...subscription,
-		},
-	});
+  return drizzle({
+    client,
+    schema: {
+      ...auth,
+      ...workspace,
+      ...form,
+      ...formField,
+      ...formSetting,
+      ...respondent,
+      ...response,
+      ...integration,
+      ...subscription,
+    },
+  });
 };
 
 export const getDrizzleConfig = () => {};

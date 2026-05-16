@@ -10,7 +10,11 @@ import { toggleFormClose } from "@/hooks/use-form-settings";
 import { DatePickerInput } from "@/components/ui/date-picker";
 import { Separator } from "@/components/ui/separator";
 import { InputGroup, InputGroupInput } from "@/components/ui/input-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CloseSettingsProps {
   formId: string;

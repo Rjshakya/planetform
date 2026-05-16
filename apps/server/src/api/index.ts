@@ -10,14 +10,14 @@ import subscription from "./subscription";
 import workspace from "./workspace";
 
 const api = new Hono()
-	.route("/workspace", workspace)
-	.route("/form", form)
-	.route("/formField", formField)
-	.route("/respondent", respondent)
-	.route("/response", response)
-	.route("/integration", integration)
-	.route("/file", fileUpload)
-	.route("/subscription", subscription)
-	.route("/analytics", analytics);
+  .route("/workspace", workspace)
+  .route("/form", form)
+  .route("/formField", formField)
+  .route("/respondent", respondent)
+  .route("/response", response)
+  .route("/integration", integration)
+  .route("/file", fileUpload)
+  .route("/subscription", subscription)
+  .route("/analytics", analytics);
 
 export default api;

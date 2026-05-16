@@ -83,7 +83,7 @@ export function NavMain({ workspaces }: { workspaces?: WorkspaceWithForms }) {
                             <SidebarMenuSubButton
                               onClick={() =>
                                 navigate(
-                                  `/submissions/${subItem.shortId}?name=${subItem.name}&workspace=${item.id}`,
+                                  `/dashboard/submissions/${subItem.shortId}?name=${subItem.name}&workspace=${item.id}`,
                                 )
                               }
                             >

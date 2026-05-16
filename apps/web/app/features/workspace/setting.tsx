@@ -75,7 +75,6 @@ export const WorkspaceSettings = ({
           <CardTitle className="mb-1">Update Name</CardTitle>
           <InputGroup className="bg-input/20 border-0 dark:bg-input/20">
             <InputGroupInput
-              
               value={workspacename}
               onChange={(e) => setWorkspacename(e.currentTarget.value)}
               onKeyDown={(e) => {

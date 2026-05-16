@@ -46,15 +46,18 @@ export const longInputNode = Node.create({
     ];
   },
 
-  renderHTML({ HTMLAttributes , node }) {
-    return ["long-input",  mergeAttributes(HTMLAttributes, {
+  renderHTML({ HTMLAttributes, node }) {
+    return [
+      "long-input",
+      mergeAttributes(HTMLAttributes, {
         "data-id": node.attrs.id,
         "data-label": node.attrs.label,
         "data-placeholder": node.attrs.placeholder,
         "data-rows": node.attrs.rows,
         "data-required": node.attrs.isRequired,
       }),
-      0,];
+      0,
+    ];
   },
 
   addCommands() {
@@ -72,7 +75,7 @@ export const longInputNode = Node.create({
               rows,
             },
             content: label
-              ? [{ type: "text", text: label}]
+              ? [{ type: "text", text: label }]
               : [{ type: "text", text: "Label:" }],
           });
         },

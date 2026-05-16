@@ -29,7 +29,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CloseSettings } from "./close-settings";
 import { FormPasswordSettings } from "./password-settings";
 
@@ -156,12 +160,10 @@ export const FormSettingHome = () => {
                 <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
                   <TriangleAlert />
                 </AlertDialogMedia>
-                <AlertDialogTitle>
-                  Are you absolutely sure?
-                </AlertDialogTitle>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your
-                  form and it's submissions from our database.
+                  This action cannot be undone. This will permanently delete
+                  your form and it's submissions from our database.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

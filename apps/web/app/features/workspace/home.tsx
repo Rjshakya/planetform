@@ -1,9 +1,15 @@
-import { Ellipsis, MoveUpRight, PlusIcon, TriangleAlert } from "lucide-react";
+import {
+  Ellipsis,
+  MoveUpRight,
+  PlusIcon,
+  TriangleAlert,
+  Loader2,
+} from "lucide-react";
 import { useCallback, useState } from "react";
 import { motion } from "motion/react";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams, useRevalidator } from "react-router";
 import { toast } from "sonner";
-import { deleteForm } from "@/hooks/use-form";
+import { deleteForm, createNewForm } from "@/hooks/use-form";
 import { toastPromiseOptions } from "@/lib/toast";
 import {
   AlertDialog,
@@ -45,16 +51,33 @@ export const WorkspaceHome = ({
   workspace: Workspace;
 }) => {
   const { workspaceId } = useParams();
+  const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("forms");
+  const [isCreatingForm, setIsCreatingForm] = useState(false);
+  const revalidator = useRevalidator();
 
   const handleCopy = useCallback(async (text: string) => {
     await navigator.clipboard.writeText(text);
     toast.success("copied");
   }, []);
 
+  const handleCreateForm = async () => {
+    if (!workspaceId) return;
+    setIsCreatingForm(true);
+    try {
+      const form = await createNewForm(workspaceId, user.id);
+      navigate(`/${form.shortId}/edit`);
+    } catch (error) {
+      toast.error("Failed to create form. Please try again.");
+    } finally {
+      setIsCreatingForm(false);
+    }
+  };
+
   const handleDeleteForm = useCallback(async (formId: string) => {
     await deleteForm(formId);
+    revalidator.revalidate();
   }, []);
 
   if (!workspace) {
@@ -69,12 +92,10 @@ export const WorkspaceHome = ({
     <div className=" grid gap-4">
       <div className=" flex items-center justify-between">
         <h3 className=" capitalize">{workspace.name}</h3>
-        <Link to={`/editor?workspace=${workspaceId}`}>
-          <Button>
-            <PlusIcon />
-            <span>Form</span>
-          </Button>
-        </Link>
+        <Button disabled={isCreatingForm} onClick={handleCreateForm}>
+          {isCreatingForm ? <Loader2 className="animate-spin" /> : <PlusIcon />}
+          <span>{isCreatingForm ? "Creating..." : "Form"}</span>
+        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -133,7 +154,7 @@ export const WorkspaceHome = ({
                         <ItemContent className="py-3">
                           <Link
                             className=""
-                            to={`/submissions/${f.id}?name=${f.name}&workspace=${workspaceId}`}
+                            to={`/dashboard/submissions/${f.id}?name=${f.name}&workspace=${workspaceId}`}
                             key={f.id}
                           >
                             <ItemTitle>{f.name}</ItemTitle>

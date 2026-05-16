@@ -18,7 +18,7 @@ interface GmailConfigDialogProps {
   onOpenChange: (open: boolean) => void;
   config: GmailConfig;
   onConfigChange: (config: GmailConfig) => void;
-  onConnect: () => any
+  onConnect: () => any;
   userFrom: string;
 }
 

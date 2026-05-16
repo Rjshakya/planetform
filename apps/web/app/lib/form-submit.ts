@@ -11,10 +11,13 @@ interface IsubmitResponse {
   formId: string;
   respondent: string;
   data: Record<string, string | string[]>;
-  creator:string
+  creator: string;
 }
 
-export const createRespondent = async (formId: string, formCreatorId: string) => {
+export const createRespondent = async (
+  formId: string,
+  formCreatorId: string,
+) => {
   const res = await client.api.respondent.$post({
     json: { form: formId, formCreatorId },
   });
@@ -22,8 +25,8 @@ export const createRespondent = async (formId: string, formCreatorId: string) =>
   if (!res.ok) throw new Error("failed to createRespondent");
 
   const respondent = await res.json();
-  
-  return respondent.respondent?.id
+
+  return respondent.respondent?.id;
 };
 
 export const deleteRespondent = async (respondentId: string) => {
@@ -39,9 +42,8 @@ export const submitResponse = async ({
   data,
   formId,
   respondent,
-  creator
+  creator,
 }: IsubmitResponse) => {
-
   const submissions = Object.entries(data).map(([id, value]) => {
     return {
       form: formId,

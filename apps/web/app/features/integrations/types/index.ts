@@ -6,8 +6,8 @@ export interface IntegrationCard {
   type: string;
   connected: boolean;
   description: string;
-  index:number
-  icon:JSX.Element
+  index: number;
+  icon: JSX.Element;
 }
 
 export interface IntegrationConfig {

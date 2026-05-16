@@ -6,7 +6,6 @@ import { WebHookIntegrationWorkflow } from "./webhook";
 import { EmailIntegrationWorkflow } from "./email";
 import { CustomerOnboardingWorkflow } from "./customer";
 
-
 export {
   CustomerOnboardingWorkflow,
   GmailIntegrationWorkflow,
@@ -14,5 +13,5 @@ export {
   NotionIntegrationWorkflow,
   SlackIntegrationWorkflow,
   WebHookIntegrationWorkflow,
-  EmailIntegrationWorkflow
+  EmailIntegrationWorkflow,
 };

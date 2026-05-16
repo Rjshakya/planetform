@@ -3,19 +3,22 @@ import type { Route } from "./+types/page";
 import { FormHome } from "./home";
 import { FormSkeleton } from "@/components/common/skeletons";
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const baseUrl = process.env.VITE_BACKEND_URL || "http://localhost:8787";
-  const res = await fetch(`${baseUrl}/api/form/${params.formId}`, {
+export async function loader({ params, context }: Route.LoaderArgs) {
+  const baseUrl =
+    context.cloudflare.env.VITE_BACKEND_URL ?? "http://localhost:8787";
+  const res = await fetch(`${baseUrl}/api/form/${params?.formId}`, {
     credentials: "include",
   });
+
   if (!res.ok) {
-    throw new Response("Form not found", { status: 404 });
+    const error = await res.json();
+    throw new Response(String(error), { status: res.status });
   }
   const data = (await res.json()) as { form: Form };
-  return { form: data?.form };
+  return { form: data?.form as Form };
 }
 
-export const meta: Route.MetaFunction = ({ data }) => [
+export const meta: Route.MetaFunction = ({ data }: { data: any }) => [
   { title: data?.form?.name || "Planetform" },
   {
     name: "description",

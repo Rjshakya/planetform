@@ -84,8 +84,6 @@ export class SlackIntegrationWorkflow extends WorkflowEntrypoint<ISlackIntegrati
         message: metaData.message || "",
         submissions: message,
       });
-
-      
     });
   }
 }

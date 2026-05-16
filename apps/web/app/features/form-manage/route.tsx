@@ -9,11 +9,23 @@ import {
 import { CommonMenu } from "@/components/common/common-menu";
 
 const tabs = [
-  { value: "submissions", label: "Submissions", pathPrefix: "/submissions/" },
-  { value: "analytics", label: "Analytics", pathPrefix: "/analytics/" },
-  { value: "integrations", label: "Integration", pathPrefix: "/integrations/" },
-  { value: "embed", label: "Embed", pathPrefix: "/embed/" },
-  { value: "settings", label: "Settings", pathPrefix: "/settings/" },
+  {
+    value: "submissions",
+    label: "Submissions",
+    pathPrefix: "/dashboard/submissions/",
+  },
+  {
+    value: "analytics",
+    label: "Analytics",
+    pathPrefix: "/dashboard/analytics/",
+  },
+  {
+    value: "integrations",
+    label: "Integration",
+    pathPrefix: "/dashboard/integrations/",
+  },
+  { value: "embed", label: "Embed", pathPrefix: "/dashboard/embed/" },
+  { value: "settings", label: "Settings", pathPrefix: "/dashboard/settings/" },
 ];
 
 export default function FormManageRoute() {
@@ -33,7 +45,7 @@ export default function FormManageRoute() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto pt-12 px-4 pb-8">
+    <div className="max-w-3xl mx-auto  pb-8">
       <CommonMenu />
 
       <div className="md:w-fit overflow-hidden ">

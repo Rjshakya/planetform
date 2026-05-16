@@ -15,22 +15,17 @@ export default [
       route(":workspaceId", "features/workspace/route.tsx", [
         index("features/workspace/page.tsx"),
       ]),
-    ]),
 
-    route("editor", "features/editor/route.tsx", [
-      index("features/editor/page.tsx"),
+      layout("features/form-manage/route.tsx", [
+        route("submissions/:formId", "features/submissions/page.tsx"),
+        route("analytics/:formId", "features/analytics/page.tsx"),
+        route("integrations/:formId", "features/integrations/page.tsx"),
+        route("embed/:formId", "features/embed/page.tsx"),
+        route("settings/:formId", "features/form-settings/page.tsx"),
+      ]),
     ]),
 
     route(":formId/edit", "features/edit-form/page.tsx"),
-
-    layout("features/form-manage/route.tsx", [
-      route("submissions/:formId", "features/submissions/page.tsx"),
-      route("analytics/:formId", "features/analytics/page.tsx"),
-      route("integrations/:formId", "features/integrations/page.tsx"),
-      route("embed/:formId", "features/embed/page.tsx"),
-      route("settings/:formId", "features/form-settings/page.tsx"),
-    ]),
-
     route("preview", "features/preview/page.tsx"),
   ]),
 

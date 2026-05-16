@@ -14,7 +14,6 @@ export const FormRender = ({
         lastStepIndex={lastStepIndex}
         content={content}
         className=""
-        
       />
     </div>
   );

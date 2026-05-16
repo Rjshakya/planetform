@@ -332,7 +332,9 @@ export const CustomizationPanel = () => {
                 <FontPicker
                   apiKey={googleFontsApiKey}
                   value={typography.formFontFamily || ""}
-                  onChange={(e: string) => setTypography({ formFontFamily: e || null })}
+                  onChange={(e: string) =>
+                    setTypography({ formFontFamily: e || null })
+                  }
                 />
               </div>
 

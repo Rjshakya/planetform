@@ -1,5 +1,10 @@
 import { BarChart3, Blocks, Palette, Plug } from "lucide-react";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 const features = [

@@ -7,7 +7,10 @@ import { WorkspaceSkeleton } from "@/components/common/skeletons";
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const user = await requireAuth();
   const workspace = await getWorkspace(params.workspaceId);
-  return { user, workspace: workspace.workspace as import("@/hooks/use-workspace").Workspace };
+  return {
+    user,
+    workspace: workspace.workspace as import("@/hooks/use-workspace").Workspace,
+  };
 }
 
 clientLoader.hydrate = true as const;
@@ -18,9 +21,6 @@ export function HydrateFallback() {
 
 export default function WorkspacePage({ loaderData }: Route.ComponentProps) {
   return (
-    <WorkspaceHome
-      user={loaderData.user}
-      workspace={loaderData.workspace}
-    />
+    <WorkspaceHome user={loaderData.user} workspace={loaderData.workspace} />
   );
 }

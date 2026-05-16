@@ -9,13 +9,13 @@ import * as subscription from "./subscription";
 import * as workspace from "./workspace";
 
 export {
-	auth,
-	form,
-	formField,
-	formSetting,
-	response,
-	respondent,
-	workspace,
-	integration,
-	subscription,
+  auth,
+  form,
+  formField,
+  formSetting,
+  response,
+  respondent,
+  workspace,
+  integration,
+  subscription,
 };

@@ -1,5 +1,10 @@
 import { Star } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { MarketingContainer, MarketingSection } from "./marketing-layout";
 
 const testimonials = [
@@ -35,9 +40,8 @@ const testimonials = [
 
 export const Testimonials = () => {
   return (
-    <MarketingSection id="testimonials" >
+    <MarketingSection id="testimonials">
       <MarketingContainer className="mb-12 grid gap-8 text-center">
-
         <h1 className="landing-heading mb-6 text-pretty ">
           Loved by teams building better forms
         </h1>

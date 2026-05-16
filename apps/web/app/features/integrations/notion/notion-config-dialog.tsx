@@ -16,7 +16,7 @@ interface NotionConfigDialogProps {
   onOpenChange: (open: boolean) => void;
   config: NotionConfig;
   onConfigChange: (config: NotionConfig) => void;
-  onConnect: () => any
+  onConnect: () => any;
   formFields: {
     id: string;
     label: string;

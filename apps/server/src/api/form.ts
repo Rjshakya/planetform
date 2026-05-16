@@ -7,7 +7,6 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 import {
   createFormService,
   deleteFormService,
-  formCustomizationSchema,
   getFormService,
   getFormWithMetaDataService,
   getWorkspaceFormService,

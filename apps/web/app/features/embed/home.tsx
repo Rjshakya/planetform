@@ -61,7 +61,11 @@ export const EmbedHome = () => {
                 onClick={() => copyUrl(formUrl)}
                 variant={copiedUrl ? "secondary" : "ghost"}
               >
-                {copiedUrl ? <Check className="size-4" /> : <Copy className="size-4" />}
+                {copiedUrl ? (
+                  <Check className="size-4" />
+                ) : (
+                  <Copy className="size-4" />
+                )}
               </InputGroupButton>
             </InputGroupAddon>
           </InputGroup>
@@ -72,7 +76,9 @@ export const EmbedHome = () => {
       <Card>
         <CardHeader>
           <CardTitle>iframe Embed</CardTitle>
-          <CardDescription>Copy this HTML to embed the form on your website</CardDescription>
+          <CardDescription>
+            Copy this HTML to embed the form on your website
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">

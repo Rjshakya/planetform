@@ -1,8 +1,9 @@
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Loader2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { createWorkspace } from "@/hooks/use-workspace";
+import { createNewForm } from "@/hooks/use-form";
 import { toastPromiseOptions } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +46,7 @@ export const DashboardHome = ({
     open: false,
     workspaceName: "",
   });
+  const [isCreatingForm, setIsCreatingForm] = useState(false);
 
   const onOpenChange = useCallback(
     (v: boolean) => {
@@ -69,25 +71,33 @@ export const DashboardHome = ({
   const handleFormCreate = useCallback(async () => {
     if (!workspaces || !user) return;
 
-    if (!workspaces.length) {
-      const createdWorkspaceId = await createWorkspace(
-        "my-workspace",
-        user?.id,
-      );
-      return navigate(`/editor?workspace=${createdWorkspaceId}`);
-    }
+    setIsCreatingForm(true);
 
-    const workspace = workspaces[0].id;
-    return navigate(`/editor?workspace=${workspace}`);
+    try {
+      let targetWorkspaceId: string;
+
+      if (!workspaces.length) {
+        targetWorkspaceId = await createWorkspace("my-workspace", user?.id);
+      } else {
+        targetWorkspaceId = workspaces[0].id;
+      }
+
+      const form = await createNewForm(targetWorkspaceId, user.id);
+      navigate(`/${form.shortId}/edit`);
+    } catch (error) {
+      toast.error("Failed to create form. Please try again.");
+    } finally {
+      setIsCreatingForm(false);
+    }
   }, [workspaces, navigate, user]);
 
   return (
     <div className="grid gap-4">
       <div className=" flex items-center justify-between">
         <h3>Dashboard</h3>
-        <Button onClick={handleFormCreate}>
-          <PlusIcon />
-          <span>Form</span>
+        <Button onClick={handleFormCreate} disabled={isCreatingForm}>
+          {isCreatingForm ? <Loader2 className="animate-spin" /> : <PlusIcon />}
+          <span>{isCreatingForm ? "Creating..." : "Form"}</span>
         </Button>
       </div>
 

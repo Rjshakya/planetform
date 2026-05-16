@@ -18,7 +18,7 @@ export const getDateTruncField = (interval: Interval): DateTruncFields => {
   if (interval === "7d") return "day";
   if (interval === "30d") return "week";
   if (interval === "3M" || interval === "6M" || interval === "1Y")
-  return "month";
+    return "month";
 
   return "hour";
 };
