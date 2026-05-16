@@ -49,12 +49,12 @@ export default function FormManageRoute() {
       <CommonMenu />
 
       <div className="md:w-fit overflow-hidden ">
-        <div className="flex relative bg-muted rounded-3xl p-1 gap-1 overflow-y-scroll ">
+        <div className="flex relative  bg-muted rounded-3xl p-1 gap-1 overflow-y-scroll ">
           {tabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => handleTabClick(tab.pathPrefix)}
-              className={`cursor-pointer relative capitalize px-4 py-2 text-xs font-medium  rounded-2xl transition-colors ${
+              className={` cursor-pointer relative capitalize px-4 py-2.5 text-xs font-medium  rounded-2xl transition-colors ${
                 activeTab === tab.value
                   ? "text-foreground"
                   : "text-muted-foreground hover:text-foreground"

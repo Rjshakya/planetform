@@ -26,17 +26,14 @@ export const CommonMenu = () => {
   }
 
   return (
-    <div className="">
+    <div className="mb-4">
       <div className="flex items-center justify-between">
         <Link
           target="_blank"
           to={`${clientUrl}/${formId}`}
-          className=" select-none flex items-center gap-2 mb-4 cursor-pointer"
+          className=" select-none flex items-center gap-2 cursor-pointer"
         >
           <h3 className=" capitalize ">{formName || "form"}</h3>
-          <span className="mt-1">
-            <MoveUpRight size={12} />
-          </span>
         </Link>
 
         <DropdownMenu>
