@@ -23,7 +23,7 @@ export const CommonMenu = () => {
   const handleCopy = async (text: string) => {
     await navigator.clipboard.writeText(text);
     toast.success("copied");
-  }
+  };
 
   return (
     <div className="mb-4">
@@ -37,11 +37,13 @@ export const CommonMenu = () => {
         </Link>
 
         <DropdownMenu>
-          <DropdownMenuTrigger render={
-            <Button variant={"ghost"} size={"icon-sm"}>
-              <Ellipsis />
-            </Button>
-          } />
+          <DropdownMenuTrigger
+            render={
+              <Button variant={"ghost"} size={"icon-sm"}>
+                <Ellipsis />
+              </Button>
+            }
+          />
 
           <DropdownMenuContent className={"p-1"}>
             <DropdownMenuItem className={""}>
@@ -75,11 +77,7 @@ export const CommonMenu = () => {
                     </g>
                     <defs>
                       <clipPath id="clip0_4418_4832">
-                        <rect
-                          width="24"
-                          height="24"
-                          fill="white"
-                        />
+                        <rect width="24" height="24" fill="white" />
                       </clipPath>
                     </defs>
                   </svg>
@@ -113,11 +111,7 @@ export const CommonMenu = () => {
                   </g>
                   <defs>
                     <clipPath id="clip0_4418_4699">
-                      <rect
-                        width="24"
-                        height="24"
-                        fill="white"
-                      />
+                      <rect width="24" height="24" fill="white" />
                     </clipPath>
                   </defs>
                 </svg>

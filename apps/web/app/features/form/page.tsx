@@ -18,7 +18,11 @@ export async function loader({ params, context }: Route.LoaderArgs) {
   return { form: data?.form as Form };
 }
 
-export const meta: Route.MetaFunction = ({ data }: { data: { form: Form } }) => [
+export const meta: Route.MetaFunction = ({
+  data,
+}: {
+  data: { form: Form };
+}) => [
   { title: data?.form?.name || "Planetform" },
   {
     name: "description",

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import analytics from "./analytics";
+import customDomain from "./custom.domain";
 import fileUpload from "./file.upload";
 import form from "./form";
 import formField from "./form.field";
@@ -18,6 +19,7 @@ const api = new Hono()
   .route("/integration", integration)
   .route("/file", fileUpload)
   .route("/subscription", subscription)
-  .route("/analytics", analytics);
+  .route("/analytics", analytics)
+  .route("/customDomain", customDomain);
 
 export default api;

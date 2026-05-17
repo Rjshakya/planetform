@@ -15,6 +15,9 @@ export default [
       route(":workspaceId", "features/workspace/route.tsx", [
         index("features/workspace/page.tsx"),
       ]),
+      route("custom-domains", "features/custom-domain/route.tsx", [
+        index("features/custom-domain/page.tsx"),
+      ]),
 
       layout("features/form-manage/route.tsx", [
         route("submissions/:formId", "features/submissions/page.tsx"),

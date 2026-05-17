@@ -1,4 +1,5 @@
 export { AnalyticsSkeleton } from "./analytics-skeleton";
+export { CustomDomainSkeleton } from "./custom-domain-skeleton";
 export { DashboardSkeleton } from "./dashboard-skeleton";
 export { EmbedSkeleton } from "./embed-skeleton";
 export { FormSettingsSkeleton } from "./form-settings-skeleton";

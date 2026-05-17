@@ -17,13 +17,15 @@ import { ThemeProvider, useTheme } from "@/components/common/theme-provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/svg+xml", href: "/planetform-icon.svg" },
-]
-
+];
 
 export const meta: Route.MetaFunction = () => [
   // ── Core ──────────────────────────────────────────────────────────
   { title: "Planetform" },
-  { name: "description", content: "Make forms your users actually love to fill ." },
+  {
+    name: "description",
+    content: "Make forms your users actually love to fill .",
+  },
   { name: "application-name", content: "Planetform" },
 
   // ── Canonical / robots ────────────────────────────────────────────
@@ -35,7 +37,10 @@ export const meta: Route.MetaFunction = () => [
   { property: "og:url", content: "https://planetform.xyz" },
   { property: "og:site_name", content: "Planetform" },
   { property: "og:title", content: "Planetform" },
-  { property: "og:description", content: "Make forms your users actually love to fill ." },
+  {
+    property: "og:description",
+    content: "Make forms your users actually love to fill .",
+  },
   { property: "og:image", content: "https://planetform.xyz/og-image.png" },
   { property: "og:image:width", content: "1200" },
   { property: "og:image:height", content: "630" },
@@ -44,13 +49,15 @@ export const meta: Route.MetaFunction = () => [
 
   // ── Twitter / X ───────────────────────────────────────────────────
   { name: "twitter:card", content: "summary_large_image" },
-  { name: "twitter:site", content: "@planetform" },       // your handle
+  { name: "twitter:site", content: "@planetform" }, // your handle
   { name: "twitter:creator", content: "@planetform" },
   { name: "twitter:title", content: "Planetform" },
-  { name: "twitter:description", content: "Make forms your users actually love to fill ." },
+  {
+    name: "twitter:description",
+    content: "Make forms your users actually love to fill .",
+  },
   { name: "twitter:image", content: "https://planetform.xyz/og-image.png" },
   { name: "twitter:image:alt", content: "Planetform" },
-
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
