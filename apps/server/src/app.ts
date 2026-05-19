@@ -22,17 +22,20 @@ import {
 
 const trusted_url = process.env.FRONTEND_URL;
 const trusted_domain = process.env.TRUSTED_DOMAIN;
+
 export const app = new Hono<{ Variables: { userId: string | null } }>()
-  .use(
-    cors({
-      origin:
-        env.NODE_ENV === "production"
-          ? trusted_domain
-          : [trusted_url, trusted_domain], // Replace with your frontend's origin
-      allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // Specify allowed HTTP methods
-      credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-    }),
-  )
+  /* commenting this for testing custom domain feat.
+   * .use(
+     cors({
+       origin:
+         env.NODE_ENV === "production"
+           ? trusted_domain
+           : [trusted_url, trusted_domain],
+       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+       credentials: true,
+     }),
+   )
+   */
   .use(prettyJSON())
   .use(contextStorage())
   .use(async (c, next) => {

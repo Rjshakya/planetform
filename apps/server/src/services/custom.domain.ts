@@ -8,6 +8,8 @@ import {
   HostnameStatus,
 } from "./cloudflare";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { InferInsertModel } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 class CfError extends TaggedError("CfError")<{
   message: string;
@@ -48,18 +50,15 @@ const repo = async (db: NodePgDatabase) => {
   return makeRepo<typeof customDomainTable>(db)(customDomainTable);
 };
 
-export const createCustomHostname =
+export let createCustomHostname =
   (config: { cfZoneId: string; cfApiToken: string }) =>
     (params: {
-      formId: CustomDomainModel["formId"];
       hostName: CustomDomainModel["hostName"];
     }) =>
       Result.tryPromise({
         try: async () => {
           const { cfZoneId, cfApiToken } = config;
-          const { formId, hostName } = params;
-
-          console.log("config", config)
+          const { hostName } = params;
 
           const response = await fetch(
             `https://api.cloudflare.com/client/v4/zones/${cfZoneId}/custom_hostnames`,
@@ -74,10 +73,7 @@ export const createCustomHostname =
                 ssl: {
                   method: "http", // CF validates by making an HTTP request to the domain
                   type: "dv", // domain validated cert (free, automatic)
-                },
-                custom_metadata: {
-                  formId,
-                },
+                }
               }),
             },
           );
@@ -102,38 +98,45 @@ export const createCustomHostname =
 export const createCustomDomain =
   (deps: { db: NodePgDatabase<any>; cfZoneId: string; cfApiToken: string }) =>
     (params: CreateCustomDomainParams) => {
-      return Result.gen(async function* () {
+      return Result.gen(async function*() {
         const { db, cfZoneId, cfApiToken } = deps;
         const { formId, userId, hostName } = params;
 
         const { insert, withTransaction } = await repo(db);
 
-        console.log("deps", { cfZoneId, cfApiToken })
-        const transaction = withTransaction(async (tx) => {
+        // db transaction
+        const transaction = yield* Result.await(withTransaction(async (tx) => {
+
           const createHostNameFn = createCustomHostname({ cfZoneId, cfApiToken });
-          const hostNameObj = await createHostNameFn({ formId, hostName });
+          const hostNameResult = await createHostNameFn({ hostName });
 
-          const { id, hostname, status } = hostNameObj.match({
-            ok: (a) => a,
-            err: (e) => {
-              console.error(e);
-              throw e;
-            },
-          });
+          if (!hostNameResult.isOk()) {
+            console.error(hostNameResult.error)
+            throw hostNameResult.error
+          };
 
+          const { id, hostname, status } = hostNameResult.value;
           const insertResult = await insert({
             formId,
             userId,
             hostName: hostname,
             status: status ?? "pending",
             cfId: id,
-          })(tx);
+          })(tx)
+
+          if (insertResult.isErr()) {
+            const deleteFn = deleteCustomHostname({ cfApiToken, cfZoneId })
+            await deleteFn({ cfId: id })
+          }
 
           return insertResult;
-        });
 
-        const result = yield* Result.await(transaction);
+        }))
+
+        const result = yield* transaction
         return Result.ok(result[0]);
+
+
       });
     };
 
@@ -158,15 +161,16 @@ export const deleteCustomHostname =
           const data = (await response.json()) as DeleteCustomHostnameResponse;
 
           if (!data.success) {
-            throw new CfError({
+            throw {
               message: String(data.errors?.[0]?.message),
               status: data?.errors?.[0]?.code,
-            });
+            }
           }
 
           return data.result;
         },
         catch: (error) => {
+          console.error(error)
           return new CfError({ message: String(error) });
         },
       });
@@ -174,37 +178,35 @@ export const deleteCustomHostname =
 export const deleteCustomDomain =
   (deps: { db: NodePgDatabase<any>; cfZoneId: string; cfApiToken: string }) =>
     (params: { id: CustomDomainModel["id"] }) => {
-      return Result.gen(async function* () {
+      return Result.gen(async function*() {
         const { db, cfZoneId, cfApiToken } = deps;
         const { id } = params;
         const { selectById, withTransaction, deleteById } = await repo(db);
 
-        const transaction = withTransaction(async (tx) => {
+        const transaction = yield* Result.await(withTransaction(async (tx) => {
           const domainRecords = await selectById(tx)("id")(id);
-          const domain = domainRecords.match({
-            ok: (d) => d[0],
-            err: (e) => {
-              throw e;
-            },
-          });
 
-          if (!domain.cfId) {
-            throw Result.err(
-              new CustomDomainError({
-                message: "Domain has no Cloudflare ID associated",
-                status: 400,
-              }),
-            );
+          if (!domainRecords.isOk()) {
+            console.error(domainRecords.error)
+            throw domainRecords.error
           }
 
-          const deleteHostNameFn = deleteCustomHostname({ cfZoneId, cfApiToken });
-          await deleteHostNameFn({ cfId: domain.cfId });
+          const { cfId } = domainRecords.value[0]
+
+          if (!cfId) {
+            throw new CustomDomainError({
+              message: "Domain has no Cloudflare ID associated",
+              status: 400,
+            })
+          }
 
           const deletedRecords = await deleteById("id")(id)(tx);
+          const deleteHostNameFn = deleteCustomHostname({ cfZoneId, cfApiToken });
+          await deleteHostNameFn({ cfId: cfId });
           return deletedRecords;
-        });
-        const result = yield* Result.await(transaction);
 
+        }))
+        const result = yield* transaction
         return Result.ok(result[0]);
       });
     };
@@ -270,7 +272,7 @@ export type DomainStatus = {
 export const getDomainStatus =
   (deps: { db: NodePgDatabase<any>; cfZoneId: string; cfApiToken: string }) =>
     (params: { id: CustomDomainModel["id"] }) => {
-      return Result.gen(async function* () {
+      return Result.gen(async function*() {
         const { db, cfZoneId, cfApiToken } = deps;
         const { id } = params;
         const { selectById } = await repo(db);
@@ -297,4 +299,23 @@ export const getDomainStatus =
           sslStatus: hostNameResult.ssl?.status,
         } satisfies DomainStatus);
       });
+    };
+
+type UpdateCustomDomainParams = {
+  id: CustomDomainModel["id"];
+  formId: string;
+  status: string;
+  userId: string;
+  hostName: string;
+};
+
+export const updateCustomDomain =
+  (deps: { db: NodePgDatabase<any> }) =>
+    async (params: UpdateCustomDomainParams) => {
+      const { db } = deps;
+      const { id, formId, status, userId, hostName } = params;
+      const repo = makeRepo<typeof customDomainTable>(db)(customDomainTable)
+
+      const updatedData = await repo.update("id")(id, { formId, status, userId, hostName })()
+      return updatedData
     };

@@ -1,6 +1,7 @@
 import useSWR, { mutate } from "swr";
 import { client } from "@/lib/hc";
 
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type HostnameStatus =
@@ -64,6 +65,12 @@ export interface DomainStatus {
 
 export interface CreateCustomDomainPayload {
   formId: string;
+  hostName: string;
+}
+
+export interface UpdateCustomDomainPayload {
+  formId: string;
+  status: string;
   hostName: string;
 }
 
@@ -137,6 +144,17 @@ export const getDomainCname = async () => {
   return json.data.cname;
 };
 
+export const getCustomDomainByHostname = async (hostname: string) => {
+  const res = await client.api.customDomain.hostname[":hostname"].$get({
+    param: { hostname },
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch custom domain by hostname");
+
+  const json = (await res.json()) as { data: CustomDomain; message: string };
+  return json.data;
+};
+
 // ─── SWR Hooks ────────────────────────────────────────────────────────────────
 
 export const useCustomDomains = (userId: string | null) => {
@@ -189,6 +207,25 @@ export const useDomainStatus = (id: string | null) => {
   const { data, error, isLoading, mutate } = useSWR(
     id ? keyOfUseDomainStatus(id) : null,
     fetcher,
+    {
+      refreshInterval: (data) => {
+
+        if (!data || !data.status) return 0
+        const status = data.status
+
+        if (status === "deleted"
+          || status === "active"
+          || status === "blocked"
+          || status === "moved") {
+
+          return 0
+        }
+
+
+
+        return 10000
+      }
+    }
   );
 
   return {
@@ -213,6 +250,9 @@ export const useDomainCname = () => {
     mutate,
   };
 };
+
+
+
 
 // ─── Mutation Functions ───────────────────────────────────────────────────────
 
@@ -252,6 +292,27 @@ export const deleteCustomDomain = async (
   mutate(keyOfUseCustomDomains(userId));
   mutate(keyOfUseCustomDomainByForm(formId));
   mutate(keyOfUseCustomDomain(id), null, false); // Remove single domain from cache
+
+  return json.data;
+};
+
+export const updateCustomDomain = async (
+  id: string,
+  payload: UpdateCustomDomainPayload,
+  userId: string,
+) => {
+  const res = await client.api.customDomain[":id"].$post({
+    param: { id },
+    json: payload,
+  });
+
+  if (!res.ok) throw new Error("Failed to update custom domain");
+
+  const json = (await res.json()) as { data: CustomDomain; message: string };
+
+  // Revalidate caches
+  mutate(keyOfUseCustomDomains(userId));
+  mutate(keyOfUseCustomDomain(id));
 
   return json.data;
 };

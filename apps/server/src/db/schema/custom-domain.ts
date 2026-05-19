@@ -13,9 +13,9 @@ export const customDomainTable = t.pgTable("custom_domain", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   formId: t
-    .uuid()
+    .varchar()
     .notNull()
-    .references(() => form.id, { onDelete: "cascade" }),
+    .references(() => form.shortId, { onDelete: "cascade" }),
   cfId: t.text(),
   hostName: t.text().notNull(),
   status: t.text().notNull(),
