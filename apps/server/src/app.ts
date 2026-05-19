@@ -20,22 +20,54 @@ import {
   type IntegrationQueueMesssage,
 } from "./queues/integration-queue";
 
-const trusted_url = process.env.FRONTEND_URL;
 const trusted_domain = process.env.TRUSTED_DOMAIN;
 
+// Define public routes that allow any origin
+const publicRoutes: RegExp[] = [
+  /^\/api\/form\/[^\/]+$/,
+  /^\/api\/respondent/,
+  /^\/api\/response/,
+  /^\/api\/response\/multiple/,
+  /^\/api\/customDomain\/hostname\/[^\/]+$/,
+  /^\/api\/customDomain\/cname$/,
+  /^\/api\/form\/settings\/password\/verify$/,
+  /^\/api\/form\/settings\/password\/check-auth$/,
+];
+
+function isPublicRoute(path: string): boolean {
+  return publicRoutes.some((pattern) => pattern.test(path));
+}
+
 export const app = new Hono<{ Variables: { userId: string | null } }>()
-  /* commenting this for testing custom domain feat.
-   * .use(
-     cors({
-       origin:
-         env.NODE_ENV === "production"
-           ? trusted_domain
-           : [trusted_url, trusted_domain],
-       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-       credentials: true,
-     }),
-   )
-   */
+  .use(
+    cors({
+      origin: (origin, c) => {
+        const path = c.req.path;
+
+        // Development mode - allow localhost origins
+        if (env.NODE_ENV !== "production") {
+          if (
+            origin?.includes("localhost") ||
+            origin?.includes("127.0.0.1")
+          ) {
+            return origin;
+          }
+        }
+
+        // Public routes - echo the actual origin (allows any domain)
+        if (isPublicRoute(path)) {
+          return origin || "*";
+        }
+
+        // Protected routes - only allow trusted domain
+        return trusted_domain;
+      },
+      allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+      maxAge: 600,
+    }),
+  )
   .use(prettyJSON())
   .use(contextStorage())
   .use(async (c, next) => {

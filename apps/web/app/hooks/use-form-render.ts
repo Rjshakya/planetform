@@ -57,6 +57,7 @@ export const useFormRender = (formData: Form) => {
     useFormStore.setState({
       creator: formData?.creator,
       customerId: formData?.creator,
+      formId: formData?.id
     });
     useFormSteps.setState({ totalSteps: (pages?.length || 0) - 1 });
     handleCreateRespondent(formData.id, formData?.creator);

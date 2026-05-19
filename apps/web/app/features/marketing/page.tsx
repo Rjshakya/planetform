@@ -34,7 +34,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
   // 1. Resolve hostname to domain record
   const domainRes = await fetch(
-    `${baseUrl}/api/custom-domain/hostname/${hostname}`
+    `${baseUrl}/api/customDomain/hostname/${hostname}`
   );
 
   if (!domainRes.ok) {

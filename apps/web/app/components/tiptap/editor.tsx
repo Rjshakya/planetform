@@ -257,10 +257,8 @@ export const SubmitButton = () => {
   const { pathname } = useLocation();
   const { currentStep, totalSteps } = useFormSteps((s) => s);
   const { isSubmitted } = useFormStore((s) => s);
-  const navigate = useNavigate();
 
   const isEditor = pathname.includes("/edit");
-  const isLanding = pathname === "/";
 
   const btnStyle = {
     width: "var(--form-button-width, auto)" as const,
@@ -272,20 +270,6 @@ export const SubmitButton = () => {
     return null;
   }
 
-  if (isLanding) {
-    return (
-      <div className="w-full sm:px-8 pb-4 px-4">
-        <Button
-          className="form-submit-btn"
-          type="button"
-          onClick={() => navigate("/dashboard")}
-          style={btnStyle}
-        >
-          Submit
-        </Button>
-      </div>
-    );
-  }
 
   if (isEditor) {
     return (

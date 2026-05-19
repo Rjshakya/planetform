@@ -8,8 +8,6 @@ import {
   HostnameStatus,
 } from "./cloudflare";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type { InferInsertModel } from "drizzle-orm";
-import { eq } from "drizzle-orm";
 
 class CfError extends TaggedError("CfError")<{
   message: string;
@@ -91,7 +89,7 @@ export let createCustomHostname =
         },
         catch: (error) => {
           console.error(error)
-          return new CfError({ message: String(error) });
+          return new CfError({ message: JSON.stringify(error) });
         },
       });
 
@@ -105,7 +103,7 @@ export const createCustomDomain =
         const { insert, withTransaction } = await repo(db);
 
         // db transaction
-        const transaction = yield* Result.await(withTransaction(async (tx) => {
+        const transaction = withTransaction(async (tx) => {
 
           const createHostNameFn = createCustomHostname({ cfZoneId, cfApiToken });
           const hostNameResult = await createHostNameFn({ hostName });
@@ -131,9 +129,9 @@ export const createCustomDomain =
 
           return insertResult;
 
-        }))
+        })
 
-        const result = yield* transaction
+        const result = yield* Result.await(transaction)
         return Result.ok(result[0]);
 
 
@@ -171,7 +169,7 @@ export const deleteCustomHostname =
         },
         catch: (error) => {
           console.error(error)
-          return new CfError({ message: String(error) });
+          return new CfError({ message: JSON.stringify(error) });
         },
       });
 
@@ -183,7 +181,8 @@ export const deleteCustomDomain =
         const { id } = params;
         const { selectById, withTransaction, deleteById } = await repo(db);
 
-        const transaction = yield* Result.await(withTransaction(async (tx) => {
+        // db transaction
+        const transaction = withTransaction(async (tx) => {
           const domainRecords = await selectById(tx)("id")(id);
 
           if (!domainRecords.isOk()) {
@@ -205,8 +204,8 @@ export const deleteCustomDomain =
           await deleteHostNameFn({ cfId: cfId });
           return deletedRecords;
 
-        }))
-        const result = yield* transaction
+        })
+        const result = yield* Result.await(transaction)
         return Result.ok(result[0]);
       });
     };
@@ -241,7 +240,7 @@ export const getCustomHostname =
           return data.result;
         },
         catch: (error) => {
-          return new CfError({ message: String(error) });
+          return new CfError({ message: JSON.stringify(error) });
         },
       });
 
@@ -316,6 +315,6 @@ export const updateCustomDomain =
       const { id, formId, status, userId, hostName } = params;
       const repo = makeRepo<typeof customDomainTable>(db)(customDomainTable)
 
-      const updatedData = await repo.update("id")(id, { formId, status, userId, hostName })()
-      return updatedData
+      const update = repo.update("id")(id, { formId, status, userId, hostName })
+      return await update()
     };

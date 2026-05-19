@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import z from "zod";
 import { zValidator } from "@hono/zod-validator";
@@ -30,8 +29,12 @@ const updateCustomDomainSchema = z.object({
   { message: "At least one field (formId or status) must be provided" }
 );
 
-// Public sub-router for hostname lookup (no auth required)
-const publicCustomDomain = new Hono()
+
+const customDomain = new Hono<{
+  Variables: {
+    userId: string | null;
+  };
+}>()
   .get(
     "/hostname/:hostname",
     zValidator("param", z.object({ hostname: z.string().nonoptional() })),
@@ -57,14 +60,7 @@ const publicCustomDomain = new Hono()
   .get("/cname", async (c) => {
     const cname = getDomainCname();
     return c.json(ApiResponse({ data: { cname }, message: "success" }));
-  });
-
-// Protected routes (auth required)
-const protectedCustomDomain = new Hono<{
-  Variables: {
-    userId: string | null;
-  };
-}>()
+  })
   .use(authMiddleware)
   .get("/", async (c) => {
     const userId = c.get("userId") as string;
@@ -120,7 +116,7 @@ const protectedCustomDomain = new Hono<{
     zValidator("param", z.object({ id: z.string().nonempty() })),
     async (c) => {
       const { id } = c.req.valid("param");
-      const { CLOUDFLARE_ZONE_ID: cfZoneId, CLOUDFLARE_API_TOKEN: cfApiToken } =
+      const { CLOUDFLARE_ZONE_ID: cfZoneId, CLOUDFLARE_API_TOKEN_FOR_DOMAIN: cfApiToken } =
         env;
       const db = await getDb();
 
@@ -138,7 +134,7 @@ const protectedCustomDomain = new Hono<{
   .post("/", zValidator("json", createCustomDomainSchema), async (c) => {
     const userId = c.get("userId") as string;
     const { formId, hostName } = c.req.valid("json");
-    const { CLOUDFLARE_ZONE_ID: cfZoneId, CLOUDFLARE_API_TOKEN: cfApiToken } =
+    const { CLOUDFLARE_ZONE_ID: cfZoneId, CLOUDFLARE_API_TOKEN_FOR_DOMAIN: cfApiToken } =
       env;
 
     const db = await getDb();
@@ -177,7 +173,7 @@ const protectedCustomDomain = new Hono<{
     zValidator("param", z.object({ id: z.string().nonempty() })),
     async (c) => {
       const { id } = c.req.valid("param");
-      const { CLOUDFLARE_ZONE_ID: cfZoneId, CLOUDFLARE_API_TOKEN: cfApiToken } =
+      const { CLOUDFLARE_ZONE_ID: cfZoneId, CLOUDFLARE_API_TOKEN_FOR_DOMAIN: cfApiToken } =
         env;
       const db = await getDb();
 
@@ -198,10 +194,5 @@ const protectedCustomDomain = new Hono<{
       );
     },
   );
-
-// Merge public and protected routes
-const customDomain = new Hono()
-  .route("/", publicCustomDomain)
-  .route("/", protectedCustomDomain);
 
 export default customDomain;

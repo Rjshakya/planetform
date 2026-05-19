@@ -32,6 +32,7 @@ export interface IformStore {
   creator: string | null;
   customerId: string | null;
   respondentId: string | null;
+  formId: string | null;
 }
 
 export const useFormStore = create<IformStore>((set, get) => ({
@@ -42,6 +43,7 @@ export const useFormStore = create<IformStore>((set, get) => ({
     return get()?.form;
   },
   form: null,
+  formId: null,
   setHookForm: (form) => {
     set({
       form: form,
@@ -52,27 +54,32 @@ export const useFormStore = create<IformStore>((set, get) => ({
   stepResponses: [],
   isSubmitting: false,
   isSubmitted: false,
-  handleSubmit: async ({ values, formId, path }) => {
-    const { creator, customerId } = get();
-    const isPreview = path.includes("/preview");
+  handleSubmit: async ({ values, formId: formIdFromParam, path }) => {
+
+    const { creator, customerId, formId: formIdFromStore } = get();
+    const isPreview = path.includes("/preview")
 
     if (isPreview) {
       set({ isSubmitted: true });
       return true;
     }
 
+    const formId = formIdFromStore ?? formIdFromParam
+
     if (!creator || !customerId || !values || !formId) return false;
 
-    let respondent = get().respondentId;
-    if (!respondent) {
-      respondent = (await createRespondent(formId, customerId)) ?? null;
-      if (!respondent) return false;
+    let respondentId = get().respondentId;
+
+    if (!respondentId) {
+      const freshRespondentId = await createRespondent(formId, customerId)
+      if (!freshRespondentId) return false;
+      respondentId = freshRespondentId
     }
 
     const submitted = await submitResponse({
       data: values,
       formId,
-      respondent,
+      respondent: respondentId,
       creator: get().creator || "",
     });
 
@@ -82,7 +89,7 @@ export const useFormStore = create<IformStore>((set, get) => ({
       set({ isSubmitted: true });
     }
 
-    return submitted ? true : false;
+    return !!submitted
   },
   isLastStep: true,
   activeStep: 0,

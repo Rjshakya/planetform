@@ -150,9 +150,16 @@ export const makeRepo =
       ) =>
         Result.tryPromise({
           try: async () => {
-            return await db.transaction(fn)
-            // const tx = await db.transaction(fn);
-            // return tx.unwrap();
+            const result = await db.transaction(fn)
+            if (!result.isOk()) {
+              throw {
+                message: "failed to complete db transaction",
+                error: result.error
+              }
+            }
+
+            return result.value
+
           },
           catch: (e) => new DBError({ message: String(e) }),
         });

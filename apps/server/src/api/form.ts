@@ -158,6 +158,7 @@ const form = new Hono<{
   )
   .post(
     "/settings/reset",
+    authMiddleware,
     zValidator("json", z.object({ formId: z.string() })),
     async (c) => {
       const { formId } = c.req.valid("json");
@@ -169,6 +170,7 @@ const form = new Hono<{
   )
   .post(
     "/settings/password",
+    authMiddleware,
     zValidator("json", z.object({ formId: z.string(), password: z.string() })),
     async (c) => {
       const { formId, password } = c.req.valid("json");
