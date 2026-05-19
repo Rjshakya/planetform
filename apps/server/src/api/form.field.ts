@@ -3,47 +3,47 @@ import { Hono } from "hono";
 import z from "zod";
 import { authMiddleware } from "../middlewares/authMiddleware";
 import {
-	createMultipleFormFieldService,
-	deleteFormFieldService,
-	getFormFieldsService,
+  createMultipleFormFieldService,
+  deleteFormFieldService,
+  getFormFieldsService,
 } from "../services/form.field";
 import {
-	multipleFormFieldObject,
-	updateMultipleFieldObject,
+  multipleFormFieldObject,
+  updateMultipleFieldObject,
 } from "../utils/validation";
 
 const formField = new Hono<{
-	Variables: {
-		userId: string | null;
-	};
+  Variables: {
+    userId: string | null;
+  };
 }>()
 
-	.use(authMiddleware)
-	.post("/", zValidator("json", multipleFormFieldObject), async (c) => {
-		const formFields = c.req.valid("json");
-		await createMultipleFormFieldService(formFields);
-		return c.json({ message: "Form fields created successfully" }, 200);
-	})
-	.get(
-		"/form/:formId",
-		zValidator("param", z.object({ formId: z.string().nonempty() })),
-		async (c) => {
-			const { formId } = c.req.valid("param");
-			const formFields = await getFormFieldsService(formId);
-			return c.json({ formFields }, 200);
-		},
-	)
-	.delete(
-		"/:formFieldId",
-		zValidator("param", z.object({ formFieldId: z.string().nonempty() })),
-		async (c) => {
-			const { formFieldId } = c.req.valid("param");
-			const formField = await deleteFormFieldService(formFieldId);
-			return c.json(
-				{ message: "Form field deleted successfully", formField },
-				200,
-			);
-		},
-	);
+  .use(authMiddleware)
+  .post("/", zValidator("json", multipleFormFieldObject), async (c) => {
+    const formFields = c.req.valid("json");
+    await createMultipleFormFieldService(formFields);
+    return c.json({ message: "Form fields created successfully" }, 200);
+  })
+  .get(
+    "/form/:formId",
+    zValidator("param", z.object({ formId: z.string().nonempty() })),
+    async (c) => {
+      const { formId } = c.req.valid("param");
+      const formFields = await getFormFieldsService(formId);
+      return c.json({ formFields }, 200);
+    },
+  )
+  .delete(
+    "/:formFieldId",
+    zValidator("param", z.object({ formFieldId: z.string().nonempty() })),
+    async (c) => {
+      const { formFieldId } = c.req.valid("param");
+      const formField = await deleteFormFieldService(formFieldId);
+      return c.json(
+        { message: "Form field deleted successfully", formField },
+        200,
+      );
+    },
+  );
 
 export default formField;

@@ -11,6 +11,6 @@ const subscription = new Hono<{
   .get("/", async (c) => {
     const subscriptions = await getSubscriptionPlansService();
     return c.json({ subscriptions }, 200);
-  })
+  });
 
 export default subscription;
