@@ -203,3 +203,18 @@ export class BcryptError extends TaggedError("BcryptError")<{
     super({ cause, message, operation });
   }
 }
+
+export class BillingError extends TaggedError("BillingError")<{
+  operation: string;
+  message: string;
+  cause: unknown;
+}>() {
+  constructor(args: { operation: string; cause: unknown }) {
+    const msg =
+      args.cause instanceof Error ? args.cause.message : String(args.cause);
+    super({
+      ...args,
+      message: `Billing ${args.operation} failed: ${msg}`,
+    });
+  }
+}

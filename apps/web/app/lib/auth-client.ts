@@ -1,19 +1,13 @@
-import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { client } from "./hc";
+import { polarClient } from "@polar-sh/better-auth/client"
 
 const baseUrl = import.meta.env.VITE_BACKEND_URL as string;
 const clientUrl = import.meta.env.VITE_CLIENT_URL as string;
 
 export const authClient = createAuthClient({
   baseURL: baseUrl,
-  plugins: [
-    inferAdditionalFields({
-      user: {
-        dodoCustomerId: { type: "string" },
-      },
-    }),
-  ],
+  plugins: [polarClient()],
 });
 export const signIn = async () => {
   await authClient.signIn.social({
