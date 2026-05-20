@@ -39,6 +39,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyForms } from "./empty-forms";
 import { WorkspaceSettings } from "./setting";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
+import { useCanCreateForm } from "@/hooks/gates";
 import { clientUrl } from "@/lib/env";
 import type { Workspace } from "@/hooks/use-workspace";
 import type { IUser } from "@/lib/session";
@@ -55,7 +57,11 @@ export const WorkspaceHome = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("forms");
   const [isCreatingForm, setIsCreatingForm] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const revalidator = useRevalidator();
+
+  // Check if user can create more forms in this workspace
+  const { canCreate, currentCount, maxForms, isLoading: isCheckingFormLimit } = useCanCreateForm(workspaceId || "");
 
   const handleCopy = useCallback(async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -64,6 +70,13 @@ export const WorkspaceHome = ({
 
   const handleCreateForm = async () => {
     if (!workspaceId) return;
+    
+    // Check limit before creating
+    if (!isCheckingFormLimit && !canCreate) {
+      setShowUpgradeModal(true);
+      return;
+    }
+    
     setIsCreatingForm(true);
     try {
       const form = await createNewForm(workspaceId, user.id);
@@ -369,6 +382,15 @@ export const WorkspaceHome = ({
           </motion.div>
         </TabsContent>
       </Tabs>
+
+      {/* Upgrade Modal for Form Limit */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="forms per workspace"
+        currentCount={currentCount}
+        maxCount={maxForms}
+      />
     </div>
   );
 };

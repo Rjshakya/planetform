@@ -47,6 +47,8 @@ import {
 } from "@/components/ui/select";
 import { EmptyDomains } from "./empty-domains";
 import { CustomDomainItem } from "./custom-domain-item";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
+import { useCanUseCustomDomain } from "@/hooks/gates";
 import type { WorkspaceWithForms } from "~/hooks/use-workspace";
 
 interface CustomDomainHomeProps {
@@ -63,6 +65,10 @@ export const CustomDomainHome = ({
 	const revalidator = useRevalidator();
 	const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 	const [isCreating, setIsCreating] = useState(false);
+	const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+	// Check if user can use custom domains
+	const { canUse, isLoading: isCheckingDomainAccess } = useCanUseCustomDomain();
 
 	// Form state
 	const [selectedFormId, setSelectedFormId] = useState("");
@@ -92,9 +98,24 @@ export const CustomDomainHome = ({
 		toast.success("Copied to clipboard");
 	}, []);
 
+	const handleOpenDialog = useCallback(() => {
+		// Check if user can use custom domains before opening
+		if (!isCheckingDomainAccess && !canUse) {
+			setShowUpgradeModal(true);
+			return;
+		}
+		setIsAddDialogOpen(true);
+	}, [canUse, isCheckingDomainAccess]);
+
 	const handleCreateDomain = useCallback(async () => {
 		if (!selectedFormId || !hostname) {
 			toast.error("Please select a form and enter a hostname");
+			return;
+		}
+
+		// Double-check before creating
+		if (!canUse) {
+			setShowUpgradeModal(true);
 			return;
 		}
 
@@ -114,7 +135,7 @@ export const CustomDomainHome = ({
 		} finally {
 			setIsCreating(false);
 		}
-	}, [selectedFormId, hostname, user.id, revalidator]);
+	}, [selectedFormId, hostname, user.id, revalidator, canUse]);
 
 	return (
 		<div className="grid gap-4">
@@ -124,7 +145,10 @@ export const CustomDomainHome = ({
 				<Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
 					<DialogTrigger
 						render={
-							<Button disabled={isCreating}>
+							<Button 
+								disabled={isCreating} 
+								onClick={handleOpenDialog}
+							>
 								{isCreating ? (
 									<Loader2 className="animate-spin" />
 								) : (
@@ -267,6 +291,13 @@ export const CustomDomainHome = ({
 					</ItemGroup>
 				</div>
 			</motion.div>
+
+			{/* Upgrade Modal for Custom Domain */}
+			<UpgradeModal
+				isOpen={showUpgradeModal}
+				onClose={() => setShowUpgradeModal(false)}
+				feature="custom domains"
+			/>
 		</div>
 	);
 };
