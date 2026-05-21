@@ -224,7 +224,8 @@ export const useDomainStatus = (id: string | null) => {
 
 
         return 10000
-      }
+      },
+      errorRetryCount: 1
     }
   );
 

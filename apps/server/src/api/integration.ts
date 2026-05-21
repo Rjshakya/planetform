@@ -25,6 +25,7 @@ import {
 import { SlackOauthService } from "../services/slack/oauth";
 import { env } from "cloudflare:workers";
 import { ApiResponse } from "../utils/api";
+import { canCreateEmailIntegrationMiddleware } from "../middlewares/billingGates";
 
 const integration = new Hono<{
   Variables: {
@@ -205,6 +206,7 @@ const integration = new Hono<{
   .post(
     "/email-to-respondent",
     zValidator("json", CreateEmailToRespondentIntegrationSchema),
+    canCreateEmailIntegrationMiddleware,
     async (c) => {
       const params = c.req.valid("json");
       const res = await createEmailToRespondentIntegrationService(params);

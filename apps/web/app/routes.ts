@@ -7,6 +7,7 @@ import {
 
 export default [
   index("features/marketing/page.tsx"),
+  route("pricing", "features/pricing/page.tsx"),
   route("auth", "features/auth/page.tsx"),
 
   layout("features/auth/protected.tsx", [
@@ -17,6 +18,9 @@ export default [
       ]),
       route("custom-domains", "features/custom-domain/route.tsx", [
         index("features/custom-domain/page.tsx"),
+      ]),
+      route("billing", "features/billing/route.tsx", [
+        index("features/billing/page.tsx"),
       ]),
 
       layout("features/form-manage/route.tsx", [

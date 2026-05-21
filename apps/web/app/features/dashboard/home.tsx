@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 import { Item, ItemContent, ItemGroup, ItemTitle } from "@/components/ui/item";
 import { Label } from "@/components/ui/label";
 import { EmptyWorkspaces } from "./empty-workspace";
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
+import { useCanCreateForm, useCanCreateWorkspace } from "@/hooks/gates";
 import type { IUser } from "@/lib/session";
 
 export const DashboardHome = ({
@@ -47,12 +49,22 @@ export const DashboardHome = ({
     workspaceName: "",
   });
   const [isCreatingForm, setIsCreatingForm] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // Check if user can create more workspaces
+  const { canCreate: canCreateWorkspace, currentCount, maxWorkspaces, isLoading: isCheckingWorkspaceLimit } = useCanCreateWorkspace(user?.id);
+
 
   const onOpenChange = useCallback(
     (v: boolean) => {
+      // Check limit before opening
+      if (v && !isCheckingWorkspaceLimit && !canCreateWorkspace) {
+        setShowUpgradeModal(true);
+        return;
+      }
       setWorkspaceState({ ...workspaceState, open: v });
     },
-    [workspaceState],
+    [workspaceState, canCreateWorkspace, isCheckingWorkspaceLimit],
   );
 
   const onWorkspaceNameChange = useCallback(
@@ -64,9 +76,16 @@ export const DashboardHome = ({
 
   const handleCreateWorkspace = useCallback(async () => {
     if (!user || !user.id || !workspaceState.workspaceName) return;
+
+    // Double-check limit before creating
+    if (!canCreateWorkspace) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     await createWorkspace(workspaceState.workspaceName, user.id);
     setWorkspaceState({ open: false, workspaceName: "" });
-  }, [user, workspaceState]);
+  }, [user, workspaceState, canCreateWorkspace]);
 
   const handleFormCreate = useCallback(async () => {
     if (!workspaces || !user) return;
@@ -84,8 +103,11 @@ export const DashboardHome = ({
 
       const form = await createNewForm(targetWorkspaceId, user.id);
       navigate(`/${form.shortId}/edit`);
-    } catch (error) {
-      toast.error("Failed to create form. Please try again.");
+    } catch (error: any) {
+
+      const isUpgradeRequiredErr = error?.error?.includes("UPGRADE_REQUIRED")
+      const errMessage = isUpgradeRequiredErr ? error?.message : "Failed to create form. Please try again."
+      toast.error(errMessage);
     } finally {
       setIsCreatingForm(false);
     }
@@ -154,6 +176,15 @@ export const DashboardHome = ({
           <EmptyWorkspaces />
         )}
       </ItemGroup>
+
+      {/* Upgrade Modal for Workspace Limit */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="workspaces"
+        currentCount={currentCount}
+        maxCount={maxWorkspaces}
+      />
     </div>
   );
 };

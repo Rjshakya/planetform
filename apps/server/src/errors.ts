@@ -29,22 +29,18 @@ export class ApiError extends TaggedError("ApiError")<{
   url: string;
   message: string;
   cause?: unknown;
-}>() {}
+}>() { }
 
 export class NotFoundError extends TaggedError("NotFoundError")<{
-  resource: string;
-  id: string;
+  resource?: string;
+  id?: string;
   message: string;
-}>() {
-  constructor(args: { resource: string; id: string }) {
-    super({ ...args, message: `${args.resource} not found: ${args.id}` });
-  }
-}
+}>() { }
 
 export class ValidationError extends TaggedError("ValidationError")<{
   field: string;
   message: string;
-}>() {}
+}>() { }
 
 export class UnhandledException extends TaggedError("UnhandledException")<{
   message: string;
@@ -60,7 +56,7 @@ export class UnhandledException extends TaggedError("UnhandledException")<{
 export class NonRetryableError extends TaggedError("NonRetryableError")<{
   message: string;
   cause?: unknown;
-}>() {}
+}>() { }
 
 export class GoogleSheetIntegrationError extends TaggedError(
   "GoogleSheetIntegration",
@@ -201,5 +197,20 @@ export class BcryptError extends TaggedError("BcryptError")<{
   constructor(args: { operation: string; cause: unknown; message: string }) {
     const { cause, message, operation } = args;
     super({ cause, message, operation });
+  }
+}
+
+export class BillingError extends TaggedError("BillingError")<{
+  operation: string;
+  message: string;
+  cause: unknown;
+}>() {
+  constructor(args: { operation: string; cause: unknown }) {
+    const msg =
+      args.cause instanceof Error ? args.cause.message : String(args.cause);
+    super({
+      ...args,
+      message: `Billing ${args.operation} failed: ${msg}`,
+    });
   }
 }

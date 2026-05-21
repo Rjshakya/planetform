@@ -1,9 +1,10 @@
+import { env } from "cloudflare:workers";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import z from "zod";
 import jwt from "jsonwebtoken";
-import { env } from "cloudflare:workers";
+import z from "zod";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import { canCreateFormMiddleware } from "../middlewares/billingGates";
 import {
   createFormService,
   deleteFormService,
@@ -20,16 +21,17 @@ import {
   updateFormSettingService,
   verifyPassword,
 } from "../services/form.setting";
+import { ApiResponse } from "../utils/api";
 import {
   formObject,
   formSettingObject,
   multipleFormFieldObject,
 } from "../utils/validation";
-import { ApiResponse } from "../utils/api";
 
 const form = new Hono<{
   Variables: {
     userId: string;
+    planBenefits?: import("../billing/types").Benefits;
   };
 }>()
 
@@ -43,6 +45,7 @@ const form = new Hono<{
         formCustomisation: z.object().loose(),
       }),
     ),
+    canCreateFormMiddleware,
     async (c) => {
       const { formValues, formCustomisation } = c.req.valid("json");
       const result = await createFormService({ formCustomisation, formValues });

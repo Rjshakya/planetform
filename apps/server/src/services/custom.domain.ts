@@ -8,6 +8,7 @@ import {
   HostnameStatus,
 } from "./cloudflare";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { NotFoundError } from "../errors";
 
 class CfError extends TaggedError("CfError")<{
   message: string;
@@ -211,7 +212,7 @@ export const deleteCustomDomain =
     };
 
 export const getCustomHostname =
-  (config: { cfZoneId: string; cfApiToken: string }) =>
+  (config: { cfZoneId: string; cfApiToken: string }, onNotFound: () => Promise<void>) =>
     (params: { cfId: string }) =>
       Result.tryPromise({
         try: async () => {
@@ -239,7 +240,14 @@ export const getCustomHostname =
 
           return data.result;
         },
-        catch: (error) => {
+        catch: async (error: any) => {
+          const errorMessage = error?.error?.message as string
+          if (errorMessage?.includes("The custom hostname was not found")) {
+            // clean up  
+            await onNotFound()
+            return new NotFoundError({ message: errorMessage })
+
+          }
           return new CfError({ message: JSON.stringify(error) });
         },
       });
@@ -274,7 +282,7 @@ export const getDomainStatus =
       return Result.gen(async function*() {
         const { db, cfZoneId, cfApiToken } = deps;
         const { id } = params;
-        const { selectById } = await repo(db);
+        const { selectById, deleteById } = await repo(db);
 
         const domainRecords = yield* await selectById()("id")(id);
         const domain = domainRecords[0];
@@ -288,7 +296,15 @@ export const getDomainStatus =
           );
         }
 
-        const getHostNameFn = getCustomHostname({ cfZoneId, cfApiToken });
+        // cleanup  function when hostName not found in cf 
+        const onNotFound = async () => {
+          console.log("executing:onNotFound")
+          await deleteById("id")(id)()
+          console.log("completed:onNotFound")
+        }
+
+
+        const getHostNameFn = getCustomHostname({ cfZoneId, cfApiToken }, onNotFound);
         const hostNameResult = yield* await getHostNameFn({ cfId: domain.cfId });
 
         return Result.ok({

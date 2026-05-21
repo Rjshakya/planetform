@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import z from "zod";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import { canCreateWorkspaceMiddleware } from "../middlewares/billingGates";
 
 import {
   createWorkspaceService,
@@ -16,26 +17,21 @@ import { updateWorkspaceObject, workspaceObject } from "../utils/validation";
 const workspace = new Hono<{
   Variables: {
     userId: string | null;
+    planBenefits?: import("../billing/types").Benefits;
   };
 }>()
 
   .use(authMiddleware)
-  .post("/", zValidator("json", workspaceObject), async (c) => {
-    const params = c.req.valid("json");
-    const workspace = await createWorkspaceService(params);
-
-    if (!workspace) {
-      return c.json(
-        {
-          message:
-            "Failed to create workspace , only pro user can create workspaces more than one",
-        },
-        400,
-      );
-    }
-
-    return c.json({ workspace }, 200);
-  })
+  .post(
+    "/",
+    zValidator("json", workspaceObject),
+    canCreateWorkspaceMiddleware,
+    async (c) => {
+      const params = c.req.valid("json");
+      const workspace = await createWorkspaceService(params);
+      return c.json({ workspace }, 200);
+    },
+  )
   .get(
     "/:userId",
     zValidator("param", z.object({ userId: z.string().nonempty() })),
