@@ -24,7 +24,7 @@ export const useCanCreateForm = (workspaceId: string) => {
 		};
 	}
 
-	const canCreate = maxForms === Infinity || currentCount < maxForms;
+  const canCreate = maxForms === 9999 || currentCount < maxForms;
 
 	return {
 		canCreate,

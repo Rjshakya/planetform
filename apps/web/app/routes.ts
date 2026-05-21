@@ -18,6 +18,9 @@ export default [
       route("custom-domains", "features/custom-domain/route.tsx", [
         index("features/custom-domain/page.tsx"),
       ]),
+      route("billing", "features/billing/route.tsx", [
+        index("features/billing/page.tsx"),
+      ]),
 
       layout("features/form-manage/route.tsx", [
         route("submissions/:formId", "features/submissions/page.tsx"),

@@ -1,180 +1,163 @@
+import { Result } from "better-result";
 import { eq } from "drizzle-orm";
 import { getDb } from "../db/config.js";
 import { form } from "../db/schema/form.js";
 import { workspace as workspaceTable } from "../db/schema/workspace.js";
-import { commonCatch } from "../utils/error.js";
-import { Result } from "better-result";
 import { WorkspaceServiceError } from "../errors.js";
-import { isPaidCustomer } from "./polar/customer.js";
+import { commonCatch } from "../utils/error.js";
 
 interface IupdateWorkspace {
-  data: {
-    name: string;
-  };
-  workspaceId: string;
+	data: {
+		name: string;
+	};
+	workspaceId: string;
 }
 
 export const createWorkspaceService = async (
-  workspaceValues: typeof workspaceTable.$inferInsert,
+	workspaceValues: typeof workspaceTable.$inferInsert,
 ) => {
-  const promise = async () => {
-    const db = await getDb();
-    const workspaces = await db
-      .select({ id: workspaceTable.id })
-      .from(workspaceTable)
-      .where(eq(workspaceTable.owner, workspaceValues.owner));
+	const promise = async () => {
+		const db = await getDb();
+		const [workspace] = await db
+			.insert(workspaceTable)
+			.values(workspaceValues)
+			.returning({
+				id: workspaceTable.id,
+				name: workspaceTable.name,
+				owner: workspaceTable.owner,
+			});
 
-    if (workspaces.length) {
-      const isProUser = await isPaidCustomer(workspaceValues.owner);
-      if (Result.isOk(isProUser)) {
-        if (!isProUser.value) {
-          throw new Error(
-            "user already has a workspace, limit is 1 for free users",
-          );
-        }
-      }
-    }
+		return workspace;
+	};
 
-    const [workspace] = await db
-      .insert(workspaceTable)
-      .values(workspaceValues)
-      .returning({
-        id: workspaceTable.id,
-        name: workspaceTable.name,
-        owner: workspaceTable.owner,
-      });
+	const execute = await Result.tryPromise({
+		try: promise,
+		catch: (e) =>
+			new WorkspaceServiceError({
+				cause: e,
+				operation: "createWorkspaceService",
+			}),
+	});
 
-    return workspace;
-  };
+	if (Result.isOk(execute)) {
+		return execute.value;
+	}
 
-  const execute = await Result.tryPromise({
-    try: promise,
-    catch: (e) =>
-      new WorkspaceServiceError({
-        cause: e,
-        operation: "createWorkspaceService",
-      }),
-  });
-
-  if (Result.isOk(execute)) {
-    return execute.value;
-  }
-
-  throw execute.error;
+	throw execute.error;
 };
 
 export const getUserWorkspaceService = async (
-  owner: typeof workspaceTable.$inferSelect.owner,
+	owner: typeof workspaceTable.$inferSelect.owner,
 ) => {
-  try {
-    const db = await getDb();
-    const workspace = await db
-      .select()
-      .from(workspaceTable)
-      .where(eq(workspaceTable.owner, owner));
+	try {
+		const db = await getDb();
+		const workspace = await db
+			.select()
+			.from(workspaceTable)
+			.where(eq(workspaceTable.owner, owner));
 
-    return workspace;
-  } catch (e) {
-    commonCatch(e);
-  }
+		return workspace;
+	} catch (e) {
+		commonCatch(e);
+	}
 };
 
 export const getWorkspacesWithFormsService = async (userId: string) => {
-  try {
-    const db = await getDb();
-    const res = await db.query.workspace.findMany({
-      where: eq(workspaceTable.owner, userId),
-      columns: {
-        id: true,
-        name: true,
-      },
-      with: {
-        forms: {
-          columns: {
-            name: true,
-            shortId: true,
-          },
-        },
-      },
-    });
+	try {
+		const db = await getDb();
+		const res = await db.query.workspace.findMany({
+			where: eq(workspaceTable.owner, userId),
+			columns: {
+				id: true,
+				name: true,
+			},
+			with: {
+				forms: {
+					columns: {
+						name: true,
+						shortId: true,
+					},
+				},
+			},
+		});
 
-    return res;
-  } catch (e) {
-    commonCatch(e);
-  }
+		return res;
+	} catch (e) {
+		commonCatch(e);
+	}
 };
 
 export const getWorkspaceWithFormsService = async (workspaceId: string) => {
-  try {
-    const db = await getDb();
-    const res = await db
-      .select({
-        name: workspaceTable.name,
-        id: workspaceTable.id,
-        forms: {
-          id: form.shortId,
-          name: form.name,
-          createdAt: form.createdAt,
-        },
-      })
-      .from(workspaceTable)
-      .leftJoin(form, eq(form.workspace, workspaceTable.id))
-      .where(eq(workspaceTable.id, workspaceId));
+	try {
+		const db = await getDb();
+		const res = await db
+			.select({
+				name: workspaceTable.name,
+				id: workspaceTable.id,
+				forms: {
+					id: form.shortId,
+					name: form.name,
+					createdAt: form.createdAt,
+				},
+			})
+			.from(workspaceTable)
+			.leftJoin(form, eq(form.workspace, workspaceTable.id))
+			.where(eq(workspaceTable.id, workspaceId));
 
-    const reduced = res.reduce(
-      (acc, curr) => {
-        acc.id = curr.id;
-        acc.name = curr.name;
+		const reduced = res.reduce(
+			(acc, curr) => {
+				acc.id = curr.id;
+				acc.name = curr.name;
 
-        if (!acc.forms) {
-          acc.forms = [];
-        }
+				if (!acc.forms) {
+					acc.forms = [];
+				}
 
-        if (curr.forms?.id) {
-          acc.forms.push(curr.forms);
-        }
+				if (curr.forms?.id) {
+					acc.forms.push(curr.forms);
+				}
 
-        return acc;
-      },
-      {} as {
-        name: string | null;
-        id: string;
-        forms: Array<{ id: string | null; name: string; createdAt: Date }>;
-      },
-    );
+				return acc;
+			},
+			{} as {
+				name: string | null;
+				id: string;
+				forms: Array<{ id: string | null; name: string; createdAt: Date }>;
+			},
+		);
 
-    return reduced;
-  } catch (e) {
-    commonCatch(e);
-  }
+		return reduced;
+	} catch (e) {
+		commonCatch(e);
+	}
 };
 
 export const updateWorkspaceFormService = async (params: IupdateWorkspace) => {
-  try {
-    const db = await getDb();
-    const [updated] = await db
-      .update(workspaceTable)
-      .set({ ...params.data })
-      .where(eq(workspaceTable.id, params.workspaceId))
-      .returning();
-    return updated;
-  } catch (e) {
-    commonCatch(e);
-  }
+	try {
+		const db = await getDb();
+		const [updated] = await db
+			.update(workspaceTable)
+			.set({ ...params.data })
+			.where(eq(workspaceTable.id, params.workspaceId))
+			.returning();
+		return updated;
+	} catch (e) {
+		commonCatch(e);
+	}
 };
 
 export const deleteWorkspaceService = async (
-  workspaceId: typeof workspaceTable.$inferSelect.id,
+	workspaceId: typeof workspaceTable.$inferSelect.id,
 ) => {
-  try {
-    const db = await getDb();
-    const [deleted] = await db
-      .delete(workspaceTable)
-      .where(eq(workspaceTable.id, workspaceId))
-      .returning({ id: workspaceTable.id, user: workspaceTable.owner });
+	try {
+		const db = await getDb();
+		const [deleted] = await db
+			.delete(workspaceTable)
+			.where(eq(workspaceTable.id, workspaceId))
+			.returning({ id: workspaceTable.id, user: workspaceTable.owner });
 
-    return deleted;
-  } catch (e) {
-    commonCatch(e);
-  }
+		return deleted;
+	} catch (e) {
+		commonCatch(e);
+	}
 };

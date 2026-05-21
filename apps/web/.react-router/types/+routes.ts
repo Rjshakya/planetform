@@ -28,6 +28,9 @@ type Pages = {
   "/dashboard/custom-domains": {
     params: {};
   };
+  "/dashboard/billing": {
+    params: {};
+  };
   "/dashboard/submissions/:formId": {
     params: {
       "formId": string;
@@ -76,7 +79,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth" | "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId" | "/:formId/edit" | "/preview" | "/:formId" | "/:formId/verify";
+    page: "/" | "/auth" | "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/billing" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId" | "/:formId/edit" | "/preview" | "/:formId" | "/:formId/verify";
   };
   "features/marketing/page.tsx": {
     id: "features/marketing/page";
@@ -88,11 +91,11 @@ type RouteFiles = {
   };
   "features/auth/protected.tsx": {
     id: "features/auth/protected";
-    page: "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId" | "/:formId/edit" | "/preview";
+    page: "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/billing" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId" | "/:formId/edit" | "/preview";
   };
   "features/dashboard/route.tsx": {
     id: "features/dashboard/route";
-    page: "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId";
+    page: "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/billing" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId";
   };
   "features/dashboard/page.tsx": {
     id: "features/dashboard/page";
@@ -113,6 +116,14 @@ type RouteFiles = {
   "features/custom-domain/page.tsx": {
     id: "features/custom-domain/page";
     page: "/dashboard/custom-domains";
+  };
+  "features/billing/route.tsx": {
+    id: "features/billing/route";
+    page: "/dashboard/billing";
+  };
+  "features/billing/page.tsx": {
+    id: "features/billing/page";
+    page: "/dashboard/billing";
   };
   "features/form-manage/route.tsx": {
     id: "features/form-manage/route";
@@ -171,6 +182,8 @@ type RouteModules = {
   "features/workspace/page": typeof import("./app/features/workspace/page.tsx");
   "features/custom-domain/route": typeof import("./app/features/custom-domain/route.tsx");
   "features/custom-domain/page": typeof import("./app/features/custom-domain/page.tsx");
+  "features/billing/route": typeof import("./app/features/billing/route.tsx");
+  "features/billing/page": typeof import("./app/features/billing/page.tsx");
   "features/form-manage/route": typeof import("./app/features/form-manage/route.tsx");
   "features/submissions/page": typeof import("./app/features/submissions/page.tsx");
   "features/analytics/page": typeof import("./app/features/analytics/page.tsx");

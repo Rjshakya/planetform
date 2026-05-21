@@ -24,8 +24,8 @@ export const useCanCreateWorkspace = (userId: string) => {
 		};
 	}
 
-	const canCreate =
-		maxWorkspaces === Infinity || currentCount < maxWorkspaces;
+  const canCreate =
+    maxWorkspaces === 9999 || currentCount < maxWorkspaces;
 
 	return {
 		canCreate,

@@ -1,4 +1,3 @@
-"use client";
 
 import {
   BadgeCheck,
@@ -6,7 +5,6 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,7 +40,6 @@ export function NavUser({
   const { checkout } = useCheckout();
   const { isPro, isLoading } = useSubscription();
 
-  if (!user) return null;
 
   const handleUpgrade = async () => {
     try {
@@ -59,6 +56,8 @@ export function NavUser({
       console.error("Failed to open customer portal:", error);
     }
   };
+
+  if (!user) return null;
 
   return (
     <SidebarMenu>
@@ -110,7 +109,7 @@ export function NavUser({
                 </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>
-            
+
             {/* Show Upgrade button only for non-pro users */}
             {!isLoading && !isPro && (
               <DropdownMenuGroup>

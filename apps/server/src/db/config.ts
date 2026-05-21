@@ -86,21 +86,16 @@ export const makeRepo =
 
       const deleteById =
         (key: keyof InferSelectModel<T>) =>
-          (id: string) =>
+          (id: InferSelectModel<T>[typeof key]) =>
             (tx?: TransactionDb) => {
               return Result.tryPromise({
                 try: async () => {
-                  const result = tx
-                    ? await tx
-                      .delete(table)
-                      // @ts-ignore
-                      .where(eq(table[key as keyof typeof table], id))
-                      .returning()
-                    : await db
-                      .delete(table)
-                      //  @ts-ignore
-                      .where(eq(table[key as keyof typeof table], id))
-                      .returning();
+                  const result = await (tx ?? db)
+                    .delete(table)
+                    // @ts-ignore
+                    .where(eq(table[key as keyof typeof table], id))
+                    .returning()
+
                   return result;
                 },
                 catch: (e) => new DBError({ message: String(e) }),
@@ -112,17 +107,11 @@ export const makeRepo =
           (limit = 100) => {
             return Result.tryPromise({
               try: async () => {
-                const result = tx
-                  ? await tx
-                    .select()
-                    // @ts-ignore
-                    .from(table)
-                    .limit(limit)
-                  : await db
-                    .select()
-                    // @ts-ignore
-                    .from(table)
-                    .limit(limit);
+                const result = await (tx ?? db)
+                  .select()
+                  // @ts-ignore
+                  .from(table)
+                  .limit(limit)
                 return result as InferSelectModel<T>[];
               },
               catch: (e) => new DBError({ message: String(e) }),
@@ -164,6 +153,14 @@ export const makeRepo =
           catch: (e) => new DBError({ message: String(e) }),
         });
 
+      const wrap = <T>(f: (db: NodePgDatabase<any>) => Promise<T>) => {
+
+        return Result.tryPromise({
+          try: async () => await f(db),
+          catch: (e) => new DBError({ message: JSON.stringify(e) })
+        })
+      }
+
       return {
         insert,
         update,
@@ -171,6 +168,7 @@ export const makeRepo =
         select,
         selectById,
         withTransaction,
+        wrap
       };
     };
 

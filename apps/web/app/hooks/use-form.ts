@@ -59,20 +59,20 @@ export type FormCustomisation = {
 
 export type Form =
   | {
-      id: string | null;
-      name: string;
-      form_schema: any;
-      creator: string;
-      createdAt: string;
-      updatedAt: string;
-      customerId: string;
-      customisation: ICustomizationStoreState;
-      closed: boolean | null;
-      closedMessage: string | null;
-      closingTime: string | null;
-      closeAfterSubmissions: number | null;
-      isPasswordProtected: boolean;
-    }
+    id: string | null;
+    name: string;
+    form_schema: any;
+    creator: string;
+    createdAt: string;
+    updatedAt: string;
+    customerId: string;
+    customisation: ICustomizationStoreState;
+    closed: boolean | null;
+    closedMessage: string | null;
+    closingTime: string | null;
+    closeAfterSubmissions: number | null;
+    isPasswordProtected: boolean;
+  }
   | undefined;
 
 export const useForm = (formId: string) => {
@@ -145,7 +145,10 @@ export const createNewForm = async (
     },
   });
 
-  if (!res.ok) throw new Error("Failed to create form");
+  if (!res.ok) {
+    const error = await res.json()
+    throw error
+  }
   const data = await res.json();
   return data.form as { shortId: string };
 };
