@@ -7,6 +7,7 @@ import {
 
 export default [
   index("features/marketing/page.tsx"),
+  route("pricing", "features/pricing/page.tsx"),
   route("auth", "features/auth/page.tsx"),
 
   layout("features/auth/protected.tsx", [

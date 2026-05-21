@@ -56,7 +56,7 @@ export const EmailConfigDialog = ({
   const handleConnectButton = () => {
 
     if (!isPro) {
-      //return setOpenUpgradeModel(true)
+      return setOpenUpgradeModel(true)
     }
     onOpenChange(true)
   }

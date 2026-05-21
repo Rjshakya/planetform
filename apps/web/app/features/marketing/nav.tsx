@@ -6,11 +6,11 @@ export const Nav = () => {
   return (
     <nav className="w-full bg-background px-4 border-b py-2 fixed top-0 inset-x-0 z-50">
       <div className="w-full flex items-center justify-between ">
-        <div className="logo">
+        <Link to={"/"} className="logo">
           <Logo />
-        </div>
+        </Link>
         <div className="flex items-center gap-2">
-          <Link to={"/"}>
+          <Link to={"/pricing"}>
             <Button className=" " variant={"ghost"}>
               Pricing
             </Button>

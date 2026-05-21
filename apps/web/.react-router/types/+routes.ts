@@ -14,6 +14,9 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/pricing": {
+    params: {};
+  };
   "/auth": {
     params: {};
   };
@@ -79,11 +82,15 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth" | "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/billing" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId" | "/:formId/edit" | "/preview" | "/:formId" | "/:formId/verify";
+    page: "/" | "/pricing" | "/auth" | "/dashboard" | "/dashboard/:workspaceId" | "/dashboard/custom-domains" | "/dashboard/billing" | "/dashboard/submissions/:formId" | "/dashboard/analytics/:formId" | "/dashboard/integrations/:formId" | "/dashboard/embed/:formId" | "/dashboard/settings/:formId" | "/:formId/edit" | "/preview" | "/:formId" | "/:formId/verify";
   };
   "features/marketing/page.tsx": {
     id: "features/marketing/page";
     page: "/";
+  };
+  "features/pricing/page.tsx": {
+    id: "features/pricing/page";
+    page: "/pricing";
   };
   "features/auth/page.tsx": {
     id: "features/auth/page";
@@ -174,6 +181,7 @@ type RouteFiles = {
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "features/marketing/page": typeof import("./app/features/marketing/page.tsx");
+  "features/pricing/page": typeof import("./app/features/pricing/page.tsx");
   "features/auth/page": typeof import("./app/features/auth/page.tsx");
   "features/auth/protected": typeof import("./app/features/auth/protected.tsx");
   "features/dashboard/route": typeof import("./app/features/dashboard/route.tsx");
