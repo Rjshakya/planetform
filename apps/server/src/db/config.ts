@@ -157,7 +157,7 @@ export const makeRepo =
 
         return Result.tryPromise({
           try: async () => await f(db),
-          catch: (e) => new DBError({ message: JSON.stringify(e) })
+          catch: (e) => new DBError({ message: String(e) })
         })
       }
 

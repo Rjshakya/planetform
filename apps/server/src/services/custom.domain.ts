@@ -242,7 +242,7 @@ export const getCustomHostname =
         },
         catch: async (error: any) => {
           const errorMessage = error?.error?.message as string
-          if (errorMessage.includes("The custom hostname was not found")) {
+          if (errorMessage?.includes("The custom hostname was not found")) {
             // clean up  
             await onNotFound()
             return new NotFoundError({ message: errorMessage })
