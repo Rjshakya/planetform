@@ -22,7 +22,7 @@ const SignIn = ({ className }: { className?: string }) => {
           <Button
             variant={"secondary"}
             size={"icon"}
-            className=" shrink-0 w-full h-11"
+            className=" shrink-0 w-full h-11 flex items-center gap-2"
             onClick={signIn}
           >
             <span>
@@ -53,7 +53,7 @@ const SignIn = ({ className }: { className?: string }) => {
                 />
               </svg>
             </span>
-            Continue with Google
+            <p>Continue with Google</p>
           </Button>
         </div>
       </div>
