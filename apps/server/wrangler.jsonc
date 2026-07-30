@@ -9,6 +9,11 @@
       "custom_domain": true,
       "pattern": "api.planetform.xyz",
     },
+    {
+      "custom_domain":false,
+      "pattern":"api.planetform.xyz/*",
+      "zone_name":"planetform.xyz"
+    }
   ],
   "observability": {
     "enabled": true,
@@ -89,7 +94,7 @@
     {
       "binding": "HYPERDRIVE",
       "id": "55054dd9bb9245729060d462d3daaf66",
-      "localConnectionString": "postgresql://postgres:postgres@localhost/planeformDB",
+      "localConnectionString": "postgresql://postgres:password@localhost:5476/planetformDB"
     },
   ],
   "ratelimits": [

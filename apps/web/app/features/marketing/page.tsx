@@ -10,6 +10,7 @@ import { CTA } from "./cta";
 import { Footer } from "./footer";
 import { EditorShowCase } from "./editor-showcase";
 import type { CustomDomain } from "@/hooks/use-custom-domain";
+import { getRootPageMetaTags } from "@/lib/utils";
 
 function isMainDomain(hostname: string): boolean {
   return (
@@ -29,13 +30,10 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   }
 
   // Custom domain flow
-  const baseUrl =
-    context.cloudflare.env.VITE_BACKEND_URL ?? "http://localhost:8787";
+  const baseUrl = context.cloudflare.env.VITE_BACKEND_URL ?? "http://localhost:8787";
 
   // 1. Resolve hostname to domain record
-  const domainRes = await fetch(
-    `${baseUrl}/api/customDomain/hostname/${hostname}`
-  );
+  const domainRes = await fetch(`${baseUrl}/api/customDomain/hostname/${hostname}`);
 
   if (!domainRes.ok) {
     throw new Response("Domain not found", { status: 404 });
@@ -47,12 +45,9 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   };
 
   // 2. Fetch form data using formId from domain record
-  const formRes = await fetch(
-    `${baseUrl}/api/form/${domainData.data.formId}`,
-    {
-      credentials: "include",
-    }
-  );
+  const formRes = await fetch(`${baseUrl}/api/form/${domainData.data.formId}`, {
+    credentials: "include",
+  });
 
   if (!formRes.ok) {
     throw new Response("Form not found", { status: 404 });
@@ -63,27 +58,28 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   return { type: "form" as const, form: formData.form };
 }
 
-export const meta: Route.MetaFunction = ({ data }: { data: { type: string, form: Form } }) => {
+export const meta: Route.MetaFunction = ({ data }: { data: { type: string; form: Form } }) => {
   if (data?.type === "form" && data.form) {
     return [
       { title: data.form.name || "Planetform" },
       {
         name: "description",
-        content: data.form.name
-          ? `Fill out the form: ${data.form.name}`
-          : "Planetform",
+        content: data.form.name ? `Fill out the form: ${data.form.name}` : "Planetform",
       },
     ];
   }
 
-  return [
-    { title: "Planetform - Create Beautiful Forms" },
-    {
-      name: "description",
-      content:
-        "Create beautiful, customizable forms with Planetform. Build contact forms, surveys, quizzes, and more with our intuitive drag-and-drop builder.",
-    },
-  ];
+  return getRootPageMetaTags();
+
+  //
+  // return [
+  //   { title: "Planetform - Create Beautiful Forms" },
+  //   {
+  //     name: "description",
+  //     content:
+  //       "Create beautiful, customizable forms with Planetform. Build contact forms, surveys, quizzes, and more with our intuitive drag-and-drop builder.",
+  //   },
+  // ];
 };
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {

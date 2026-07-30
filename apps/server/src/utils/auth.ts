@@ -53,13 +53,12 @@ export const getAuth = async () => {
         verification: auth.verification,
       },
     }),
-    trustedOrigins: [FRONTEND_URL, TRUSTED_DOMAIN],
+    trustedOrigins: env.NODE_ENV === "development" ? ["*"] : [FRONTEND_URL, TRUSTED_DOMAIN],
     socialProviders: {
       google: {
         prompt: "select_account",
         clientId: env.GOOGLE_CLIENT_ID,
         clientSecret: env.GOOGLE_CLIENT_SECRET,
-
       },
       notion: {
         clientId: env.NOTION_CLIENT_ID,
@@ -228,9 +227,7 @@ export const getUserCredentials = (
           refreshToken: account.refreshToken,
         })
         .from(account)
-        .where(
-          and(eq(account.userId, userId), eq(account.providerId, providerId)),
-        );
+        .where(and(eq(account.userId, userId), eq(account.providerId, providerId)));
 
       if (providerId === "google" && acc.refreshToken) {
         const tokens = await refreshGoogleAccessToken(acc.refreshToken);
@@ -250,7 +247,6 @@ export const getUserCredentials = (
         refreshToken: acc.refreshToken,
       };
     },
-    catch: (e) =>
-      new DatabaseError({ cause: e, operation: "getUserCredentials" }),
+    catch: (e) => new DatabaseError({ cause: e, operation: "getUserCredentials" }),
   });
 };

@@ -70,7 +70,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
+  --primary: oklch(0.985 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -180,7 +180,7 @@
   }
 
   .file-upload-drag-area {
-    @apply relative flex min-h-52 flex-col items-center overflow-hidden  border-3 border-dashed border-accent-foreground/20 p-4 not-data-[files]:justify-center has-[input:focus]:border-ring has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50 rounded-md  bg-input/70 dark:bg-input/70 dark:hover:bg-input hover:bg-input transition-all duration-300 ease-in-out;
+    @apply relative flex min-h-52 flex-col items-center overflow-hidden border-3 border-dashed border-accent-foreground/20 p-4 not-data-[files]:justify-center has-[input:focus]:border-ring has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50 rounded-md bg-input/70 dark:bg-input/70 dark:hover:bg-input hover:bg-input transition-all duration-300 ease-in-out;
   }
 
   .form-input-label {
@@ -192,15 +192,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply font-sans bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
 
   .landing-heading {
-    @apply max-w-lg text-4xl sm:text-5xl font-sans tracking-[-9%] text-center mx-auto;
+    @apply max-w-2xl font-semibold text-4xl sm:text-5xl font-sans tracking-[-5%] text-center mx-auto;
   }
 
   .landing-sub-heading {
@@ -242,14 +244,14 @@
 }
 
 /* ── Date Input Popover Trigger ── */
-.main-form [data-slot="popover-trigger"] > button,
+.main-form [data-slot="popover-trigger"]>button,
 .date-input-trigger {
   background-color: var(--form-input-bg, var(--default-form-input-bg));
   border-color: var(--form-input-border, var(--default-form-input-border));
   border-radius: var(--form-radius, var(--default-form-radius));
 }
 
-.main-form [data-slot="popover-trigger"] > button:focus-visible {
+.main-form [data-slot="popover-trigger"]>button:focus-visible {
   border-color: var(--form-input-focus, var(--default-form-input-focus));
 }
 

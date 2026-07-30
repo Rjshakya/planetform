@@ -24,7 +24,7 @@ export default function AuthPage() {
       <div className="hidden lg:flex items-center justify-center">
         <div className="w-full h-full relative rounded-2xl">
           <img
-            src="/auth3.jpg"
+            src="/bg-img4.webp"
             alt="auth-img"
             className="w-full h-full rounded-2xl absolute object-cover"
           />
